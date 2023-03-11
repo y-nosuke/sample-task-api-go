@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "golang.go",
+    "766b.go-outliner",
+    "premparihar.gotestexplorer",
+    "oderwat.indent-rainbow",
+    "mosapride.zenkaku",
+    "aaron-bond.better-comments",
+    "shardulm94.trailing-spaces",
+    "github.github-vscode-theme",
+    "tabnine.tabnine-vscode",
+    "windmilleng.vscode-go-autotest",
+    "mtxr.sqltools"
+  ]
+}

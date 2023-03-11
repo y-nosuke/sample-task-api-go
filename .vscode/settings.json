@@ -1,0 +1,12 @@
+{
+  "editor.insertSpaces": false,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "go.toolsEnvVars": { "GO111MODULE": "on" },
+  "go.formatTool": "goreturns",
+  "go.lintTool": "golangci-lint",
+  "go.useLanguageServer": false
+}
