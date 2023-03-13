@@ -26,9 +26,9 @@ func Router() *echo.Echo {
 	g := e.Group("/api/v1/tasks")
 
 	taskRepository := database.NewTaskRepository()
-	registerTaskUseCase := usecases.NewRegisterTaskUseCase(taskRepository)
 	taskPresenter := presenters.NewTaskPresenter()
-	taskController := controllers.NewTaskController(registerTaskUseCase, taskPresenter)
+	registerTaskUseCase := usecases.NewRegisterTaskUseCase(taskRepository, taskPresenter)
+	taskController := controllers.NewTaskController(registerTaskUseCase)
 
 	g.POST("", taskController.RegisterTask)
 

@@ -1,9 +1,10 @@
 package presenters
 
 import (
+	"context"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	"github.com/y-nosuke/sample-task-api-go/task/enterprise/entities"
 )
 
@@ -14,6 +15,7 @@ func NewTaskPresenter() *TaskPresenter {
 	return &TaskPresenter{}
 }
 
-func (p *TaskPresenter) TaskResponse(ectx echo.Context, task *entities.Task) error {
+func (p *TaskPresenter) TaskResponse(ctx context.Context, task *entities.Task) error {
+	ectx := fcontext.Ectx(ctx)
 	return ectx.JSON(http.StatusOK, task)
 }

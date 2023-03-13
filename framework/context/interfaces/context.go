@@ -34,10 +34,15 @@ func CustomContextMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(ectx echo.Context) error {
 		fmt.Println("コンテキストを初期化します。")
 		cctx := newCustomContext(ectx, context.Background())
+		cctx.WithValue(ECTX, ectx)
 		return next(cctx)
 	}
 }
 
 func Cctx(ectx echo.Context) *CustomContext {
 	return ectx.(*CustomContext)
+}
+
+func Ectx(ctx context.Context) echo.Context {
+	return ctx.Value(ECTX).(echo.Context)
 }
