@@ -35,6 +35,9 @@ go get -u github.com/go-sql-driver/mysql
 go install github.com/volatiletech/sqlboiler/v4@latest
 go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
 
+# oapi-codegen
+go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+
 go mod tidy
 ```
 
@@ -54,6 +57,18 @@ migrate -path db/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(loc
 sqlboiler mysql
 ```
 
+## oapi-codegen
+
+```sh
+mkdir -p generated/interfaces/openapi
+
+# command option
+oapi-codegen -old-config-style -templates oapi-codegen/templates/ -generate types,server,spec -package openapi -o generated/interfaces/openapi/task.gen.go sample-task-openapi/openapi.yaml
+
+# config file -templatesオブションが使えないので、こちらは使えない
+oapi-codegen --config oapi-codegen/config.yaml sample-task-openapi/openapi.yaml
+```
+
 ## 実行
 
 ```sh
@@ -70,6 +85,7 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 ## 参考
 
 - [クリーンアーキテクチャ(The Clean Architecture 翻訳)](https://blog.tai2.net/the_clean_architecture.html)
+- [【Go 言語】クリーンアーキテクチャで作る REST API](https://rightcode.co.jp/blog/information-technology/golang-clean-architecture-rest-api-syain)
 - [Clean Architecture で API Server を構築してみる](https://qiita.com/hirotakan/items/698c1f5773a3cca6193e)
 - [Echo](https://echo.labstack.com/)
   - [Guide](https://echo.labstack.com/guide/)
@@ -78,6 +94,8 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
   - [Installation](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
 - [github.com/google/UUID](https://pkg.go.dev/github.com/google/UUID)
 - [time](https://pkg.go.dev/time)
+- [deepmap/oapi-codegen](https://github.com/deepmap/oapi-codegen)
 
 - [Postgres と MySQL における id, created_at, updated_at に関するベストプラクティス](https://zenn.dev/mpyw/articles/rdb-ids-and-timestamps-best-practices)
 - [Go 言語におけるエラーハンドリングベストプラクティス](https://zenn.dev/malt03/articles/cd0365608a26c4)
+- [Echo Groups not working with OpenAPI generated code using oapi-codegen](https://stackoverflow.com/questions/70087465/echo-groups-not-working-with-openapi-generated-code-using-oapi-codegen)

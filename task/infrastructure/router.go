@@ -1,11 +1,13 @@
 package infrastructure
 
 import (
+	oapiMiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	fdatabase "github.com/y-nosuke/sample-task-api-go/framework/database/interfaces"
 	ferror "github.com/y-nosuke/sample-task-api-go/framework/error/interfaces"
+	"github.com/y-nosuke/sample-task-api-go/generated/interfaces/openapi"
 	"github.com/y-nosuke/sample-task-api-go/task/application/usecases"
 	"github.com/y-nosuke/sample-task-api-go/task/interfaces/controllers"
 	"github.com/y-nosuke/sample-task-api-go/task/interfaces/database"
@@ -15,6 +17,12 @@ import (
 func Router() *echo.Echo {
 	e := echo.New()
 
+	swagger, err := openapi.GetSwagger("/api/v1")
+	if err != nil {
+		panic(err)
+	}
+	swagger.Servers = nil
+
 	e.Use(
 		middleware.Logger(),
 		middleware.Recover(),
@@ -23,14 +31,16 @@ func Router() *echo.Echo {
 		fdatabase.TransactionMiddleware,
 	)
 
-	g := e.Group("/api/v1/tasks")
+	g := e.Group("/api/v1")
+
+	g.Use(oapiMiddleware.OapiRequestValidator(swagger))
 
 	taskRepository := database.NewTaskRepository()
 	taskPresenter := presenters.NewTaskPresenter()
 	registerTaskUseCase := usecases.NewRegisterTaskUseCase(taskRepository, taskPresenter)
 	taskController := controllers.NewTaskController(registerTaskUseCase)
 
-	g.POST("", taskController.RegisterTask)
+	openapi.RegisterHandlers(g, taskController)
 
 	return e
 }

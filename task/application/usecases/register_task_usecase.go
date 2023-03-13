@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"time"
 
 	"github.com/y-nosuke/sample-task-api-go/task/application/presenters"
 	"github.com/y-nosuke/sample-task-api-go/task/application/repositories"
@@ -12,7 +13,7 @@ import (
 type RegisterTaskUseCaseArgs struct {
 	Title    string
 	Detail   string
-	Deadline string
+	Deadline time.Time
 }
 
 type RegisterTaskUseCase struct {

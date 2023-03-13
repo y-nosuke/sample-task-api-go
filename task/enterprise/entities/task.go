@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"golang.org/x/xerrors"
 )
 
 type Task struct {
@@ -18,17 +17,8 @@ type Task struct {
 	Version   uuid.UUID
 }
 
-func NewTask(title string, detail string, deadline string) (*Task, error) {
+func NewTask(title string, detail string, deadline time.Time) (*Task, error) {
 	id := uuid.New()
-	var layout = "2006-01-02"
-	var parsedDeadline time.Time
-	if deadline != "" {
-		var err error
-		parsedDeadline, err = time.Parse(layout, deadline)
-		if err != nil {
-			return nil, xerrors.Errorf(": %w", err)
-		}
-	}
 
-	return &Task{Id: id, Title: title, Detail: detail, Completed: false, Deadline: parsedDeadline}, nil
+	return &Task{Id: id, Title: title, Detail: detail, Completed: false, Deadline: deadline}, nil
 }
