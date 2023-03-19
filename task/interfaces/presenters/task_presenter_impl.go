@@ -17,19 +17,66 @@ func NewTaskPresenter() *TaskPresenter {
 	return &TaskPresenter{}
 }
 
-func (p *TaskPresenter) TaskResponse(ctx context.Context, task *entities.Task) error {
+func (p *TaskPresenter) RegisterTaskResponse(ctx context.Context, task *entities.Task) error {
+	return p.taskResponse(ctx, http.StatusCreated, task)
+}
+
+func (p *TaskPresenter) UpdateTaskResponse(ctx context.Context, task *entities.Task) error {
+	return p.taskResponse(ctx, http.StatusOK, task)
+}
+
+func (p *TaskPresenter) GetTaskResponse(ctx context.Context, task *entities.Task) error {
+	return p.taskResponse(ctx, http.StatusOK, task)
+}
+
+func (p *TaskPresenter) taskResponse(ctx context.Context, code int, task *entities.Task) error {
 	ectx := fcontext.Ectx(ctx)
 	taskForm := openapi.TaskResponse{
-		TaskForm: openapi.TaskForm{
-			Id:        task.Id,
-			Title:     task.Title,
-			Detail:    &task.Detail,
-			Status:    &task.Completed,
-			Deadline:  &openapi_types.Date{Time: task.Deadline},
-			CreatedAt: &task.CreatedAt,
-			UpdatedAt: &task.UpdatedAt,
-			Version:   task.Version,
-		},
+		TaskForm: *taskForm(task),
 	}
+
+	return ectx.JSON(code, &taskForm)
+}
+
+func (p *TaskPresenter) TaskAllResponse(ctx context.Context, tasks []entities.Task) error {
+	ectx := fcontext.Ectx(ctx)
+
+	taskForm := openapi.GetAllTasksResponse{
+		TaskForms: taskForms(tasks),
+	}
+
 	return ectx.JSON(http.StatusOK, &taskForm)
+}
+
+func (p *TaskPresenter) NilResponse(ctx context.Context) error {
+	ectx := fcontext.Ectx(ctx)
+
+	return ectx.NoContent(http.StatusNoContent)
+}
+
+func taskForm(task *entities.Task) *openapi.TaskForm {
+	var deadline *openapi_types.Date
+	if task.Deadline != nil {
+		deadline = &openapi_types.Date{Time: *task.Deadline}
+	}
+
+	return &openapi.TaskForm{
+		Id:        task.Id,
+		Title:     task.Title,
+		Detail:    task.Detail,
+		Completed: &task.Completed,
+		Deadline:  deadline,
+		CreatedAt: task.CreatedAt,
+		UpdatedAt: task.UpdatedAt,
+		Version:   *task.Version,
+	}
+}
+
+func taskForms(tasks []entities.Task) []openapi.TaskForm {
+	var taskForms []openapi.TaskForm
+	for _, t := range tasks {
+		taskForms = append(taskForms, *taskForm(&t))
+	}
+
+	return taskForms
 }

@@ -12,8 +12,8 @@ import (
 
 type RegisterTaskUseCaseArgs struct {
 	Title    string
-	Detail   string
-	Deadline time.Time
+	Detail   *string
+	Deadline *time.Time
 }
 
 type RegisterTaskUseCase struct {
@@ -26,16 +26,13 @@ func NewRegisterTaskUseCase(taskRepository repositories.TaskRepository, taskPres
 }
 
 func (u *RegisterTaskUseCase) Invoke(ctx context.Context, args *RegisterTaskUseCaseArgs) error {
-	task, err := entities.NewTask(args.Title, args.Detail, args.Deadline)
-	if err != nil {
+	task := entities.NewTask(args.Title, args.Detail, args.Deadline)
+
+	if err := u.taskRepository.Register(ctx, task); err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
 
-	if err = u.taskRepository.Register(ctx, task); err != nil {
-		return xerrors.Errorf(": %w", err)
-	}
-
-	if err = u.taskPresenter.TaskResponse(ctx, task); err != nil {
+	if err := u.taskPresenter.RegisterTaskResponse(ctx, task); err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
 

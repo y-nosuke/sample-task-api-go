@@ -7,5 +7,9 @@ import (
 )
 
 type TaskPresenter interface {
-	TaskResponse(context.Context, *entities.Task) error
+	RegisterTaskResponse(context.Context, *entities.Task) error
+	UpdateTaskResponse(context.Context, *entities.Task) error
+	GetTaskResponse(context.Context, *entities.Task) error
+	TaskAllResponse(context.Context, []entities.Task) error
+	NilResponse(context.Context) error
 }
