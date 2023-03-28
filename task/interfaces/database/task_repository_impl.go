@@ -47,7 +47,7 @@ func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entities.Task) 
 	return nil
 }
 
-func (t *TaskRepositoryImpl) GetAll(ctx context.Context) ([]entities.Task, error) {
+func (t *TaskRepositoryImpl) GetAll(ctx context.Context) ([]*entities.Task, error) {
 	tx := ctx.Value(fdatabase.TRANSACTION).(boil.ContextExecutor)
 	taskDtos, err := dao.Tasks(qm.OrderBy("updated_at DESC")).All(ctx, tx)
 	if err != nil {
@@ -192,15 +192,15 @@ func task(taskDto *dao.Task) (*entities.Task, error) {
 	}, nil
 }
 
-func tasks(taskDtos []*dao.Task) ([]entities.Task, error) {
-	var tasks []entities.Task
+func tasks(taskDtos []*dao.Task) ([]*entities.Task, error) {
+	var tasks []*entities.Task
 	for _, t := range taskDtos {
 		task, err := task(t)
 		if err != nil {
 			return nil, xerrors.Errorf(": %w", err)
 		}
 
-		tasks = append(tasks, *task)
+		tasks = append(tasks, task)
 	}
 
 	return tasks, nil

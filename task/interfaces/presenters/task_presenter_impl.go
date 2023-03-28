@@ -38,7 +38,7 @@ func (p *TaskPresenter) taskResponse(ctx context.Context, code int, task *entiti
 	return ectx.JSON(code, &taskForm)
 }
 
-func (p *TaskPresenter) TaskAllResponse(ctx context.Context, tasks []entities.Task) error {
+func (p *TaskPresenter) TaskAllResponse(ctx context.Context, tasks []*entities.Task) error {
 	ectx := fcontext.Ectx(ctx)
 
 	taskForm := openapi.GetAllTasksResponse{
@@ -72,10 +72,10 @@ func taskForm(task *entities.Task) *openapi.TaskForm {
 	}
 }
 
-func taskForms(tasks []entities.Task) []openapi.TaskForm {
-	var taskForms []openapi.TaskForm
+func taskForms(tasks []*entities.Task) []openapi.TaskForm {
+	taskForms := make([]openapi.TaskForm, 0, 10)
 	for _, t := range tasks {
-		taskForms = append(taskForms, *taskForm(&t))
+		taskForms = append(taskForms, *taskForm(t))
 	}
 
 	return taskForms
