@@ -5,7 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
-	ferror "github.com/y-nosuke/sample-task-api-go/framework/error/interfaces/presenters"
+	ferrors "github.com/y-nosuke/sample-task-api-go/framework/errors/interfaces/presenters"
 	"golang.org/x/xerrors"
 )
 
@@ -17,7 +17,7 @@ func ErrorHandlerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		if err := next(ectx); err != nil {
 			fmt.Printf("%+v\n", xerrors.Errorf(": %w", err))
 
-			errorHandlerPresenter := ferror.NewErrorHandlerPresenter()
+			errorHandlerPresenter := ferrors.NewErrorHandlerPresenter()
 			return errorHandlerPresenter.ErrorResponse(cctx.Ctx, err)
 		}
 

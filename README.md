@@ -100,3 +100,4 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 - [Postgres と MySQL における id, created_at, updated_at に関するベストプラクティス](https://zenn.dev/mpyw/articles/rdb-ids-and-timestamps-best-practices)
 - [Go 言語におけるエラーハンドリングベストプラクティス](https://zenn.dev/malt03/articles/cd0365608a26c4)
 - [Echo Groups not working with OpenAPI generated code using oapi-codegen](https://stackoverflow.com/questions/70087465/echo-groups-not-working-with-openapi-generated-code-using-oapi-codegen)
+- [Go における ORM と、SQLBoiler 入門マニュアル](https://zenn.dev/gami/articles/0fb2cf8b36aa09)

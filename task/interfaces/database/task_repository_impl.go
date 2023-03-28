@@ -73,7 +73,9 @@ func (t *TaskRepositoryImpl) GetById(ctx context.Context, id uuid.UUID) (*entiti
 	}
 
 	taskDto, err := dao.FindTask(ctx, tx, taskId)
-	if err != nil {
+	if taskDto == nil {
+		return nil, nil
+	} else if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
 	}
 
@@ -87,24 +89,22 @@ func (t *TaskRepositoryImpl) GetById(ctx context.Context, id uuid.UUID) (*entiti
 	return task, nil
 }
 
-func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entities.Task) error {
+func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entities.Task) (int, error) {
 	taskDto, err := taskDto(task)
 	if err != nil {
-		return xerrors.Errorf(": %w", err)
+		return 0, xerrors.Errorf(": %w", err)
 	}
 
 	oldVersion := taskDto.Version
 
 	taskDto.Version, err = uuid.New().MarshalBinary()
 	if err != nil {
-		return xerrors.Errorf(": %w", err)
+		return 0, xerrors.Errorf(": %w", err)
 	}
 
 	tx := ctx.Value(fdatabase.TRANSACTION).(boil.ContextExecutor)
-	if rowsAff, err := dao.Tasks(dao.TaskWhere.ID.EQ(taskDto.ID), dao.TaskWhere.Version.EQ(oldVersion)).UpdateAll(ctx, tx, dao.M{"id": taskDto.ID, "title": taskDto.Title, "detail": taskDto.Detail, "completed": taskDto.Completed, "deadline": taskDto.Deadline, "version": taskDto.Version}); err != nil {
-		return xerrors.Errorf(": %w", err)
-	} else if rowsAff == 0 {
-		return xerrors.Errorf(": %w", err)
+	if rowsAff, err := dao.Tasks(dao.TaskWhere.ID.EQ(taskDto.ID), dao.TaskWhere.Version.EQ(oldVersion)).UpdateAll(ctx, tx, dao.M{"id": taskDto.ID, "title": taskDto.Title, "detail": taskDto.Detail, "completed": taskDto.Completed, "deadline": taskDto.Deadline, "version": taskDto.Version}); err != nil || rowsAff != 1 {
+		return int(rowsAff), xerrors.Errorf(": %w", err)
 	}
 
 	fmt.Printf("データベースのタスクが更新されました。 taskDto: %+v\n", taskDto)
@@ -112,11 +112,11 @@ func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entities.Task) er
 	task.UpdatedAt = &taskDto.UpdatedAt
 	version, err := uuid.FromBytes(taskDto.Version)
 	if err != nil {
-		return xerrors.Errorf(": %w", err)
+		return 0, xerrors.Errorf(": %w", err)
 	}
 	task.Version = &version
 
-	return nil
+	return 1, nil
 }
 
 func (t *TaskRepositoryImpl) Delete(ctx context.Context, task *entities.Task) error {

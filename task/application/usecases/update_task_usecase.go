@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	ferrors "github.com/y-nosuke/sample-task-api-go/framework/errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -30,13 +31,17 @@ func NewUpdateTaskUseCase(taskRepository repositories.TaskRepository, taskPresen
 
 func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseArgs) error {
 	task, err := u.taskRepository.GetById(ctx, args.Id)
-	if err != nil {
+	if task == nil {
+		return ferrors.New(ferrors.NotFound, "指定されたタスクが見つかりませんでした。", err)
+	} else if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
 
 	task.Update(args.Title, args.Detail, args.Completed, args.Deadline, args.Version)
 
-	if err := u.taskRepository.Update(ctx, task); err != nil {
+	if row, err := u.taskRepository.Update(ctx, task); row != 1 {
+		return ferrors.New(ferrors.Conflict, "タスクは既に更新済みです。", err)
+	} else if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
 

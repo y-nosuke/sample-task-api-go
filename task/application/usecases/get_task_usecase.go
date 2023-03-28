@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	ferrors "github.com/y-nosuke/sample-task-api-go/framework/errors"
 
 	"github.com/google/uuid"
 	"github.com/y-nosuke/sample-task-api-go/task/application/presenters"
@@ -24,7 +25,9 @@ func NewGetTaskUseCase(taskRepository repositories.TaskRepository, taskPresenter
 
 func (u *GetTaskUseCase) Invoke(ctx context.Context, args *GetTaskUseCaseArgs) error {
 	task, err := u.taskRepository.GetById(ctx, args.Id)
-	if err != nil {
+	if task == nil {
+		return ferrors.New(ferrors.NotFound, "指定されたタスクが見つかりませんでした。", err)
+	} else if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
 

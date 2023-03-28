@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	fdatabase "github.com/y-nosuke/sample-task-api-go/framework/database/interfaces"
-	ferror "github.com/y-nosuke/sample-task-api-go/framework/error/interfaces"
+	ferrors "github.com/y-nosuke/sample-task-api-go/framework/errors/interfaces"
 	"github.com/y-nosuke/sample-task-api-go/generated/interfaces/openapi"
 	"github.com/y-nosuke/sample-task-api-go/task/application/usecases"
 	"github.com/y-nosuke/sample-task-api-go/task/interfaces/controllers"
@@ -27,7 +27,7 @@ func Router() *echo.Echo {
 		middleware.Logger(),
 		middleware.Recover(),
 		fcontext.CustomContextMiddleware,
-		ferror.ErrorHandlerMiddleware,
+		ferrors.ErrorHandlerMiddleware,
 		fdatabase.TransactionMiddleware,
 	)
 
