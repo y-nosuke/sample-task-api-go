@@ -1,4 +1,4 @@
 .envrc
 tmp
-docker/volume
+docker/volumes
 generated

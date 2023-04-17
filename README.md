@@ -82,6 +82,11 @@ air
 
 curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"title": "title 1", "detail": "detail 1", "deadline": "2023-04-13"}' localhost:1323/api/v1/tasks
 
+## 管理画面
+
+- [Keycloak](http://localhost:8080/admin/)
+- [mailhog](http://localhost:8025/)
+
 ## 参考
 
 - [クリーンアーキテクチャ(The Clean Architecture 翻訳)](https://blog.tai2.net/the_clean_architecture.html)
@@ -101,3 +106,5 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 - [Go 言語におけるエラーハンドリングベストプラクティス](https://zenn.dev/malt03/articles/cd0365608a26c4)
 - [Echo Groups not working with OpenAPI generated code using oapi-codegen](https://stackoverflow.com/questions/70087465/echo-groups-not-working-with-openapi-generated-code-using-oapi-codegen)
 - [Go における ORM と、SQLBoiler 入門マニュアル](https://zenn.dev/gami/articles/0fb2cf8b36aa09)
+
+- [Cognitoで発行したトークンをGoで検証する](https://www.planet-meron.com/articles/2021/11/1119_cognito_jwt_verification/)

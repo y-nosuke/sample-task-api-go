@@ -31,9 +31,11 @@ func (p *ErrorHandlerPresenter) ErrorResponse(ctx context.Context, err error) er
 func httpStatus(err error) int {
 	var appError *ferrors.AppError
 	if errors.As(err, &appError) {
-		fmt.Println(1)
-		fmt.Printf("%T", appError)
 		switch appError.Status {
+		case ferrors.Unauthorized:
+			return http.StatusUnauthorized
+		case ferrors.Forbidden:
+			return http.StatusForbidden
 		case ferrors.NotFound:
 			return http.StatusNotFound
 		case ferrors.Conflict:
@@ -42,8 +44,6 @@ func httpStatus(err error) int {
 			return http.StatusInternalServerError
 		}
 	} else {
-		fmt.Println(4)
-		fmt.Printf("%T", err)
 		return http.StatusInternalServerError
 	}
 }

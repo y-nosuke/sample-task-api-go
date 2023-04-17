@@ -1,7 +1,9 @@
 package errors
 
 const (
-	NotFound = iota
+	Unauthorized = iota
+	Forbidden
+	NotFound
 	Conflict
 )
 

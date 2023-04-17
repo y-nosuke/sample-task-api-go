@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"fmt"
+	fauth "github.com/y-nosuke/sample-task-api-go/framework/auth/interfaces"
+	ferrors "github.com/y-nosuke/sample-task-api-go/framework/errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,6 +35,11 @@ func (c *TaskController) RegisterTask(ectx echo.Context) error {
 	fmt.Println("タスク登録処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
 
+	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	if !auth.HasAuthority("create:task") {
+		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing create:task"))
+	}
+
 	request := new(openapi.RegisterTaskRequest)
 	if err := ectx.Bind(request); err != nil {
 		return xerrors.Errorf(": %w", err)
@@ -52,6 +59,11 @@ func (c *TaskController) GetAllTasks(ectx echo.Context) error {
 	fmt.Println("タスク一覧取得処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
 
+	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	if !auth.HasAuthority("read:task") {
+		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing read:task"))
+	}
+
 	args := &usecases.GetAllTaskUseCaseArgs{}
 
 	if err := c.getAllTaskUseCase.Invoke(cctx.Ctx, args); err != nil {
@@ -65,6 +77,11 @@ func (c *TaskController) GetTask(ectx echo.Context, id uuid.UUID) error {
 	fmt.Println("タスク取得処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
 
+	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	if !auth.HasAuthority("read:task") {
+		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing read:task"))
+	}
+
 	args := &usecases.GetTaskUseCaseArgs{Id: id}
 
 	if err := c.getTaskUseCase.Invoke(cctx.Ctx, args); err != nil {
@@ -77,6 +94,11 @@ func (c *TaskController) GetTask(ectx echo.Context, id uuid.UUID) error {
 func (c *TaskController) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 	fmt.Println("タスク更新処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
+
+	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	if !auth.HasAuthority("update:task") {
+		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing update:task"))
+	}
 
 	request := new(openapi.UpdateTaskRequest)
 	if err := ectx.Bind(request); err != nil {
@@ -99,6 +121,11 @@ func (c *TaskController) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 func (c *TaskController) DeleteTask(ectx echo.Context, id uuid.UUID) error {
 	fmt.Println("タスク削除処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
+
+	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	if !auth.HasAuthority("delete:task") {
+		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing delete:task"))
+	}
 
 	args := &usecases.DeleteTaskUseCaseArgs{Id: id}
 

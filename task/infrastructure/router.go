@@ -4,6 +4,7 @@ import (
 	oapiMiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	fauth "github.com/y-nosuke/sample-task-api-go/framework/auth/interfaces"
 	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	fdatabase "github.com/y-nosuke/sample-task-api-go/framework/database/interfaces"
 	ferrors "github.com/y-nosuke/sample-task-api-go/framework/errors/interfaces"
@@ -28,6 +29,7 @@ func Router() *echo.Echo {
 		middleware.Recover(),
 		fcontext.CustomContextMiddleware,
 		ferrors.ErrorHandlerMiddleware,
+		fauth.ValidateTokenMiddleware,
 		fdatabase.TransactionMiddleware,
 	)
 

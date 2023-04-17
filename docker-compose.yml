@@ -12,11 +12,11 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE_NAME}
     volumes:
-      - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d
-      - ./docker/volume/mysql:/var/lib/mysql
+      - ./docker/resources/mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ./docker/volumes/mysql:/var/lib/mysql
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin
     container_name: phpmyadmin
     restart: always
     ports:
@@ -27,6 +27,34 @@ services:
       PMA_USER: ${DB_USER}
       PMA_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - ./docker/volume/phpmyadmin/sessions:/sessions
+      - ./docker/volumes/phpmyadmin/sessions:/sessions
     depends_on:
       - mysql
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      TZ: Asia/Tokyo
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    volumes:
+      - ./docker/volumes/keycloak:/opt/keycloak/data/h2
+    command:
+      - start-dev
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    restart: always
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    environment:
+      MH_STORAGE: maildir
+      MH_MAILDIR_PATH: /tmp
+    volumes:
+      - ./docker/volumes/mailhog:/tmp
