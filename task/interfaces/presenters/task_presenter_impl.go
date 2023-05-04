@@ -51,6 +51,12 @@ func (p *TaskPresenter) TaskAllResponse(ctx context.Context, tasks []*entities.T
 func (p *TaskPresenter) NilResponse(ctx context.Context) error {
 	ectx := fcontext.Ectx(ctx)
 
+	return ectx.NoContent(http.StatusOK)
+}
+
+func (p *TaskPresenter) NoContentResponse(ctx context.Context) error {
+	ectx := fcontext.Ectx(ctx)
+
 	return ectx.NoContent(http.StatusNoContent)
 }
 

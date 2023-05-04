@@ -43,8 +43,18 @@ func Router() *echo.Echo {
 	getAllTaskUseCase := usecases.NewGetAllTaskUseCase(taskRepository, taskPresenter)
 	getTaskUseCase := usecases.NewGetTaskUseCase(taskRepository, taskPresenter)
 	updateTaskUseCase := usecases.NewUpdateTaskUseCase(taskRepository, taskPresenter)
+	completeTaskUseCase := usecases.NewCompleteTaskUseCase(taskRepository, taskPresenter)
+	unCompleteTaskUseCase := usecases.NewUnCompleteTaskUseCase(taskRepository, taskPresenter)
 	deleteTaskUseCase := usecases.NewDeleteTaskUseCase(taskRepository, taskPresenter)
-	taskController := controllers.NewTaskController(registerTaskUseCase, getAllTaskUseCase, getTaskUseCase, updateTaskUseCase, deleteTaskUseCase)
+	taskController := controllers.NewTaskController(
+		registerTaskUseCase,
+		getAllTaskUseCase,
+		getTaskUseCase,
+		updateTaskUseCase,
+		completeTaskUseCase,
+		unCompleteTaskUseCase,
+		deleteTaskUseCase,
+	)
 
 	openapi.RegisterHandlers(g, taskController)
 

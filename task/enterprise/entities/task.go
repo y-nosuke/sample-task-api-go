@@ -30,3 +30,13 @@ func (t *Task) Update(title string, detail *string, completed bool, deadline *ti
 	t.Deadline = deadline
 	t.Version = version
 }
+
+func (t *Task) Complete(version *uuid.UUID) {
+	t.Completed = true
+	t.Version = version
+}
+
+func (t *Task) UnComplete(version *uuid.UUID) {
+	t.Completed = false
+	t.Version = version
+}

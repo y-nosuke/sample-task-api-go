@@ -35,7 +35,7 @@ func (u *DeleteTaskUseCase) Invoke(ctx context.Context, args *DeleteTaskUseCaseA
 		return xerrors.Errorf(": %w", err)
 	}
 
-	if err := u.taskPresenter.NilResponse(ctx); err != nil {
+	if err := u.taskPresenter.NoContentResponse(ctx); err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
 
