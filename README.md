@@ -107,4 +107,10 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 - [Echo Groups not working with OpenAPI generated code using oapi-codegen](https://stackoverflow.com/questions/70087465/echo-groups-not-working-with-openapi-generated-code-using-oapi-codegen)
 - [Go における ORM と、SQLBoiler 入門マニュアル](https://zenn.dev/gami/articles/0fb2cf8b36aa09)
 
-- [Cognitoで発行したトークンをGoで検証する](https://www.planet-meron.com/articles/2021/11/1119_cognito_jwt_verification/)
+- [Cognito で発行したトークンを Go で検証する](https://www.planet-meron.com/articles/2021/11/1119_cognito_jwt_verification/)
+
+### GitHub Actions
+
+- [GitHub Actions のドキュメント](https://docs.github.com/ja/actions)
+  - [Go でのビルドとテスト](https://docs.github.com/ja/actions/automating-builds-and-tests/building-and-testing-go)
+- [actions/checkout](https://github.com/actions/checkout)

@@ -10,6 +10,7 @@
     "github.github-vscode-theme",
     "tabnine.tabnine-vscode",
     "windmilleng.vscode-go-autotest",
-    "mtxr.sqltools"
+    "mtxr.sqltools",
+    "github.vscode-github-actions"
   ]
 }
