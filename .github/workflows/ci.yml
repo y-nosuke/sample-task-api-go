@@ -93,22 +93,46 @@ jobs:
 
   notify-result:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_ACTIONS_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     if: always()
     needs: build
     steps:
-      - name: slack-send
+      - name: slack-send-success
+        if: ${{ needs.build.result == 'success' }}
         uses: slackapi/slack-github-action@v1.23.0
         with:
           # For posting a rich message using Block Kit
           payload: |
             {
-              "text": "GitHub Action build result: ${{ needs.build.result }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "text": ":github: GitHub Action build result: :white_check_mark: ${{ needs.build.result }}\n\n${{ env.GITHUB_ACTIONS_URL }}",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "GitHub Action build result: ${{ needs.build.result }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    "text": ":github: GitHub Action build result: :white_check_mark: ${{ needs.build.result }}\n\n${{ env.GITHUB_ACTIONS_URL }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - name: slack-send-failure
+        if: ${{ needs.build.result == 'failure' }}
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          # For posting a rich message using Block Kit
+          payload: |
+            {
+              "text": ":github: GitHub Action build result: :x: ${{ needs.build.result }}\n\n${{ env.GITHUB_ACTIONS_URL }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":github: GitHub Action build result: :x: ${{ needs.build.result }}\n\n${{ env.GITHUB_ACTIONS_URL }}"
                   }
                 }
               ]

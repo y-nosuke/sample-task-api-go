@@ -137,6 +137,11 @@ docker push $DOCKER_IMAGE:latest
   - [Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action)
   - [Build and push Docker images](https://github.com/marketplace/actions/build-and-push-docker-images)
 
+### Slack
+
+- [Reference: Message payloads](https://api.slack.com/reference/messaging/payload)
+- [Slack 絵文字変換表【オブジェクト・記号】](https://belltree.life/slack-emoji-object-symbol/)
+
 ### docker
 
 - [dockerhub golang](https://hub.docker.com/_/golang)
