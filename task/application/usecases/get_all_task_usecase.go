@@ -20,7 +20,7 @@ func NewGetAllTaskUseCase(taskRepository repositories.TaskRepository, taskPresen
 	return &GetAllTaskUseCase{taskRepository, taskPresenter}
 }
 
-func (u *GetAllTaskUseCase) Invoke(ctx context.Context, args *GetAllTaskUseCaseArgs) error {
+func (u *GetAllTaskUseCase) Invoke(ctx context.Context, _ *GetAllTaskUseCaseArgs) error {
 	tasks, err := u.taskRepository.GetAll(ctx)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)

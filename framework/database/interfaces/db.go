@@ -26,9 +26,9 @@ func init() {
 	password := os.Getenv("DB_PASSWORD")
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
-	database_name := os.Getenv("DB_DATABASE_NAME")
+	databaseName := os.Getenv("DB_DATABASE_NAME")
 
-	dsn := user + ":" + password + "@tcp(" + host + ":" + port + ")/" + database_name + "?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := user + ":" + password + "@tcp(" + host + ":" + port + ")/" + databaseName + "?charset=utf8mb4&parseTime=True&loc=Local"
 	con, err := sql.Open("mysql", dsn)
 	if err != nil {
 		panic(err)
@@ -53,11 +53,14 @@ func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		defer func() {
 			if p := recover(); p != nil {
 				fmt.Println("ロールバックします。")
-				tx.Rollback()
+				_ = tx.Rollback()
 				panic(p)
 			} else if err != nil {
 				fmt.Println("ロールバックします。")
-				tx.Rollback()
+				err := tx.Rollback()
+				if err != nil {
+					return
+				}
 			} else {
 				fmt.Println("コミットします。")
 				err = tx.Commit()
@@ -67,6 +70,6 @@ func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 		err = next(ectx)
 
-		return err
+		return
 	}
 }
