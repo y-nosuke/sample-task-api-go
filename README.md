@@ -5,6 +5,8 @@
 ```sh
 direnv edit .
 
+export DOCKER_IMAGE=physicist00/sample-task-api-go
+
 export DB_USER=test
 export DB_PASSWORD=password
 export DB_ROOT_PASSWORD=password
@@ -87,6 +89,17 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 - [Keycloak](http://localhost:8080/admin/)
 - [mailhog](http://localhost:8025/)
 
+## docker build
+
+```sh
+docker build -t $DOCKER_IMAGE:latest .
+
+docker run -it -e DB_USER=$DB_USER -e DB_PASSWORD=$DB_PASSWORD -e DB_HOST=host.docker.internal -e DB_PORT=$DB_PORT -e DB_DATABASE_NAME=$DB_DATABASE_NAME -e AUTH_JWKS_URL=http://host.docker.internal:8080/realms/sample/protocol/openid-connect/certs -p 1323:1323 $DOCKER_IMAGE:latest
+
+docker login
+docker push $DOCKER_IMAGE:latest
+```
+
 ## 参考
 
 - [クリーンアーキテクチャ(The Clean Architecture 翻訳)](https://blog.tai2.net/the_clean_architecture.html)
@@ -113,4 +126,14 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 
 - [GitHub Actions のドキュメント](https://docs.github.com/ja/actions)
   - [Go でのビルドとテスト](https://docs.github.com/ja/actions/automating-builds-and-tests/building-and-testing-go)
-- [actions/checkout](https://github.com/actions/checkout)
+  - [Docker イメージの発行](https://docs.github.com/ja/actions/publishing-packages/publishing-docker-images)
+- GitHub Action
+  - [Checkout](https://github.com/marketplace/actions/checkout)
+  - [Setup Go environment](https://github.com/marketplace/actions/setup-go-environment)
+  - [Docker Login](https://github.com/marketplace/actions/docker-login)
+  - [Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action)
+  - [Build and push Docker images](https://github.com/marketplace/actions/build-and-push-docker-images)
+
+### docker
+
+- [dockerhub golang](https://hub.docker.com/_/golang)
