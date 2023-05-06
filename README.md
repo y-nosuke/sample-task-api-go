@@ -1,5 +1,7 @@
 # sample-task-api-go
 
+[![Actions Status](https://github.com/y-nosuke/sample-task-api-go/actions/workflows/ci.yml/badge.svg)](https://github.com/y-nosuke/sample-task-api-go/actions)
+
 ## 事前準備
 
 ```sh
@@ -128,7 +130,7 @@ docker push $DOCKER_IMAGE:latest
   - [コンテキスト](https://docs.github.com/ja/actions/learn-github-actions/contexts)
   - [Go でのビルドとテスト](https://docs.github.com/ja/actions/automating-builds-and-tests/building-and-testing-go)
   - [Docker イメージの発行](https://docs.github.com/ja/actions/publishing-packages/publishing-docker-images)
-- GitHub Action
+- [GitHub Action](https://github.com/marketplace?type=actions)
   - [Checkout](https://github.com/marketplace/actions/checkout)
   - [Setup Go environment](https://github.com/marketplace/actions/setup-go-environment)
   - [Docker Login](https://github.com/marketplace/actions/docker-login)
