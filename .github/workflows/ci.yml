@@ -55,13 +55,7 @@ jobs:
         run: migrate -path db/migrations -database "mysql://$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE_NAME?multiStatements=true" up
 
       - name: Generate
-        run: |
-          sqlboiler mysql
-          mkdir -p generated/interfaces/openapi
-          oapi-codegen -old-config-style -templates oapi-codegen/templates/ -generate types,server,spec -package openapi -o generated/interfaces/openapi/task.gen.go sample-task-openapi/openapi.yaml
-
-      - name: Build
-        run: go build -v ./...
+        run: make generate
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3.4.0
@@ -69,7 +63,7 @@ jobs:
           version: latest
 
       - name: Test
-        run: go test -v ./...
+        run: make test
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2.1.0

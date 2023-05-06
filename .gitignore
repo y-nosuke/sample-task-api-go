@@ -2,3 +2,4 @@
 tmp
 docker/volumes
 generated
+bin

@@ -11,6 +11,7 @@
     "tabnine.tabnine-vscode",
     "windmilleng.vscode-go-autotest",
     "mtxr.sqltools",
-    "github.vscode-github-actions"
+    "github.vscode-github-actions",
+    "ms-vscode.makefile-tools"
   ]
 }
