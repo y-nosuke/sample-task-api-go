@@ -125,6 +125,7 @@ docker push $DOCKER_IMAGE:latest
 ### GitHub Actions
 
 - [GitHub Actions のドキュメント](https://docs.github.com/ja/actions)
+  - [コンテキスト](https://docs.github.com/ja/actions/learn-github-actions/contexts)
   - [Go でのビルドとテスト](https://docs.github.com/ja/actions/automating-builds-and-tests/building-and-testing-go)
   - [Docker イメージの発行](https://docs.github.com/ja/actions/publishing-packages/publishing-docker-images)
 - GitHub Action
