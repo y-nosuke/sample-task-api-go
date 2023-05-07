@@ -12,12 +12,11 @@ import (
 )
 
 type UpdateTaskUseCaseArgs struct {
-	Id        uuid.UUID
-	Title     string
-	Detail    *string
-	Completed bool
-	Deadline  *time.Time
-	Version   *uuid.UUID
+	Id       uuid.UUID
+	Title    string
+	Detail   *string
+	Deadline *time.Time
+	Version  *uuid.UUID
 }
 
 type UpdateTaskUseCase struct {
@@ -37,7 +36,7 @@ func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseA
 		return xerrors.Errorf(": %w", err)
 	}
 
-	task.Update(args.Title, args.Detail, args.Completed, args.Deadline, args.Version)
+	task.Update(args.Title, args.Detail, args.Deadline, args.Version)
 
 	if row, err := u.taskRepository.Update(ctx, task); row != 1 {
 		return ferrors.New(ferrors.Conflict, "タスクは既に更新済みです。", err)

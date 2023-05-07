@@ -218,12 +218,11 @@ func request2RegisterArgs(request *openapi.RegisterTaskRequest) *usecases.Regist
 
 func request2UpdateArgs(id uuid.UUID, request *openapi.UpdateTaskRequest) (*usecases.UpdateTaskUseCaseArgs, error) {
 	return &usecases.UpdateTaskUseCaseArgs{
-		Id:        id,
-		Title:     request.Title,
-		Detail:    request.Detail,
-		Completed: *request.Completed,
-		Deadline:  &request.Deadline.Time,
-		Version:   request.Version,
+		Id:       id,
+		Title:    request.Title,
+		Detail:   request.Detail,
+		Deadline: &request.Deadline.Time,
+		Version:  &request.Version,
 	}, nil
 }
 
