@@ -23,7 +23,7 @@ func (p *ErrorHandlerPresenter) ErrorResponse(ctx context.Context, err error) er
 
 	ectx := fcontext.Ectx(ctx)
 	httpStatus := httpStatus(err)
-	errorResponse := appError2ErrorResponse(err)
+	errorResponse := errorResponse(err)
 
 	return ectx.JSON(httpStatus, errorResponse)
 }
@@ -48,7 +48,7 @@ func httpStatus(err error) int {
 	}
 }
 
-func appError2ErrorResponse(err error) *openapi.ErrorResponse {
+func errorResponse(err error) *openapi.ErrorResponse {
 	var appError *ferrors.AppError
 	if errors.As(err, &appError) {
 		return &openapi.ErrorResponse{Message: &appError.Message}

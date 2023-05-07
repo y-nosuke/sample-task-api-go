@@ -59,7 +59,7 @@ func (c *TaskController) RegisterTask(ectx echo.Context) error {
 	}
 	fmt.Println("request: ", request)
 
-	args := request2RegisterArgs(request)
+	args := registerTaskUseCaseArgs(request)
 
 	if err := c.registerTaskUseCase.Invoke(cctx.Ctx, args); err != nil {
 		return xerrors.Errorf(": %w", err)
@@ -119,7 +119,7 @@ func (c *TaskController) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 	}
 	fmt.Println("request: ", request)
 
-	args, err := request2UpdateArgs(id, request)
+	args, err := updateTaskUseCaseArgs(id, request)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
@@ -146,7 +146,7 @@ func (c *TaskController) CompleteTask(ectx echo.Context, id uuid.UUID) error {
 	}
 	fmt.Println("request: ", request)
 
-	args, err := request2CompleteArgs(id, request)
+	args, err := completeTaskUseCaseArgs(id, request)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
@@ -173,7 +173,7 @@ func (c *TaskController) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
 	}
 	fmt.Println("request: ", request)
 
-	args, err := request2UnCompleteArgs(id, request)
+	args, err := unCompleteTaskUseCaseArgs(id, request)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
@@ -203,7 +203,7 @@ func (c *TaskController) DeleteTask(ectx echo.Context, id uuid.UUID) error {
 	return nil
 }
 
-func request2RegisterArgs(request *openapi.RegisterTaskRequest) *usecases.RegisterTaskUseCaseArgs {
+func registerTaskUseCaseArgs(request *openapi.RegisterTaskRequest) *usecases.RegisterTaskUseCaseArgs {
 	var deadline *time.Time
 	if request.Deadline != nil {
 		deadline = &request.Deadline.Time
@@ -216,7 +216,7 @@ func request2RegisterArgs(request *openapi.RegisterTaskRequest) *usecases.Regist
 	}
 }
 
-func request2UpdateArgs(id uuid.UUID, request *openapi.UpdateTaskRequest) (*usecases.UpdateTaskUseCaseArgs, error) {
+func updateTaskUseCaseArgs(id uuid.UUID, request *openapi.UpdateTaskRequest) (*usecases.UpdateTaskUseCaseArgs, error) {
 	return &usecases.UpdateTaskUseCaseArgs{
 		Id:       id,
 		Title:    request.Title,
@@ -226,14 +226,14 @@ func request2UpdateArgs(id uuid.UUID, request *openapi.UpdateTaskRequest) (*usec
 	}, nil
 }
 
-func request2CompleteArgs(id uuid.UUID, request *openapi.CompleteTaskRequest) (*usecases.CompleteTaskUseCaseArgs, error) {
+func completeTaskUseCaseArgs(id uuid.UUID, request *openapi.CompleteTaskRequest) (*usecases.CompleteTaskUseCaseArgs, error) {
 	return &usecases.CompleteTaskUseCaseArgs{
 		Id:      id,
 		Version: &request.Version,
 	}, nil
 }
 
-func request2UnCompleteArgs(id uuid.UUID, request *openapi.UnCompleteTaskRequest) (*usecases.UnCompleteTaskUseCaseArgs, error) {
+func unCompleteTaskUseCaseArgs(id uuid.UUID, request *openapi.UnCompleteTaskRequest) (*usecases.UnCompleteTaskUseCaseArgs, error) {
 	return &usecases.UnCompleteTaskUseCaseArgs{
 		Id:      id,
 		Version: &request.Version,
