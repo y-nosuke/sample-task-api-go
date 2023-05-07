@@ -10,7 +10,10 @@ lint: generate
 	golangci-lint run ./...
 
 test: build
-	go test -v ./...
+	go test -cover ./... -coverprofile=cover.out
+
+cover: test
+	go tool cover -html=cover.out -o cover.html
 
 bin: generate
 	go build -o bin/main
