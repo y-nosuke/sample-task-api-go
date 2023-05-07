@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"fmt"
+	auth2 "github.com/y-nosuke/sample-task-api-go/framework/auth"
 	fauth "github.com/y-nosuke/sample-task-api-go/framework/auth/interfaces"
+	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	ferrors "github.com/y-nosuke/sample-task-api-go/framework/errors"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	"github.com/y-nosuke/sample-task-api-go/generated/interfaces/openapi"
 	"github.com/y-nosuke/sample-task-api-go/task/application/usecases"
 	"golang.org/x/xerrors"
@@ -47,7 +48,7 @@ func (c *TaskController) RegisterTask(ectx echo.Context) error {
 	fmt.Println("タスク登録処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
 
-	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	auth := cctx.Value(fauth.AUTH).(*auth2.Auth)
 	if !auth.HasAuthority("create:task") {
 		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing create:task"))
 	}
@@ -71,7 +72,7 @@ func (c *TaskController) GetAllTasks(ectx echo.Context) error {
 	fmt.Println("タスク一覧取得処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
 
-	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	auth := cctx.Value(fauth.AUTH).(*auth2.Auth)
 	if !auth.HasAuthority("read:task") {
 		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing read:task"))
 	}
@@ -89,7 +90,7 @@ func (c *TaskController) GetTask(ectx echo.Context, id uuid.UUID) error {
 	fmt.Println("タスク取得処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
 
-	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	auth := cctx.Value(fauth.AUTH).(*auth2.Auth)
 	if !auth.HasAuthority("read:task") {
 		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing read:task"))
 	}
@@ -107,7 +108,7 @@ func (c *TaskController) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 	fmt.Println("タスク更新処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
 
-	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	auth := cctx.Value(fauth.AUTH).(*auth2.Auth)
 	if !auth.HasAuthority("update:task") {
 		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing update:task"))
 	}
@@ -134,7 +135,7 @@ func (c *TaskController) CompleteTask(ectx echo.Context, id uuid.UUID) error {
 	fmt.Println("タスク完了処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
 
-	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	auth := cctx.Value(fauth.AUTH).(*auth2.Auth)
 	if !auth.HasAuthority("update:task") {
 		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing update:task"))
 	}
@@ -161,7 +162,7 @@ func (c *TaskController) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
 	fmt.Println("タスク未完了処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
 
-	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	auth := cctx.Value(fauth.AUTH).(*auth2.Auth)
 	if !auth.HasAuthority("update:task") {
 		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing update:task"))
 	}
@@ -188,7 +189,7 @@ func (c *TaskController) DeleteTask(ectx echo.Context, id uuid.UUID) error {
 	fmt.Println("タスク削除処理を開始します。")
 	cctx := fcontext.Cctx(ectx)
 
-	auth := cctx.Value(fauth.AUTH).(*fauth.Auth)
+	auth := cctx.Value(fauth.AUTH).(*auth2.Auth)
 	if !auth.HasAuthority("delete:task") {
 		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing delete:task"))
 	}

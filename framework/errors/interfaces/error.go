@@ -2,9 +2,9 @@ package interfaces
 
 import (
 	"fmt"
+	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 
 	"github.com/labstack/echo/v4"
-	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	ferrors "github.com/y-nosuke/sample-task-api-go/framework/errors/interfaces/presenters"
 	"golang.org/x/xerrors"
 )

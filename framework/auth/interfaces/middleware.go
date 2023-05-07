@@ -6,9 +6,9 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/lestrrat-go/jwx/jwk"
+	fauth "github.com/y-nosuke/sample-task-api-go/framework/auth"
 	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	ferrors "github.com/y-nosuke/sample-task-api-go/framework/errors"
-	"golang.org/x/exp/slices"
 	"golang.org/x/xerrors"
 	"net/http"
 	"os"
@@ -22,39 +22,6 @@ const (
 )
 
 var keySet jwk.Set
-
-type Auth struct {
-	GivenName   string
-	FamilyName  string
-	Email       string
-	Roles       []string
-	Authorities []string
-}
-
-func newAuth(token *jwt.Token) (*Auth, error) {
-	mapClaims, ok := token.Claims.(jwt.MapClaims)
-	if !ok || !token.Valid {
-		return nil, fmt.Errorf("invalid token")
-	}
-
-	iRoles := mapClaims["realm_access"].(map[string]interface{})["roles"].([]interface{})
-	var roles []string
-	for _, role := range iRoles {
-		roles = append(roles, role.(string))
-	}
-
-	return &Auth{
-		GivenName:   mapClaims["given_name"].(string),
-		FamilyName:  mapClaims["family_name"].(string),
-		Email:       mapClaims["email"].(string),
-		Roles:       roles,
-		Authorities: strings.Split(mapClaims["scope"].(string), " "),
-	}, nil
-}
-
-func (a *Auth) HasAuthority(authority string) bool {
-	return slices.Contains(a.Authorities, authority)
-}
 
 func init() {
 	fmt.Println("init auth.")
@@ -94,7 +61,7 @@ func ValidateTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return ferrors.New(ferrors.Unauthorized, "認証されていません。", fmt.Errorf("invalid token"))
 		}
 
-		auth, err := newAuth(token)
+		auth, err := fauth.NewAuth(token)
 		if err != nil {
 			return ferrors.New(ferrors.Unauthorized, "認証されていません。", err)
 		}

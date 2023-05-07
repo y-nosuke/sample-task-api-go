@@ -2,10 +2,10 @@ package presenters
 
 import (
 	"context"
+	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	"net/http"
 
 	openapiTypes "github.com/deepmap/oapi-codegen/pkg/types"
-	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	"github.com/y-nosuke/sample-task-api-go/generated/interfaces/openapi"
 	"github.com/y-nosuke/sample-task-api-go/task/enterprise/entities"
 )

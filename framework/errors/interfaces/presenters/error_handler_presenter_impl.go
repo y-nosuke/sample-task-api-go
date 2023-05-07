@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/friendsofgo/errors"
+	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	"net/http"
 
-	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	ferrors "github.com/y-nosuke/sample-task-api-go/framework/errors"
 	"github.com/y-nosuke/sample-task-api-go/generated/interfaces/openapi"
 )

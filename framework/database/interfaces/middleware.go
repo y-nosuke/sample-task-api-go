@@ -3,13 +3,13 @@ package interfaces
 import (
 	"database/sql"
 	"fmt"
+	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/sqlboiler/v4/boil"
-	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	"golang.org/x/xerrors"
 )
 
