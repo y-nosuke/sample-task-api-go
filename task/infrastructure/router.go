@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	oapiMiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
+	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo-contrib/jaegertracing"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -15,12 +16,13 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/task/interfaces/database"
 	"github.com/y-nosuke/sample-task-api-go/task/interfaces/presenters"
 	"io"
+	"strings"
 )
 
 func Router() *echo.Echo {
 	e := echo.New()
 
-	c := jaegertracing.New(e, nil)
+	c := jaegertracing.New(e, urlSkipper)
 	defer func(c io.Closer) {
 		err := c.Close()
 		if err != nil {
@@ -37,15 +39,20 @@ func Router() *echo.Echo {
 	e.Use(
 		middleware.Logger(),
 		middleware.Recover(),
+		echoprometheus.NewMiddleware("sample_task_api_go"),
+	)
+
+	e.GET("/metrics", echoprometheus.NewHandler())
+
+	g := e.Group("/api/v1")
+
+	g.Use(
 		fcontext.CustomContextMiddleware,
 		ferrors.ErrorHandlerMiddleware,
 		fauth.ValidateTokenMiddleware,
 		fdatabase.TransactionMiddleware,
+		oapiMiddleware.OapiRequestValidator(swagger),
 	)
-
-	g := e.Group("/api/v1")
-
-	g.Use(oapiMiddleware.OapiRequestValidator(swagger))
 
 	taskRepository := database.NewTaskRepository()
 	taskPresenter := presenters.NewTaskPresenter()
@@ -71,4 +78,11 @@ func Router() *echo.Echo {
 	// ここで処理しないとjaegerのtracingが取れなくなる
 	e.Logger.Fatal(e.Start(":1323"))
 	return e
+}
+
+func urlSkipper(c echo.Context) bool {
+	if strings.HasPrefix(c.Path(), "/metrics") {
+		return true
+	}
+	return false
 }

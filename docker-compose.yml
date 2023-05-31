@@ -3,6 +3,7 @@ services:
   mysql:
     image: mysql:latest
     container_name: mysql
+    hostname: localhost
     restart: always
     ports:
       - '3306:3306'
@@ -18,6 +19,7 @@ services:
   phpmyadmin:
     image: phpmyadmin
     container_name: phpmyadmin
+    hostname: localhost
     restart: always
     ports:
       - "3307:80"
@@ -34,6 +36,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
+    hostname: localhost
     restart: always
     ports:
       - "8080:8080"
@@ -49,6 +52,7 @@ services:
   mailhog:
     image: mailhog/mailhog
     container_name: mailhog
+    hostname: localhost
     restart: always
     ports:
       - "1025:1025"
@@ -81,3 +85,36 @@ services:
       - BADGER_DIRECTORY_KEY=/badger/key
     volumes:
       - ./docker/volumes/jeager:/badger
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    hostname: localhost
+    restart: always
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./docker/resources/prometheus:/etc/prometheus
+      - ./docker/volumes/prometheus:/prometheus
+
+  alertmanager:
+    image: prom/alertmanager
+    container_name: alertmanager
+    hostname: localhost
+    restart: always
+    ports:
+      - '9093:9093'
+    volumes:
+      - ./docker/resources/alertmanager:/etc/alertmanager
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    hostname: localhost
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - ./docker/volumes/grafana:/var/lib/grafana

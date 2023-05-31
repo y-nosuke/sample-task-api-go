@@ -33,6 +33,9 @@ go get golang.org/x/xerrors
 go get -u github.com/labstack/echo/v4
 go get -u github.com/labstack/echo/v4/middleware
 
+# prometheus
+go get -u "github.com/labstack/echo-contrib/prometheus"
+
 # migrate
 go install -tags mysql github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
@@ -95,6 +98,9 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 - [Keycloak](http://localhost:8080/admin/)
 - [mailhog](http://localhost:8025/)
 - [jeager](http://localhost:16686/)
+- [prometheus](http://localhost:9090/)
+- [alertmanager](http://localhost:9093/)
+- [grafana](http://localhost:3000/) admin/admin
 
 ## docker build
 
@@ -154,3 +160,8 @@ docker push $DOCKER_IMAGE:latest
 ### jeager
 
 - [Jaeger Tracing Middleware](https://echo.labstack.com/middleware/jaegertracing/)
+
+### prometheus
+
+- [INSTRUMENTING A GO APPLICATION FOR PROMETHEUS](https://prometheus.io/docs/guides/go-application/)
+- [echo Prometheus Middleware](https://echo.labstack.com/middleware/prometheus/)

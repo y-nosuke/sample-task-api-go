@@ -1,6 +1,7 @@
 .envrc
 tmp
 docker/volumes
+docker/resources/alertmanager/alertmanager.yml
 generated
 cover.html
 cover.out

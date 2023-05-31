@@ -1,0 +1,29 @@
+---
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: mailhog:1025
+  smtp_from: Alertmanager<alertmanager@example.com>
+  smtp_require_tls: false
+  slack_api_url: 'https://hooks.slack.com/services/***/***/******'
+
+route:
+  receiver: 'default'
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: test@example.com
+        require_tls: false
+    slack_configs:
+      - channel: '#channel'
+
+# inhibit_rules:
+#   - source_match:
+#       severity: 'critical'
+#     target_match:
+#       severity: 'warning'
+#     equal: ['alertname', 'dev', 'instance']
