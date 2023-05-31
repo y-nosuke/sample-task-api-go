@@ -81,8 +81,5 @@ func Router() *echo.Echo {
 }
 
 func urlSkipper(c echo.Context) bool {
-	if strings.HasPrefix(c.Path(), "/metrics") {
-		return true
-	}
-	return false
+	return strings.HasPrefix(c.Path(), "/metrics")
 }
