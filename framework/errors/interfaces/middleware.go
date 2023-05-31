@@ -15,6 +15,7 @@ func ErrorHandlerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		cctx := fcontext.Cctx(ectx)
 
 		if err := next(ectx); err != nil {
+			fmt.Println("エラーハンドラー")
 			fmt.Printf("%+v\n", xerrors.Errorf(": %w", err))
 
 			errorHandlerPresenter := ferrors.NewErrorHandlerPresenter()

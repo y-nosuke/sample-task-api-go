@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/friendsofgo/errors"
+	"github.com/labstack/echo/v4"
 	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	"net/http"
 
@@ -30,6 +31,7 @@ func (p *ErrorHandlerPresenter) ErrorResponse(ctx context.Context, err error) er
 
 func httpStatus(err error) int {
 	var appError *ferrors.AppError
+	var httpError *echo.HTTPError
 	if errors.As(err, &appError) {
 		switch appError.Status {
 		case ferrors.Unauthorized:
@@ -43,6 +45,8 @@ func httpStatus(err error) int {
 		default:
 			return http.StatusInternalServerError
 		}
+	} else if errors.As(err, &httpError) {
+		return httpError.Code
 	} else {
 		return http.StatusInternalServerError
 	}
@@ -50,8 +54,12 @@ func httpStatus(err error) int {
 
 func errorResponse(err error) *openapi.ErrorResponse {
 	var appError *ferrors.AppError
+	var httpError *echo.HTTPError
 	if errors.As(err, &appError) {
 		return &openapi.ErrorResponse{Message: &appError.Message}
+	} else if errors.As(err, &httpError) {
+		message := httpError.Message.(string)
+		return &openapi.ErrorResponse{Message: &message}
 	} else {
 		message := "システムエラーが発生しました。"
 		return &openapi.ErrorResponse{Message: &message}
