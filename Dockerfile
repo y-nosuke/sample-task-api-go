@@ -18,5 +18,5 @@ ENV ROOT=/go/src/app
 
 COPY --from=build ${ROOT}/main .
 
-EXPOSE 8080
+EXPOSE 1323
 CMD ["/main"]
