@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	oapiMiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
+	"github.com/labstack/echo-contrib/jaegertracing"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	fauth "github.com/y-nosuke/sample-task-api-go/framework/auth/interfaces"
@@ -13,10 +14,19 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/task/interfaces/controllers"
 	"github.com/y-nosuke/sample-task-api-go/task/interfaces/database"
 	"github.com/y-nosuke/sample-task-api-go/task/interfaces/presenters"
+	"io"
 )
 
 func Router() *echo.Echo {
 	e := echo.New()
+
+	c := jaegertracing.New(e, nil)
+	defer func(c io.Closer) {
+		err := c.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(c)
 
 	swagger, err := openapi.GetSwagger("/api/v1")
 	if err != nil {
@@ -58,5 +68,7 @@ func Router() *echo.Echo {
 
 	openapi.RegisterHandlers(g, taskController)
 
+	// ここで処理しないとjaegerのtracingが取れなくなる
+	e.Logger.Fatal(e.Start(":1323"))
 	return e
 }

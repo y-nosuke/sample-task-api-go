@@ -9,12 +9,16 @@ direnv edit .
 
 export DOCKER_IMAGE=physicist00/sample-task-api-go
 
-export DB_USER=test
+export DB_USER=task
 export DB_PASSWORD=password
 export DB_ROOT_PASSWORD=password
 export DB_HOST=localhost
 export DB_PORT=3306
-export DB_DATABASE_NAME=test
+export DB_DATABASE_NAME=task
+export AUTH_JWKS_URL=http://localhost:8080/realms/sample/protocol/openid-connect/certs
+export KEYCLOAK_ADMIN=admin
+export KEYCLOAK_ADMIN_PASSWORD=admin
+export JAEGER_SERVICE_NAME=sample-task-api-go
 ```
 
 ## プロジェクト作成
@@ -90,6 +94,7 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 
 - [Keycloak](http://localhost:8080/admin/)
 - [mailhog](http://localhost:8025/)
+- [jeager](http://localhost:16686/)
 
 ## docker build
 
@@ -145,3 +150,7 @@ docker push $DOCKER_IMAGE:latest
 ### docker
 
 - [dockerhub golang](https://hub.docker.com/_/golang)
+
+### jeager
+
+- [Jaeger Tracing Middleware](https://echo.labstack.com/middleware/jaegertracing/)
