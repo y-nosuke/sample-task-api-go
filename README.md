@@ -126,7 +126,6 @@ docker push $DOCKER_IMAGE:latest
   - [Installation](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
 - [github.com/google/UUID](https://pkg.go.dev/github.com/google/UUID)
 - [time](https://pkg.go.dev/time)
-- [deepmap/oapi-codegen](https://github.com/deepmap/oapi-codegen)
 
 - [Postgres と MySQL における id, created_at, updated_at に関するベストプラクティス](https://zenn.dev/mpyw/articles/rdb-ids-and-timestamps-best-practices)
 - [Go 言語におけるエラーハンドリングベストプラクティス](https://zenn.dev/malt03/articles/cd0365608a26c4)
@@ -134,6 +133,14 @@ docker push $DOCKER_IMAGE:latest
 - [Go における ORM と、SQLBoiler 入門マニュアル](https://zenn.dev/gami/articles/0fb2cf8b36aa09)
 
 - [Cognito で発行したトークンを Go で検証する](https://www.planet-meron.com/articles/2021/11/1119_cognito_jwt_verification/)
+
+### OpenAPI
+
+- [deepmap/oapi-codegen](https://github.com/deepmap/oapi-codegen)
+
+### Validation
+
+- [go-playground/validator](https://github.com/go-playground/validator)
 
 ### GitHub Actions
 

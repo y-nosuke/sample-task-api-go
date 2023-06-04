@@ -1,7 +1,6 @@
 package infrastructure
 
 import (
-	oapiMiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo-contrib/jaegertracing"
 	"github.com/labstack/echo/v4"
@@ -22,6 +21,8 @@ import (
 func Router() *echo.Echo {
 	e := echo.New()
 
+	e.Validator = controllers.NewValidator()
+
 	c := jaegertracing.New(e, urlSkipper)
 	defer func(c io.Closer) {
 		err := c.Close()
@@ -29,12 +30,6 @@ func Router() *echo.Echo {
 			panic(err)
 		}
 	}(c)
-
-	swagger, err := openapi.GetSwagger("/api/v1")
-	if err != nil {
-		panic(err)
-	}
-	swagger.Servers = nil
 
 	e.Use(
 		middleware.Logger(),
@@ -51,7 +46,6 @@ func Router() *echo.Echo {
 		ferrors.ErrorHandlerMiddleware,
 		fauth.ValidateTokenMiddleware,
 		fdatabase.TransactionMiddleware,
-		oapiMiddleware.OapiRequestValidator(swagger),
 	)
 
 	taskRepository := database.NewTaskRepository()

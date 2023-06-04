@@ -57,7 +57,10 @@ func (c *TaskController) RegisterTask(ectx echo.Context) error {
 	if err := ectx.Bind(request); err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
-	fmt.Println("request: ", request)
+
+	if err := ectx.Validate(request); err != nil {
+		return ferrors.New(ferrors.BadRequest, "バリデーションエラーです。", err)
+	}
 
 	args := registerTaskUseCaseArgs(request)
 
@@ -117,7 +120,10 @@ func (c *TaskController) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 	if err := ectx.Bind(request); err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
-	fmt.Println("request: ", request)
+
+	if err := ectx.Validate(request); err != nil {
+		return ferrors.New(ferrors.BadRequest, "バリデーションエラーです。", err)
+	}
 
 	args, err := updateTaskUseCaseArgs(id, request)
 	if err != nil {
@@ -144,7 +150,6 @@ func (c *TaskController) CompleteTask(ectx echo.Context, id uuid.UUID) error {
 	if err := ectx.Bind(request); err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
-	fmt.Println("request: ", request)
 
 	args, err := completeTaskUseCaseArgs(id, request)
 	if err != nil {
@@ -171,7 +176,6 @@ func (c *TaskController) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
 	if err := ectx.Bind(request); err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
-	fmt.Println("request: ", request)
 
 	args, err := unCompleteTaskUseCaseArgs(id, request)
 	if err != nil {

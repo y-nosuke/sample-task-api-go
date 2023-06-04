@@ -2,15 +2,16 @@ package errors
 
 const (
 	Unauthorized = iota
+	BadRequest
 	Forbidden
 	NotFound
 	Conflict
 )
 
 type AppError struct {
-	error
-	Status  int
-	Message string
+	OriginalError error
+	Status        int
+	Message       string
 }
 
 func (e *AppError) Error() string {
