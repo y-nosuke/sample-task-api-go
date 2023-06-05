@@ -8,5 +8,6 @@
   "go.toolsEnvVars": { "GO111MODULE": "on" },
   "go.formatTool": "goreturns",
   "go.lintTool": "golangci-lint",
-  "go.useLanguageServer": false
+  "go.useLanguageServer": false,
+  "ansible.python.interpreterPath": "c:\\Python311\\python.exe"
 }

@@ -10,8 +10,8 @@
     "github.github-vscode-theme",
     "tabnine.tabnine-vscode",
     "windmilleng.vscode-go-autotest",
-    "mtxr.sqltools",
     "github.vscode-github-actions",
-    "ms-vscode.makefile-tools"
+    "ms-vscode.makefile-tools",
+    "adpyke.vscode-sql-formatter"
   ]
 }

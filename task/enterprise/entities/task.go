@@ -7,12 +7,14 @@ import (
 )
 
 type Task struct {
-	Id        uuid.UUID
+	Id        *uuid.UUID
 	Title     string
 	Detail    *string
 	Completed bool
 	Deadline  *time.Time
+	CreatedBy *uuid.UUID
 	CreatedAt *time.Time
+	UpdatedBy *uuid.UUID
 	UpdatedAt *time.Time
 	Version   *uuid.UUID
 }
@@ -20,7 +22,7 @@ type Task struct {
 func NewTask(title string, detail *string, deadline *time.Time) *Task {
 	id := uuid.New()
 
-	return &Task{Id: id, Title: title, Detail: detail, Completed: false, Deadline: deadline}
+	return &Task{Id: &id, Title: title, Detail: detail, Completed: false, Deadline: deadline}
 }
 
 func (t *Task) Update(title string, detail *string, deadline *time.Time, version *uuid.UUID) {

@@ -3,11 +3,14 @@ package auth
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"golang.org/x/exp/slices"
+	"golang.org/x/xerrors"
 	"strings"
 )
 
 type Auth struct {
+	UserId      uuid.UUID
 	GivenName   string
 	FamilyName  string
 	Email       string
@@ -27,7 +30,14 @@ func NewAuth(token *jwt.Token) (*Auth, error) {
 		roles = append(roles, role.(string))
 	}
 
+	sUserId := mapClaims["sub"].(string)
+	userId, err := uuid.Parse(sUserId)
+	if err != nil {
+		return nil, xerrors.Errorf(": %w", err)
+	}
+
 	return &Auth{
+		UserId:      userId,
 		GivenName:   mapClaims["given_name"].(string),
 		FamilyName:  mapClaims["family_name"].(string),
 		Email:       mapClaims["email"].(string),

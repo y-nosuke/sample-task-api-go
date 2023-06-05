@@ -52,7 +52,8 @@ jobs:
           go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
 
       - name: Run Migration
-        run: migrate -path db/migrations -database "mysql://$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE_NAME?multiStatements=true" up
+#        TODO github actionsはCMDを上書きできないため、一時的に1を指定してtriggerを作成しないようにする。
+        run: migrate -path db/migrations -database "mysql://$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE_NAME?multiStatements=true" up 1
 
       - name: Generate
         run: make generate

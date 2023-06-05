@@ -55,11 +55,12 @@ go mod tidy
 ## DB Migration
 
 ```sh
-migrate create -ext sql -dir db/migrations -seq create_tasks
+migrate create -ext sql -dir db/migrations -seq create_tables
+migrate create -ext sql -dir db/migrations -seq create_triggers
 
-migrate -path db/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}?multiStatements=true" up 1
+migrate -path db/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}?multiStatements=true" up
 
-migrate -path db/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}" down 1
+migrate -path db/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}" down
 ```
 
 ## SQL Boiler
@@ -91,16 +92,20 @@ air
 
 ## API 呼び出し
 
+```sh
 curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"title": "title 1", "detail": "detail 1", "deadline": "2023-04-13"}' localhost:1323/api/v1/tasks
+```
 
 ## 管理画面
 
-- [Keycloak](http://localhost:8080/admin/)
-- [mailhog](http://localhost:8025/)
-- [jeager](http://localhost:16686/)
-- [prometheus](http://localhost:9090/)
-- [alertmanager](http://localhost:9093/)
-- [grafana](http://localhost:3000/) admin/admin
+- [traefik](http://localhost:8080/)
+- [Keycloak](http://Keycloak.localhost/admin/)
+- [mailhog](http://mailhog.localhost/)
+- [jeager](http://jeager.localhost/)
+- [prometheus](http://prometheus.localhost/)
+- [alertmanager](http://alertmanager.localhost/)
+- [grafana](http://grafana.localhost/) admin/admin
+- [phpmyadmin](http://phpmyadmin.localhost/)
 
 ## docker build
 

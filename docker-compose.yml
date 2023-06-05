@@ -32,6 +32,8 @@ services:
     volumes:
       - ./docker/resources/mysql/initdb.d:/docker-entrypoint-initdb.d
       - ./docker/volumes/mysql:/var/lib/mysql
+    # TRIGGER作成のために必要
+    command: [ "--log_bin_trust_function_creators=1" ]
 
   phpmyadmin:
     image: phpmyadmin

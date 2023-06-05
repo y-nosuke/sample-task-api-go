@@ -3,6 +3,8 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/y-nosuke/sample-task-api-go/framework/auth"
+	fauth "github.com/y-nosuke/sample-task-api-go/framework/auth/interfaces"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,7 +26,8 @@ func NewTaskRepository() repositories.TaskRepository {
 }
 
 func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entities.Task) error {
-	taskDto, err := taskDto(task)
+	a := ctx.Value(fauth.AUTH).(*auth.Auth)
+	taskDto, err := taskDto(task, &a.UserId)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
@@ -36,6 +39,16 @@ func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entities.Task) 
 
 	fmt.Printf("データベースにタスクが登録されました。 taskDto: %+v\n", taskDto)
 
+	createdBy, err := uuid.FromBytes(taskDto.CreatedBy)
+	if err != nil {
+		return xerrors.Errorf(": %w", err)
+	}
+	task.CreatedBy = &createdBy
+	updatedBy, err := uuid.FromBytes(taskDto.UpdatedBy)
+	if err != nil {
+		return xerrors.Errorf(": %w", err)
+	}
+	task.UpdatedBy = &updatedBy
 	task.CreatedAt = &taskDto.CreatedAt
 	task.UpdatedAt = &taskDto.UpdatedAt
 	version, err := uuid.FromBytes(taskDto.Version)
@@ -90,7 +103,8 @@ func (t *TaskRepositoryImpl) GetById(ctx context.Context, id uuid.UUID) (*entiti
 }
 
 func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entities.Task) (int, error) {
-	taskDto, err := taskDto(task)
+	a := ctx.Value(fauth.AUTH).(*auth.Auth)
+	taskDto, err := taskDto(task, &a.UserId)
 	if err != nil {
 		return 0, xerrors.Errorf(": %w", err)
 	}
@@ -103,12 +117,19 @@ func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entities.Task) (i
 	}
 
 	tx := ctx.Value(fdatabase.TRANSACTION).(boil.ContextExecutor)
-	if rowsAff, err := dao.Tasks(dao.TaskWhere.ID.EQ(taskDto.ID), dao.TaskWhere.Version.EQ(oldVersion)).UpdateAll(ctx, tx, dao.M{"id": taskDto.ID, "title": taskDto.Title, "detail": taskDto.Detail, "completed": taskDto.Completed, "deadline": taskDto.Deadline, "version": taskDto.Version}); err != nil || rowsAff != 1 {
+	if rowsAff, err := dao.
+		Tasks(dao.TaskWhere.ID.EQ(taskDto.ID), dao.TaskWhere.Version.EQ(oldVersion)).
+		UpdateAll(ctx, tx, dao.M{"id": taskDto.ID, "title": taskDto.Title, "detail": taskDto.Detail, "completed": taskDto.Completed, "deadline": taskDto.Deadline, "version": taskDto.Version}); err != nil || rowsAff != 1 {
 		return int(rowsAff), xerrors.Errorf(": %w", err)
 	}
 
 	fmt.Printf("データベースのタスクが更新されました。 taskDto: %+v\n", taskDto)
 
+	updatedBy, err := uuid.FromBytes(taskDto.UpdatedBy)
+	if err != nil {
+		return 0, xerrors.Errorf(": %w", err)
+	}
+	task.UpdatedBy = &updatedBy
 	task.UpdatedAt = &taskDto.UpdatedAt
 	version, err := uuid.FromBytes(taskDto.Version)
 	if err != nil {
@@ -120,7 +141,8 @@ func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entities.Task) (i
 }
 
 func (t *TaskRepositoryImpl) Delete(ctx context.Context, task *entities.Task) error {
-	taskDto, err := taskDto(task)
+	a := ctx.Value(fauth.AUTH).(*auth.Auth)
+	taskDto, err := taskDto(task, &a.UserId)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
@@ -135,7 +157,7 @@ func (t *TaskRepositoryImpl) Delete(ctx context.Context, task *entities.Task) er
 	return nil
 }
 
-func taskDto(task *entities.Task) (*dao.Task, error) {
+func taskDto(task *entities.Task, userId *uuid.UUID) (*dao.Task, error) {
 	id, err := task.Id.MarshalBinary()
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
@@ -149,12 +171,19 @@ func taskDto(task *entities.Task) (*dao.Task, error) {
 		}
 	}
 
+	uid, err := userId.MarshalBinary()
+	if err != nil {
+		return nil, xerrors.Errorf(": %w", err)
+	}
+
 	return &dao.Task{
 		ID:        id,
 		Title:     task.Title,
 		Detail:    null.StringFromPtr(task.Detail),
 		Completed: task.Completed,
 		Deadline:  null.TimeFromPtr(task.Deadline),
+		CreatedBy: uid,
+		UpdatedBy: uid,
 		Version:   version,
 	}, nil
 }
@@ -175,18 +204,30 @@ func task(taskDto *dao.Task) (*entities.Task, error) {
 		deadline = &taskDto.Deadline.Time
 	}
 
+	createdBy, err := uuid.FromBytes(taskDto.CreatedBy)
+	if err != nil {
+		return nil, xerrors.Errorf(": %w", err)
+	}
+
+	updatedBy, err := uuid.FromBytes(taskDto.UpdatedBy)
+	if err != nil {
+		return nil, xerrors.Errorf(": %w", err)
+	}
+
 	version, err := uuid.FromBytes(taskDto.Version)
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
 	}
 
 	return &entities.Task{
-		Id:        id,
+		Id:        &id,
 		Title:     taskDto.Title,
 		Detail:    detail,
 		Completed: taskDto.Completed,
 		Deadline:  deadline,
+		CreatedBy: &createdBy,
 		CreatedAt: &taskDto.CreatedAt,
+		UpdatedBy: &updatedBy,
 		UpdatedAt: &taskDto.UpdatedAt,
 		Version:   &version,
 	}, nil
