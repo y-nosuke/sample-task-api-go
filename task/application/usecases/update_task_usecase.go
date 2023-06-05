@@ -38,10 +38,10 @@ func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseA
 
 	task.Update(args.Title, args.Detail, args.Deadline, args.Version)
 
-	if row, err := u.taskRepository.Update(ctx, task); row != 1 {
-		return ferrors.New(ferrors.Conflict, "タスクは既に更新済みです。", err)
-	} else if err != nil {
+	if row, err := u.taskRepository.Update(ctx, task); err != nil {
 		return xerrors.Errorf(": %w", err)
+	} else if row != 1 {
+		return ferrors.New(ferrors.Conflict, "タスクは既に更新済みです。", err)
 	}
 
 	if err := u.taskPresenter.UpdateTaskResponse(ctx, task); err != nil {
