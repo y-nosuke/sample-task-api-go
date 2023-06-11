@@ -171,9 +171,14 @@ docker push $DOCKER_IMAGE:latest
 
 ### jeager
 
+- [Jaeger](https://www.jaegertracing.io/)
 - [Jaeger Tracing Middleware](https://echo.labstack.com/middleware/jaegertracing/)
 
 ### prometheus
 
 - [INSTRUMENTING A GO APPLICATION FOR PROMETHEUS](https://prometheus.io/docs/guides/go-application/)
 - [echo Prometheus Middleware](https://echo.labstack.com/middleware/prometheus/)
+
+### Open Telemetry
+
+- [Open Telemetry](https://opentelemetry.io/)

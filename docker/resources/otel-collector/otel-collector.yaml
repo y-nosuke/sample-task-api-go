@@ -1,0 +1,29 @@
+receivers:
+  jaeger:
+    protocols:
+      thrift_compact:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'sample-task-api-go'
+          scrape_interval: 5s
+          static_configs:
+            - targets: ["host.docker.internal:1323"]
+
+exporters:
+  jaeger:
+    endpoint: jeager:14250
+    tls:
+      insecure: true
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+  logging:
+
+service:
+  pipelines:
+    traces:
+      receivers: [jaeger]
+      exporters: [logging, jaeger]
+    metrics:
+      receivers: [prometheus]
+      exporters: [logging, prometheus]
