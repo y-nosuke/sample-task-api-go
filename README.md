@@ -55,12 +55,9 @@ go mod tidy
 ## DB Migration
 
 ```sh
-migrate create -ext sql -dir db/migrations -seq create_tables
-migrate create -ext sql -dir db/migrations -seq create_triggers
+migrate -path sample-task-golang-migrate/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}?multiStatements=true" up
 
-migrate -path db/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}?multiStatements=true" up
-
-migrate -path db/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}" down
+migrate -path sample-task-golang-migrate/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}" down
 ```
 
 ## SQL Boiler
@@ -172,7 +169,7 @@ docker push $DOCKER_IMAGE:latest
 ### jeager
 
 - [Jaeger](https://www.jaegertracing.io/)
-- [Jaeger Tracing Middleware](https://echo.labstack.com/middleware/jaegertracing/)
+- [echo Jaeger Tracing Middleware](https://echo.labstack.com/middleware/jaegertracing/)
 
 ### prometheus
 

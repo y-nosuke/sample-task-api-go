@@ -1,3 +1,6 @@
 [submodule "sample-task-openapi"]
 	path = sample-task-openapi
 	url = https://github.com/y-nosuke/sample-task-openapi.git
+[submodule "sample-task-golang-migrate"]
+	path = sample-task-golang-migrate
+	url = https://github.com/y-nosuke/sample-task-golang-migrate.git
