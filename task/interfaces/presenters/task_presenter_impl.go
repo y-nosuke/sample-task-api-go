@@ -5,7 +5,6 @@ import (
 	fcontext "github.com/y-nosuke/sample-task-api-go/framework/context/interfaces"
 	"net/http"
 
-	openapiTypes "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/y-nosuke/sample-task-api-go/generated/interfaces/openapi"
 	"github.com/y-nosuke/sample-task-api-go/task/enterprise/entities"
 )
@@ -61,9 +60,9 @@ func (p *TaskPresenter) NoContentResponse(ctx context.Context) error {
 }
 
 func taskForm(task *entities.Task) *openapi.TaskForm {
-	var deadline *openapiTypes.Date
+	var deadline *openapi.NullableDeadline
 	if task.Deadline != nil {
-		deadline = &openapiTypes.Date{Time: *task.Deadline}
+		deadline = &openapi.NullableDeadline{Time: *task.Deadline}
 	}
 
 	return &openapi.TaskForm{
