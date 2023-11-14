@@ -1,4 +1,22 @@
-generate:
+install:
+	go install -tags mysql github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+	go install github.com/volatiletech/sqlboiler/v4@latest
+	go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
+	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+
+docker_up:
+	docker compose up -d
+
+docker_down:
+	docker compose down
+
+migrate_up: docker_up
+	migrate -path sample-task-golang-migrate/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}?multiStatements=true" up
+
+migrate_down:
+	migrate -path sample-task-golang-migrate/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}" down
+
+generate: migrate_up
 	sqlboiler mysql
 	mkdir -p generated/interfaces/openapi
 	oapi-codegen -old-config-style -templates oapi-codegen/templates/ -generate types,server,spec -package openapi -o generated/interfaces/openapi/task.gen.go sample-task-openapi/openapi.yaml
@@ -18,11 +36,19 @@ cover: test
 bin: generate
 	go build -o bin/main
 
+run: build
+	go run ./...
+
+air: build
+	air
+
 image: generate
-	docker build -t physicist00/sample-task-api-go:latest .
+	docker build -t ${DOCKER_IMAGE}:latest .
 
-publish: generate
-	docker build -t physicist00/sample-task-api-go:latest .
+publish: image
+	docker push ${DOCKER_IMAGE}:latest
 
-clean:
-	rm -rf generated bin
+down: docker_down
+
+clean: down
+	rm -rf generated bin docker/volumes

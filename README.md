@@ -4,6 +4,16 @@
 
 ## 事前準備
 
+### hosts ファイルの編集
+
+末尾に以下を追加する
+
+```text
+127.0.0.1 keycloak.localhost
+```
+
+### .direnv の作成
+
 ```sh
 direnv edit .
 
@@ -26,6 +36,16 @@ export JAEGER_SERVICE_NAME=sample-task-api-go
 ```sh
 go mod init github.com/y-nosuke/sample-task-api-go
 
+# migrate
+go install -tags mysql github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+# sqlboiler
+go install github.com/volatiletech/sqlboiler/v4@latest
+go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
+
+# oapi-codegen
+go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+
 # xerrors
 go get golang.org/x/xerrors
 
@@ -36,23 +56,29 @@ go get -u github.com/labstack/echo/v4/middleware
 # prometheus
 go get -u "github.com/labstack/echo-contrib/prometheus"
 
-# migrate
-go install -tags mysql github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-
 # database
 go get -u github.com/go-sql-driver/mysql
-
-# sqlboiler
-go install github.com/volatiletech/sqlboiler/v4@latest
-go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
-
-# oapi-codegen
-go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
 
 go mod tidy
 ```
 
-## DB Migration
+## 実行
+
+```sh
+make install
+
+make docker_up
+
+# sample-task-terraform-keycloak
+cd envs/local/
+# 反映方法はREADME参照
+
+make air
+
+make down
+```
+
+### DB Migration
 
 ```sh
 migrate -path sample-task-golang-migrate/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}?multiStatements=true" up
@@ -60,13 +86,13 @@ migrate -path sample-task-golang-migrate/migrations -database "mysql://${DB_USER
 migrate -path sample-task-golang-migrate/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}" down
 ```
 
-## SQL Boiler
+### SQL Boiler
 
 ```sh
 sqlboiler mysql
 ```
 
-## oapi-codegen
+### oapi-codegen
 
 ```sh
 mkdir -p generated/interfaces/openapi
@@ -78,13 +104,24 @@ oapi-codegen -old-config-style -templates oapi-codegen/templates/ -generate type
 oapi-codegen --config oapi-codegen/config.yaml sample-task-openapi/openapi.yaml
 ```
 
-## 実行
+### 実行
 
 ```sh
-go run main.go
+go run ./...
 
 # airを使う場合
 air
+```
+
+### docker build
+
+```sh
+docker build -t $DOCKER_IMAGE:latest .
+
+docker run -it -e DB_USER=$DB_USER -e DB_PASSWORD=$DB_PASSWORD -e DB_HOST=host.docker.internal -e DB_PORT=$DB_PORT -e DB_DATABASE_NAME=$DB_DATABASE_NAME -e AUTH_JWKS_URL=http://host.docker.internal:8080/realms/sample/protocol/openid-connect/certs -p 1323:1323 $DOCKER_IMAGE:latest
+
+docker login
+docker push $DOCKER_IMAGE:latest
 ```
 
 ## API 呼び出し
@@ -96,24 +133,13 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 ## 管理画面
 
 - [traefik](http://localhost:8080/)
-- [Keycloak](http://Keycloak.localhost/admin/)
+- [Keycloak](http://Keycloak.localhost/admin/) admin/admin
 - [mailhog](http://mailhog.localhost/)
 - [jeager](http://jeager.localhost/)
 - [prometheus](http://prometheus.localhost/)
 - [alertmanager](http://alertmanager.localhost/)
 - [grafana](http://grafana.localhost/) admin/admin
 - [phpmyadmin](http://phpmyadmin.localhost/)
-
-## docker build
-
-```sh
-docker build -t $DOCKER_IMAGE:latest .
-
-docker run -it -e DB_USER=$DB_USER -e DB_PASSWORD=$DB_PASSWORD -e DB_HOST=host.docker.internal -e DB_PORT=$DB_PORT -e DB_DATABASE_NAME=$DB_DATABASE_NAME -e AUTH_JWKS_URL=http://host.docker.internal:8080/realms/sample/protocol/openid-connect/certs -p 1323:1323 $DOCKER_IMAGE:latest
-
-docker login
-docker push $DOCKER_IMAGE:latest
-```
 
 ## 参考
 
