@@ -10,6 +10,7 @@ import (
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context/infrastructure"
 	fdatabase "github.com/y-nosuke/sample-task-api-go/app/framework/database/infrastructure"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure"
+	fep "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/usecase"
 	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/handler"
 	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/presenter"
@@ -22,6 +23,7 @@ import (
 func Router() *echo.Echo {
 	e := echo.New()
 
+	e.HTTPErrorHandler = customHTTPErrorHandler
 	e.Validator = handler.NewValidator()
 
 	c := jaegertracing.New(e, urlSkipper)
@@ -42,10 +44,11 @@ func Router() *echo.Echo {
 
 	g := e.Group("/api/v1")
 
+	errorHandlerPresenterImpl := fep.NewSystemErrorHandlerPresenterImpl()
 	authHandlerPresenterImpl := fap.NewAuthHandlerPresenterImpl()
 	g.Use(
 		fcontext.CustomContextMiddleware,
-		ferrors.ErrorHandlerMiddleware,
+		ferrors.ErrorHandlerMiddlewareFunc(errorHandlerPresenterImpl),
 		fauth.ValidateTokenMiddlewareFunc(authHandlerPresenterImpl),
 		fdatabase.TransactionMiddleware,
 	)

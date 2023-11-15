@@ -4,6 +4,7 @@ import (
 	"context"
 )
 
-type ErrorHandlerPresenter interface {
-	ErrorResponse(context.Context, error) error
+// TODO: interfaceが必要か考える
+type SystemErrorHandlerPresenter interface {
+	ErrorResponse(context.Context) error
 }
