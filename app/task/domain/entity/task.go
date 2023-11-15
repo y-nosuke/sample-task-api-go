@@ -19,6 +19,8 @@ type Task struct {
 	Version   *uuid.UUID
 }
 
+type TaskSlice []*Task
+
 func NewTask(title string, detail *string, deadline *time.Time) *Task {
 	id := uuid.New()
 

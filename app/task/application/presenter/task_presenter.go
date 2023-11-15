@@ -9,7 +9,7 @@ type TaskPresenter interface {
 	RegisterTaskResponse(context.Context, *entity.Task) error
 	UpdateTaskResponse(context.Context, *entity.Task) error
 	GetTaskResponse(context.Context, *entity.Task) error
-	TaskAllResponse(context.Context, []*entity.Task) error
+	TaskAllResponse(context.Context, entity.TaskSlice) error
 	NilResponse(context.Context) error
 	NoContentResponse(context.Context) error
 
