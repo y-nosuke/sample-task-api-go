@@ -13,14 +13,14 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
 )
 
-type ErrorHandlerPresenter struct {
+type ErrorHandlerPresenterImpl struct {
 }
 
-func NewErrorHandlerPresenter() *ErrorHandlerPresenter {
-	return &ErrorHandlerPresenter{}
+func NewErrorHandlerPresenterImpl() *ErrorHandlerPresenterImpl {
+	return &ErrorHandlerPresenterImpl{}
 }
 
-func (p *ErrorHandlerPresenter) ErrorResponse(ctx context.Context, err error) error {
+func (p *ErrorHandlerPresenterImpl) ErrorResponse(ctx context.Context, err error) error {
 	fmt.Println(err.Error())
 
 	ectx := fcontext.Ectx(ctx)

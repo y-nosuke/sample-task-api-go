@@ -9,26 +9,26 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
 )
 
-type TaskPresenter struct {
+type TaskPresenterImpl struct {
 }
 
-func NewTaskPresenter() *TaskPresenter {
-	return &TaskPresenter{}
+func NewTaskPresenterImpl() *TaskPresenterImpl {
+	return &TaskPresenterImpl{}
 }
 
-func (p *TaskPresenter) RegisterTaskResponse(ctx context.Context, task *entity.Task) error {
+func (p *TaskPresenterImpl) RegisterTaskResponse(ctx context.Context, task *entity.Task) error {
 	return p.taskResponse(ctx, http.StatusCreated, task)
 }
 
-func (p *TaskPresenter) UpdateTaskResponse(ctx context.Context, task *entity.Task) error {
+func (p *TaskPresenterImpl) UpdateTaskResponse(ctx context.Context, task *entity.Task) error {
 	return p.taskResponse(ctx, http.StatusOK, task)
 }
 
-func (p *TaskPresenter) GetTaskResponse(ctx context.Context, task *entity.Task) error {
+func (p *TaskPresenterImpl) GetTaskResponse(ctx context.Context, task *entity.Task) error {
 	return p.taskResponse(ctx, http.StatusOK, task)
 }
 
-func (p *TaskPresenter) taskResponse(ctx context.Context, code int, task *entity.Task) error {
+func (p *TaskPresenterImpl) taskResponse(ctx context.Context, code int, task *entity.Task) error {
 	ectx := fcontext.Ectx(ctx)
 	taskForm := openapi.TaskResponse{
 		TaskForm: *taskForm(task),
@@ -37,7 +37,7 @@ func (p *TaskPresenter) taskResponse(ctx context.Context, code int, task *entity
 	return ectx.JSON(code, &taskForm)
 }
 
-func (p *TaskPresenter) TaskAllResponse(ctx context.Context, tasks []*entity.Task) error {
+func (p *TaskPresenterImpl) TaskAllResponse(ctx context.Context, tasks []*entity.Task) error {
 	ectx := fcontext.Ectx(ctx)
 
 	taskForm := openapi.GetAllTasksResponse{
@@ -47,13 +47,13 @@ func (p *TaskPresenter) TaskAllResponse(ctx context.Context, tasks []*entity.Tas
 	return ectx.JSON(http.StatusOK, &taskForm)
 }
 
-func (p *TaskPresenter) NilResponse(ctx context.Context) error {
+func (p *TaskPresenterImpl) NilResponse(ctx context.Context) error {
 	ectx := fcontext.Ectx(ctx)
 
 	return ectx.NoContent(http.StatusOK)
 }
 
-func (p *TaskPresenter) NoContentResponse(ctx context.Context) error {
+func (p *TaskPresenterImpl) NoContentResponse(ctx context.Context) error {
 	ectx := fcontext.Ectx(ctx)
 
 	return ectx.NoContent(http.StatusNoContent)

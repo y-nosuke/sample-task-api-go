@@ -7,7 +7,6 @@ import (
 	fauth "github.com/y-nosuke/sample-task-api-go/app/framework/auth/infrastructure"
 	fdatabase "github.com/y-nosuke/sample-task-api-go/app/framework/database/infrastructure"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
-	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,7 +20,7 @@ import (
 type TaskRepositoryImpl struct {
 }
 
-func NewTaskRepository() repository.TaskRepository {
+func NewTaskRepositoryImpl() *TaskRepositoryImpl {
 	return &TaskRepositoryImpl{}
 }
 
@@ -62,14 +61,14 @@ func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entity.Task) er
 
 func (t *TaskRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Task, error) {
 	tx := ctx.Value(fdatabase.TRANSACTION).(boil.ContextExecutor)
-	taskDtos, err := dao.Tasks(qm.OrderBy("updated_at DESC")).All(ctx, tx)
+	taskSlice, err := dao.Tasks(qm.OrderBy("updated_at DESC")).All(ctx, tx)
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
 	}
 
 	fmt.Println("データベースからタスク一覧が取得されました。")
 
-	tasks, err := tasks(taskDtos)
+	tasks, err := tasks(taskSlice)
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
 	}
@@ -233,9 +232,9 @@ func task(taskDto *dao.Task) (*entity.Task, error) {
 	}, nil
 }
 
-func tasks(taskDtos []*dao.Task) ([]*entity.Task, error) {
+func tasks(taskSlice dao.TaskSlice) ([]*entity.Task, error) {
 	var tasks []*entity.Task
-	for _, t := range taskDtos {
+	for _, t := range taskSlice {
 		task, err := task(t)
 		if err != nil {
 			return nil, xerrors.Errorf(": %w", err)

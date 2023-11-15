@@ -17,8 +17,8 @@ func ErrorHandlerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			fmt.Println("エラーハンドラー")
 			fmt.Printf("%+v\n", xerrors.Errorf(": %w", err))
 
-			errorHandlerPresenter := ferrors.NewErrorHandlerPresenter()
-			return errorHandlerPresenter.ErrorResponse(cctx.Ctx, err)
+			errorHandlerPresenterImpl := ferrors.NewErrorHandlerPresenterImpl()
+			return errorHandlerPresenterImpl.ErrorResponse(cctx.Ctx, err)
 		}
 
 		return nil

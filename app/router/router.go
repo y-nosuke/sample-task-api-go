@@ -9,7 +9,7 @@ import (
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context/infrastructure"
 	fdatabase "github.com/y-nosuke/sample-task-api-go/app/framework/database/infrastructure"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure"
-	usecase2 "github.com/y-nosuke/sample-task-api-go/app/task/application/usecase"
+	"github.com/y-nosuke/sample-task-api-go/app/task/application/usecase"
 	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/handler"
 	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/repository"
@@ -48,16 +48,16 @@ func Router() *echo.Echo {
 		fdatabase.TransactionMiddleware,
 	)
 
-	taskRepository := repository.NewTaskRepository()
-	taskPresenter := presenter.NewTaskPresenter()
-	registerTaskUseCase := usecase2.NewRegisterTaskUseCase(taskRepository, taskPresenter)
-	getAllTaskUseCase := usecase2.NewGetAllTaskUseCase(taskRepository, taskPresenter)
-	getTaskUseCase := usecase2.NewGetTaskUseCase(taskRepository, taskPresenter)
-	updateTaskUseCase := usecase2.NewUpdateTaskUseCase(taskRepository, taskPresenter)
-	completeTaskUseCase := usecase2.NewCompleteTaskUseCase(taskRepository, taskPresenter)
-	unCompleteTaskUseCase := usecase2.NewUnCompleteTaskUseCase(taskRepository, taskPresenter)
-	deleteTaskUseCase := usecase2.NewDeleteTaskUseCase(taskRepository, taskPresenter)
-	taskController := handler.NewTaskController(
+	taskRepositoryImpl := repository.NewTaskRepositoryImpl()
+	taskPresenterImpl := presenter.NewTaskPresenterImpl()
+	registerTaskUseCase := usecase.NewRegisterTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
+	getAllTaskUseCase := usecase.NewGetAllTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
+	getTaskUseCase := usecase.NewGetTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
+	updateTaskUseCase := usecase.NewUpdateTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
+	completeTaskUseCase := usecase.NewCompleteTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
+	unCompleteTaskUseCase := usecase.NewUnCompleteTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
+	deleteTaskUseCase := usecase.NewDeleteTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
+	taskHandler := handler.NewTaskHandler(
 		registerTaskUseCase,
 		getAllTaskUseCase,
 		getTaskUseCase,
@@ -67,7 +67,7 @@ func Router() *echo.Echo {
 		deleteTaskUseCase,
 	)
 
-	openapi.RegisterHandlers(g, taskController)
+	openapi.RegisterHandlers(g, taskHandler)
 
 	// ここで処理しないとjaegerのtracingが取れなくなる
 	e.Logger.Fatal(e.Start(":1323"))
