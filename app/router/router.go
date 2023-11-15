@@ -10,7 +10,7 @@ import (
 	fdatabase "github.com/y-nosuke/sample-task-api-go/app/framework/database/infrastructure"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure"
 	usecase2 "github.com/y-nosuke/sample-task-api-go/app/task/application/usecase"
-	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/controller"
+	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/handler"
 	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/repository"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
@@ -21,7 +21,7 @@ import (
 func Router() *echo.Echo {
 	e := echo.New()
 
-	e.Validator = controller.NewValidator()
+	e.Validator = handler.NewValidator()
 
 	c := jaegertracing.New(e, urlSkipper)
 	defer func(c io.Closer) {
@@ -57,7 +57,7 @@ func Router() *echo.Echo {
 	completeTaskUseCase := usecase2.NewCompleteTaskUseCase(taskRepository, taskPresenter)
 	unCompleteTaskUseCase := usecase2.NewUnCompleteTaskUseCase(taskRepository, taskPresenter)
 	deleteTaskUseCase := usecase2.NewDeleteTaskUseCase(taskRepository, taskPresenter)
-	taskController := controller.NewTaskController(
+	taskController := handler.NewTaskController(
 		registerTaskUseCase,
 		getAllTaskUseCase,
 		getTaskUseCase,
