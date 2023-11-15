@@ -1,5 +1,5 @@
 package: openapi
-output: generated/interfaces/openapi/task.gen.go
+output: generated/infrastructure/openapi/task.gen.go
 generate:
   echo-server: true
   client: false

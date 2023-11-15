@@ -1,5 +1,5 @@
 pkgname  = "dao"
-output   = "generated/interfaces/database/dao"
+output   = "generated/infrastructure/database/dao"
 wipe     = true
 no-tests = true
 add-enum-types = true

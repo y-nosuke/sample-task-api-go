@@ -18,8 +18,8 @@ migrate_down:
 
 generate: migrate_up
 	sqlboiler mysql
-	mkdir -p generated/interfaces/openapi
-	oapi-codegen -old-config-style -templates oapi-codegen/templates/ -generate types,server,spec -package openapi -o generated/interfaces/openapi/task.gen.go sample-task-openapi/openapi.yaml
+	mkdir -p generated/infrastructure/openapi
+	oapi-codegen -old-config-style -templates oapi-codegen/templates/ -generate types,server,spec -package openapi -o generated/infrastructure/openapi/task.gen.go sample-task-openapi/openapi.yaml
 
 build: generate
 	go build -v ./...
