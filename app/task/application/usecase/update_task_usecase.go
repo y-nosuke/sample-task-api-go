@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"time"
@@ -30,10 +29,12 @@ func NewUpdateTaskUseCase(taskRepository repository.TaskRepository, taskPresente
 
 func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseArgs) error {
 	task, err := u.taskRepository.GetById(ctx, args.Id)
-	if task == nil {
-		return ferrors.New(ferrors.NotFound, "指定されたタスクが見つかりませんでした。", err)
-	} else if err != nil {
+	if err != nil {
 		return xerrors.Errorf(": %w", err)
+	}
+
+	if task == nil {
+		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
 	}
 
 	task.Update(args.Title, args.Detail, args.Deadline, args.Version)
@@ -41,7 +42,7 @@ func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseA
 	if row, err := u.taskRepository.Update(ctx, task); err != nil {
 		return xerrors.Errorf(": %w", err)
 	} else if row != 1 {
-		return ferrors.New(ferrors.Conflict, "タスクは既に更新済みです。", err)
+		return u.taskPresenter.Conflict(ctx, "タスクは既に更新済みです。")
 	}
 
 	if err := u.taskPresenter.UpdateTaskResponse(ctx, task); err != nil {

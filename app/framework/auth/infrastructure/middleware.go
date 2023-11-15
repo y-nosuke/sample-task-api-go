@@ -7,8 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/lestrrat-go/jwx/jwk"
 	fauth "github.com/y-nosuke/sample-task-api-go/app/framework/auth"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/auth/application/presenter"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context/infrastructure"
-	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"golang.org/x/xerrors"
 	"net/http"
 	"os"
@@ -33,44 +33,50 @@ func init() {
 	}
 }
 
-func ValidateTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(ectx echo.Context) error {
-		fmt.Println("トークン検証を実行します。")
-		tokenString := getToken(ectx.Request())
-		if tokenString == "" {
-			return ferrors.New(ferrors.Unauthorized, "認証されていません。", fmt.Errorf("missing Authorization Header"))
-		}
+func ValidateTokenMiddlewareFunc(authHandlerPresenter presenter.AuthHandlerPresenter) func(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ectx echo.Context) error {
+			fmt.Println("トークン検証を実行します。")
+			cctx := fcontext.Cctx(ectx)
 
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			kid, ok := token.Header["kid"].(string)
-			if !ok {
-				return nil, xerrors.Errorf("kid not found in token header")
+			tokenString := getToken(ectx.Request())
+			if tokenString == "" {
+				return authHandlerPresenter.Unauthorized(cctx.Ctx, "認証されていません。 missing Authorization Header")
 			}
 
-			publicKey, err := getPublicKey(kid)
+			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+				kid, ok := token.Header["kid"].(string)
+				if !ok {
+					return nil, xerrors.Errorf("kid not found in token header")
+				}
+
+				publicKey, err := getPublicKey(kid)
+				if err != nil {
+					return nil, fmt.Errorf("unable to get the public key. Error: %s", err.Error())
+				}
+
+				if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+				}
+				return publicKey, nil
+			})
 			if err != nil {
-				return nil, fmt.Errorf("unable to get the public key. Error: %s", err.Error())
+				fmt.Println(err.Error())
+				return authHandlerPresenter.Unauthorized(cctx.Ctx, "認証されていません。 invalid token")
 			}
 
-			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			auth, err := fauth.NewAuth(token)
+			if err != nil {
+				fmt.Println(err.Error())
+				return authHandlerPresenter.Unauthorized(cctx.Ctx, "認証されていません。")
 			}
-			return publicKey, nil
-		})
-		if err != nil {
-			return ferrors.New(ferrors.Unauthorized, "認証されていません。", fmt.Errorf("invalid token"))
+
+			cctx.WithValue(AUTH, auth)
+
+			return next(ectx)
 		}
-
-		auth, err := fauth.NewAuth(token)
-		if err != nil {
-			return ferrors.New(ferrors.Unauthorized, "認証されていません。", err)
-		}
-
-		cctx := fcontext.Cctx(ectx)
-		cctx.WithValue(AUTH, auth)
-
-		return next(ectx)
 	}
+
 }
 
 func getToken(r *http.Request) string {

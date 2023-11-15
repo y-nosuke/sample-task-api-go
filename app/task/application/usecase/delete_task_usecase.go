@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"github.com/google/uuid"
-	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"golang.org/x/xerrors"
@@ -24,10 +23,12 @@ func NewDeleteTaskUseCase(taskRepository repository.TaskRepository, taskPresente
 
 func (u *DeleteTaskUseCase) Invoke(ctx context.Context, args *DeleteTaskUseCaseArgs) error {
 	task, err := u.taskRepository.GetById(ctx, args.Id)
-	if task == nil {
-		return ferrors.New(ferrors.NotFound, "指定されたタスクが見つかりませんでした。", err)
-	} else if err != nil {
+	if err != nil {
 		return xerrors.Errorf(": %w", err)
+	}
+
+	if task == nil {
+		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
 	}
 
 	if err := u.taskRepository.Delete(ctx, task); err != nil {

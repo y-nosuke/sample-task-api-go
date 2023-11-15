@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	fauth "github.com/y-nosuke/sample-task-api-go/app/framework/auth/infrastructure"
+	fap "github.com/y-nosuke/sample-task-api-go/app/framework/auth/infrastructure/presenter"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context/infrastructure"
 	fdatabase "github.com/y-nosuke/sample-task-api-go/app/framework/database/infrastructure"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure"
@@ -41,10 +42,11 @@ func Router() *echo.Echo {
 
 	g := e.Group("/api/v1")
 
+	authHandlerPresenterImpl := fap.NewAuthHandlerPresenterImpl()
 	g.Use(
 		fcontext.CustomContextMiddleware,
 		ferrors.ErrorHandlerMiddleware,
-		fauth.ValidateTokenMiddleware,
+		fauth.ValidateTokenMiddlewareFunc(authHandlerPresenterImpl),
 		fdatabase.TransactionMiddleware,
 	)
 
@@ -65,6 +67,7 @@ func Router() *echo.Echo {
 		completeTaskUseCase,
 		unCompleteTaskUseCase,
 		deleteTaskUseCase,
+		taskPresenterImpl,
 	)
 
 	openapi.RegisterHandlers(g, taskHandler)

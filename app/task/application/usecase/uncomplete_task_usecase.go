@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"github.com/google/uuid"
-	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"golang.org/x/xerrors"
@@ -25,18 +24,20 @@ func NewUnCompleteTaskUseCase(taskRepository repository.TaskRepository, taskPres
 
 func (u *UnCompleteTaskUseCase) Invoke(ctx context.Context, args *UnCompleteTaskUseCaseArgs) error {
 	task, err := u.taskRepository.GetById(ctx, args.Id)
-	if task == nil {
-		return ferrors.New(ferrors.NotFound, "指定されたタスクが見つかりませんでした。", err)
-	} else if err != nil {
+	if err != nil {
 		return xerrors.Errorf(": %w", err)
+	}
+
+	if task == nil {
+		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
 	}
 
 	task.UnComplete(args.Version)
 
-	if row, err := u.taskRepository.Update(ctx, task); row != 1 {
-		return ferrors.New(ferrors.Conflict, "タスクは既に更新済みです。", err)
-	} else if err != nil {
+	if row, err := u.taskRepository.Update(ctx, task); err != nil {
 		return xerrors.Errorf(": %w", err)
+	} else if row != 1 {
+		return u.taskPresenter.Conflict(ctx, "タスクは既に更新済みです。")
 	}
 
 	if err := u.taskPresenter.NilResponse(ctx); err != nil {

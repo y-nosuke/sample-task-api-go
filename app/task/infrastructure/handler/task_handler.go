@@ -2,15 +2,14 @@ package handler
 
 import (
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
 	fauth "github.com/y-nosuke/sample-task-api-go/app/framework/auth/infrastructure"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context/infrastructure"
-	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
+	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/usecase"
-	"time"
-
-	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/handler/mapping"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
 	"golang.org/x/xerrors"
 )
@@ -23,6 +22,7 @@ type TaskHandler struct {
 	completeTaskUseCase   *usecase.CompleteTaskUseCase
 	unCompleteTaskUseCase *usecase.UnCompleteTaskUseCase
 	deleteTaskUseCase     *usecase.DeleteTaskUseCase
+	taskPresenter         presenter.TaskPresenter
 }
 
 func NewTaskHandler(registerTaskUseCase *usecase.RegisterTaskUseCase,
@@ -32,6 +32,7 @@ func NewTaskHandler(registerTaskUseCase *usecase.RegisterTaskUseCase,
 	completeTaskUseCase *usecase.CompleteTaskUseCase,
 	unCompleteTaskUseCase *usecase.UnCompleteTaskUseCase,
 	deleteTaskUseCase *usecase.DeleteTaskUseCase,
+	taskPresenter presenter.TaskPresenter,
 ) *TaskHandler {
 	return &TaskHandler{
 		registerTaskUseCase,
@@ -41,6 +42,7 @@ func NewTaskHandler(registerTaskUseCase *usecase.RegisterTaskUseCase,
 		completeTaskUseCase,
 		unCompleteTaskUseCase,
 		deleteTaskUseCase,
+		taskPresenter,
 	}
 }
 
@@ -50,7 +52,7 @@ func (h *TaskHandler) RegisterTask(ectx echo.Context) error {
 
 	a := cctx.Value(fauth.AUTH).(*auth.Auth)
 	if !a.HasAuthority("create:task") {
-		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing create:task"))
+		return h.taskPresenter.Forbidden(cctx.Ctx, "指定された操作は許可されていません。 missing create:task")
 	}
 
 	request := new(openapi.RegisterTaskRequest)
@@ -59,10 +61,10 @@ func (h *TaskHandler) RegisterTask(ectx echo.Context) error {
 	}
 
 	if err := ectx.Validate(request); err != nil {
-		return ferrors.New(ferrors.BadRequest, "バリデーションエラーです。", err)
+		return h.taskPresenter.BadRequest(cctx.Ctx, "バリデーションエラーです。", err)
 	}
 
-	args := registerTaskUseCaseArgs(request)
+	args := mapping.RegisterTaskUseCaseArgs(request)
 
 	if err := h.registerTaskUseCase.Invoke(cctx.Ctx, args); err != nil {
 		return xerrors.Errorf(": %w", err)
@@ -77,7 +79,7 @@ func (h *TaskHandler) GetAllTasks(ectx echo.Context) error {
 
 	a := cctx.Value(fauth.AUTH).(*auth.Auth)
 	if !a.HasAuthority("read:task") {
-		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing read:task"))
+		return h.taskPresenter.Forbidden(cctx.Ctx, "指定された操作は許可されていません。 missing read:task")
 	}
 
 	args := &usecase.GetAllTaskUseCaseArgs{}
@@ -95,7 +97,7 @@ func (h *TaskHandler) GetTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := cctx.Value(fauth.AUTH).(*auth.Auth)
 	if !a.HasAuthority("read:task") {
-		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing read:task"))
+		return h.taskPresenter.Forbidden(cctx.Ctx, "指定された操作は許可されていません。 missing read:task")
 	}
 
 	args := &usecase.GetTaskUseCaseArgs{Id: id}
@@ -113,7 +115,7 @@ func (h *TaskHandler) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := cctx.Value(fauth.AUTH).(*auth.Auth)
 	if !a.HasAuthority("update:task") {
-		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing update:task"))
+		return h.taskPresenter.Forbidden(cctx.Ctx, "指定された操作は許可されていません。 missing update:task")
 	}
 
 	request := new(openapi.UpdateTaskRequest)
@@ -122,10 +124,10 @@ func (h *TaskHandler) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 	}
 
 	if err := ectx.Validate(request); err != nil {
-		return ferrors.New(ferrors.BadRequest, "バリデーションエラーです。", err)
+		return h.taskPresenter.BadRequest(cctx.Ctx, "バリデーションエラーです。", err)
 	}
 
-	args, err := updateTaskUseCaseArgs(id, request)
+	args, err := mapping.UpdateTaskUseCaseArgs(id, request)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
@@ -143,7 +145,7 @@ func (h *TaskHandler) CompleteTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := cctx.Value(fauth.AUTH).(*auth.Auth)
 	if !a.HasAuthority("update:task") {
-		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing update:task"))
+		return h.taskPresenter.Forbidden(cctx.Ctx, "指定された操作は許可されていません。 missing update:task")
 	}
 
 	request := new(openapi.CompleteTaskRequest)
@@ -151,7 +153,7 @@ func (h *TaskHandler) CompleteTask(ectx echo.Context, id uuid.UUID) error {
 		return xerrors.Errorf(": %w", err)
 	}
 
-	args, err := completeTaskUseCaseArgs(id, request)
+	args, err := mapping.CompleteTaskUseCaseArgs(id, request)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
@@ -169,7 +171,7 @@ func (h *TaskHandler) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := cctx.Value(fauth.AUTH).(*auth.Auth)
 	if !a.HasAuthority("update:task") {
-		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing update:task"))
+		return h.taskPresenter.Forbidden(cctx.Ctx, "指定された操作は許可されていません。 missing update:task")
 	}
 
 	request := new(openapi.UnCompleteTaskRequest)
@@ -177,7 +179,7 @@ func (h *TaskHandler) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
 		return xerrors.Errorf(": %w", err)
 	}
 
-	args, err := unCompleteTaskUseCaseArgs(id, request)
+	args, err := mapping.UnCompleteTaskUseCaseArgs(id, request)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
@@ -195,7 +197,7 @@ func (h *TaskHandler) DeleteTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := cctx.Value(fauth.AUTH).(*auth.Auth)
 	if !a.HasAuthority("delete:task") {
-		return ferrors.New(ferrors.Forbidden, "指定された操作は許可されていません。", fmt.Errorf("missing delete:task"))
+		return h.taskPresenter.Forbidden(cctx.Ctx, "指定された操作は許可されていません。 missing delete:task")
 	}
 
 	args := &usecase.DeleteTaskUseCaseArgs{Id: id}
@@ -205,41 +207,4 @@ func (h *TaskHandler) DeleteTask(ectx echo.Context, id uuid.UUID) error {
 	}
 
 	return nil
-}
-
-func registerTaskUseCaseArgs(request *openapi.RegisterTaskRequest) *usecase.RegisterTaskUseCaseArgs {
-	var deadline *time.Time
-	if request.Deadline != nil {
-		deadline = &request.Deadline.Time
-	}
-
-	return &usecase.RegisterTaskUseCaseArgs{
-		Title:    request.Title,
-		Detail:   request.Detail,
-		Deadline: deadline,
-	}
-}
-
-func updateTaskUseCaseArgs(id uuid.UUID, request *openapi.UpdateTaskRequest) (*usecase.UpdateTaskUseCaseArgs, error) {
-	return &usecase.UpdateTaskUseCaseArgs{
-		Id:       id,
-		Title:    request.Title,
-		Detail:   request.Detail,
-		Deadline: &request.Deadline.Time,
-		Version:  &request.Version,
-	}, nil
-}
-
-func completeTaskUseCaseArgs(id uuid.UUID, request *openapi.CompleteTaskRequest) (*usecase.CompleteTaskUseCaseArgs, error) {
-	return &usecase.CompleteTaskUseCaseArgs{
-		Id:      id,
-		Version: &request.Version,
-	}, nil
-}
-
-func unCompleteTaskUseCaseArgs(id uuid.UUID, request *openapi.UnCompleteTaskRequest) (*usecase.UnCompleteTaskUseCaseArgs, error) {
-	return &usecase.UnCompleteTaskUseCaseArgs{
-		Id:      id,
-		Version: &request.Version,
-	}, nil
 }
