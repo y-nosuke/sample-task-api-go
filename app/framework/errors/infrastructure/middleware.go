@@ -3,7 +3,7 @@ package interfaces
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
-	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context/infrastructure"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/errors/application/presenter"
 	"golang.org/x/xerrors"
 )
@@ -12,7 +12,7 @@ func ErrorHandlerMiddleware(systemErrorHandlerPresenter presenter.SystemErrorHan
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ectx echo.Context) error {
 			fmt.Println("エラーハンドラーを実行します。")
-			cctx := fcontext.Cctx(ectx)
+			cctx := context.Cctx(ectx)
 
 			if err := next(ectx); err != nil {
 				fmt.Println("エラーハンドラー")

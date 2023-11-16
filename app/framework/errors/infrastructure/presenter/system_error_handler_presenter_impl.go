@@ -2,7 +2,7 @@ package presenter
 
 import (
 	"context"
-	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context/infrastructure"
+	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"net/http"
 
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
@@ -16,7 +16,7 @@ func NewSystemErrorHandlerPresenterImpl() *SystemErrorHandlerPresenterImpl {
 }
 
 func (p *SystemErrorHandlerPresenterImpl) ErrorResponse(ctx context.Context) error {
-	ectx := fcontext.Ectx(ctx)
+	ectx := fcontext.GetEctx(ctx)
 	message := "システムエラーが発生しました。"
 	errorResponse := &openapi.ErrorResponse{Message: &message}
 	return ectx.JSON(http.StatusInternalServerError, errorResponse)

@@ -7,8 +7,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
-	fauth "github.com/y-nosuke/sample-task-api-go/app/framework/auth/infrastructure"
-	fdatabase "github.com/y-nosuke/sample-task-api-go/app/framework/database/infrastructure"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
 	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/repository/mapping"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/database/dao"
@@ -23,13 +22,13 @@ func NewTaskRepositoryImpl() *TaskRepositoryImpl {
 }
 
 func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entity.Task) error {
-	a := ctx.Value(fauth.AUTH).(*auth.Auth)
+	a := auth.GetAuth(ctx)
 	rTask, err := mapping.RTask(task, &a.UserId, task.Version)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
 
-	tx := ctx.Value(fdatabase.TRANSACTION).(boil.ContextExecutor)
+	tx := database.GetTransaction(ctx)
 	if err = rTask.Insert(ctx, tx, boil.Infer()); err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
@@ -58,7 +57,7 @@ func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entity.Task) er
 }
 
 func (t *TaskRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Task, error) {
-	tx := ctx.Value(fdatabase.TRANSACTION).(boil.ContextExecutor)
+	tx := database.GetTransaction(ctx)
 	rTaskSlice, err := dao.RTasks(qm.OrderBy("updated_at DESC")).All(ctx, tx)
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
@@ -75,13 +74,12 @@ func (t *TaskRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Task, error)
 }
 
 func (t *TaskRepositoryImpl) GetById(ctx context.Context, id uuid.UUID) (*entity.Task, error) {
-	tx := ctx.Value(fdatabase.TRANSACTION).(boil.ContextExecutor)
-
 	taskId, err := id.MarshalBinary()
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
 	}
 
+	tx := database.GetTransaction(ctx)
 	rTask, err := dao.FindRTask(ctx, tx, taskId)
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
@@ -102,7 +100,7 @@ func (t *TaskRepositoryImpl) GetById(ctx context.Context, id uuid.UUID) (*entity
 }
 
 func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task, oldVersion *uuid.UUID) (int, error) {
-	a := ctx.Value(fauth.AUTH).(*auth.Auth)
+	a := auth.GetAuth(ctx)
 	newVersion := uuid.New()
 	rTask, err := mapping.RTask(task, &a.UserId, &newVersion)
 	if err != nil {
@@ -114,7 +112,7 @@ func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task, oldV
 		return 0, xerrors.Errorf(": %w", err)
 	}
 
-	tx := ctx.Value(fdatabase.TRANSACTION).(boil.ContextExecutor)
+	tx := database.GetTransaction(ctx)
 	if rowsAff, err := dao.
 		RTasks(dao.RTaskWhere.ID.EQ(rTask.ID), dao.RTaskWhere.Version.EQ(byteOldVersion)).
 		UpdateAll(ctx, tx, dao.M{"id": rTask.ID, "title": rTask.Title, "detail": rTask.Detail, "completed": rTask.Completed, "deadline": rTask.Deadline, "version": rTask.Version}); err != nil || rowsAff != 1 {
@@ -139,13 +137,13 @@ func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task, oldV
 }
 
 func (t *TaskRepositoryImpl) Delete(ctx context.Context, task *entity.Task) error {
-	a := ctx.Value(fauth.AUTH).(*auth.Auth)
+	a := auth.GetAuth(ctx)
 	rTask, err := mapping.RTask(task, &a.UserId, task.Version)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
 
-	tx := ctx.Value(fdatabase.TRANSACTION).(boil.ContextExecutor)
+	tx := database.GetTransaction(ctx)
 	if _, err = rTask.Delete(ctx, tx); err != nil {
 		return xerrors.Errorf(": %w", err)
 	}

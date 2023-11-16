@@ -2,7 +2,7 @@ package presenter
 
 import (
 	"context"
-	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context/infrastructure"
+	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
 	"net/http"
 )
@@ -15,6 +15,6 @@ func NewAuthHandlerPresenterImpl() *AuthHandlerPresenterImpl {
 }
 
 func (p *AuthHandlerPresenterImpl) Unauthorized(ctx context.Context, message string) error {
-	ectx := fcontext.Ectx(ctx)
+	ectx := fcontext.GetEctx(ctx)
 	return ectx.JSON(http.StatusUnauthorized, &openapi.ErrorResponse{Message: &message})
 }

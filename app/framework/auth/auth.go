@@ -1,15 +1,31 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"golang.org/x/exp/slices"
 	"golang.org/x/xerrors"
 	"strings"
 )
 
-type Auth struct {
+type ctxKey int
+
+const (
+	AUTH ctxKey = iota
+)
+
+func SetAuth(cctx *fcontext.CustomContext, auth *Authentication) {
+	cctx.WithValue(AUTH, auth)
+}
+
+func GetAuth(ctx context.Context) *Authentication {
+	return ctx.Value(AUTH).(*Authentication)
+}
+
+type Authentication struct {
 	UserId      uuid.UUID
 	GivenName   string
 	FamilyName  string
@@ -18,7 +34,7 @@ type Auth struct {
 	Authorities []string
 }
 
-func NewAuth(token *jwt.Token) (*Auth, error) {
+func NewAuth(token *jwt.Token) (*Authentication, error) {
 	mapClaims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
 		return nil, fmt.Errorf("invalid token")
@@ -36,7 +52,7 @@ func NewAuth(token *jwt.Token) (*Auth, error) {
 		return nil, xerrors.Errorf(": %w", err)
 	}
 
-	return &Auth{
+	return &Authentication{
 		UserId:      userId,
 		GivenName:   mapClaims["given_name"].(string),
 		FamilyName:  mapClaims["family_name"].(string),
@@ -46,6 +62,6 @@ func NewAuth(token *jwt.Token) (*Auth, error) {
 	}, nil
 }
 
-func (a *Auth) HasAuthority(authority string) bool {
+func (a *Authentication) HasAuthority(authority string) bool {
 	return slices.Contains(a.Authorities, authority)
 }

@@ -24,6 +24,7 @@ func Router() *echo.Echo {
 
 	c := jaegertracing.New(e, urlSkipper)
 	defer func(c io.Closer) {
+		// TODO: deferのエラー処理
 		err := c.Close()
 		if err != nil {
 			panic(err)

@@ -3,7 +3,8 @@ package infrastructure
 import (
 	"database/sql"
 	"fmt"
-	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context/infrastructure"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/context"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
 	"os"
 	"time"
 
@@ -11,12 +12,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"golang.org/x/xerrors"
-)
-
-type ctxKey int
-
-const (
-	TRANSACTION ctxKey = iota
 )
 
 func init() {
@@ -44,7 +39,7 @@ func init() {
 func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(ectx echo.Context) (err error) {
 		fmt.Println("トランザクションを開始します。")
-		cctx := fcontext.Cctx(ectx)
+		cctx := context.Cctx(ectx)
 
 		tx, err := boil.BeginTx(cctx.Ctx, nil)
 		if err != nil {
@@ -54,6 +49,7 @@ func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			if p := recover(); p != nil {
 				fmt.Println("ロールバックします。")
 				_ = tx.Rollback()
+				// TODO: deferのエラー処理
 				panic(p)
 			} else if err != nil {
 				fmt.Println("ロールバックします。")
@@ -66,7 +62,7 @@ func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 				err = tx.Commit()
 			}
 		}()
-		cctx.WithValue(TRANSACTION, tx)
+		database.SetTransaction(cctx, tx)
 
 		err = next(ectx)
 
