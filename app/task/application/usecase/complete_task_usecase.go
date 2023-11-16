@@ -35,7 +35,7 @@ func (u *CompleteTaskUseCase) Invoke(ctx context.Context, args *CompleteTaskUseC
 	task.Complete(args.Version)
 
 	// TODO 重複エラーは独自errorを返すようにする
-	if row, err := u.taskRepository.Update(ctx, task); err != nil {
+	if row, err := u.taskRepository.Update(ctx, task, args.Version); err != nil {
 		return xerrors.Errorf(": %w", err)
 	} else if row != 1 {
 		return u.taskPresenter.Conflict(ctx, "タスクは既に更新済みです。")

@@ -24,7 +24,7 @@ func NewTaskRepositoryImpl() *TaskRepositoryImpl {
 
 func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entity.Task) error {
 	a := ctx.Value(fauth.AUTH).(*auth.Auth)
-	rTask, err := mapping.RTask(task, &a.UserId)
+	rTask, err := mapping.RTask(task, &a.UserId, task.Version)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
@@ -101,23 +101,22 @@ func (t *TaskRepositoryImpl) GetById(ctx context.Context, id uuid.UUID) (*entity
 	return task, nil
 }
 
-func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task) (int, error) {
+func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task, oldVersion *uuid.UUID) (int, error) {
 	a := ctx.Value(fauth.AUTH).(*auth.Auth)
-	rTask, err := mapping.RTask(task, &a.UserId)
+	newVersion := uuid.New()
+	rTask, err := mapping.RTask(task, &a.UserId, &newVersion)
 	if err != nil {
 		return 0, xerrors.Errorf(": %w", err)
 	}
 
-	oldVersion := rTask.Version
-
-	rTask.Version, err = uuid.New().MarshalBinary()
+	byteOldVersion, err := oldVersion.MarshalBinary()
 	if err != nil {
 		return 0, xerrors.Errorf(": %w", err)
 	}
 
 	tx := ctx.Value(fdatabase.TRANSACTION).(boil.ContextExecutor)
 	if rowsAff, err := dao.
-		RTasks(dao.RTaskWhere.ID.EQ(rTask.ID), dao.RTaskWhere.Version.EQ(oldVersion)).
+		RTasks(dao.RTaskWhere.ID.EQ(rTask.ID), dao.RTaskWhere.Version.EQ(byteOldVersion)).
 		UpdateAll(ctx, tx, dao.M{"id": rTask.ID, "title": rTask.Title, "detail": rTask.Detail, "completed": rTask.Completed, "deadline": rTask.Deadline, "version": rTask.Version}); err != nil || rowsAff != 1 {
 		return int(rowsAff), xerrors.Errorf(": %w", err)
 	}
@@ -130,18 +129,18 @@ func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task) (int
 	}
 	task.UpdatedBy = &updatedBy
 	task.UpdatedAt = &rTask.UpdatedAt
-	version, err := uuid.FromBytes(rTask.Version)
+	_version, err := uuid.FromBytes(rTask.Version)
 	if err != nil {
 		return 0, xerrors.Errorf(": %w", err)
 	}
-	task.Version = &version
+	task.Version = &_version
 
 	return 1, nil
 }
 
 func (t *TaskRepositoryImpl) Delete(ctx context.Context, task *entity.Task) error {
 	a := ctx.Value(fauth.AUTH).(*auth.Auth)
-	rTask, err := mapping.RTask(task, &a.UserId)
+	rTask, err := mapping.RTask(task, &a.UserId, task.Version)
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}

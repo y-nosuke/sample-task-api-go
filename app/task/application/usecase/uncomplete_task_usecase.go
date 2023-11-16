@@ -34,7 +34,7 @@ func (u *UnCompleteTaskUseCase) Invoke(ctx context.Context, args *UnCompleteTask
 
 	task.UnComplete(args.Version)
 
-	if row, err := u.taskRepository.Update(ctx, task); err != nil {
+	if row, err := u.taskRepository.Update(ctx, task, args.Version); err != nil {
 		return xerrors.Errorf(": %w", err)
 	} else if row != 1 {
 		return u.taskPresenter.Conflict(ctx, "タスクは既に更新済みです。")

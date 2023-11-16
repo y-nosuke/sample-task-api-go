@@ -9,21 +9,21 @@ import (
 	"time"
 )
 
-func RTask(task *entity.Task, userId *uuid.UUID) (*dao.RTask, error) {
+func RTask(task *entity.Task, userId *uuid.UUID, version *uuid.UUID) (*dao.RTask, error) {
 	id, err := task.Id.MarshalBinary()
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
 	}
 
-	var version []byte
-	if task.Version != nil {
-		version, err = task.Version.MarshalBinary()
+	var byteVersion []byte
+	if version != nil {
+		byteVersion, err = version.MarshalBinary()
 		if err != nil {
 			return nil, xerrors.Errorf(": %w", err)
 		}
 	}
 
-	uid, err := userId.MarshalBinary()
+	byteUserId, err := userId.MarshalBinary()
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
 	}
@@ -34,9 +34,9 @@ func RTask(task *entity.Task, userId *uuid.UUID) (*dao.RTask, error) {
 		Detail:    null.StringFromPtr(task.Detail),
 		Completed: task.Completed,
 		Deadline:  null.TimeFromPtr(task.Deadline),
-		CreatedBy: uid,
-		UpdatedBy: uid,
-		Version:   version,
+		CreatedBy: byteUserId,
+		UpdatedBy: byteUserId,
+		Version:   byteVersion,
 	}, nil
 }
 
