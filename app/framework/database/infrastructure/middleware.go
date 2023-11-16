@@ -48,14 +48,13 @@ func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		defer func() {
 			if p := recover(); p != nil {
 				fmt.Println("ロールバックします。")
-				_ = tx.Rollback()
-				// TODO: deferのエラー処理
-				panic(p)
+				rollbackErr := tx.Rollback()
+				err = fmt.Errorf("original error: %v, defer rollback error: %v", err, rollbackErr)
 			} else if err != nil {
 				fmt.Println("ロールバックします。")
-				err := tx.Rollback()
+				rollbackErr := tx.Rollback()
 				if err != nil {
-					return
+					err = fmt.Errorf("original error: %v, defer rollback error: %v", err, rollbackErr)
 				}
 			} else {
 				fmt.Println("コミットします。")

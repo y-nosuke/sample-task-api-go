@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo-contrib/jaegertracing"
 	"github.com/labstack/echo/v4"
@@ -16,18 +17,16 @@ import (
 	"strings"
 )
 
-func Router() *echo.Echo {
-	e := echo.New()
+func Router() (e *echo.Echo, err error) {
+	e = echo.New()
 
 	e.HTTPErrorHandler = customHTTPErrorHandler
 	e.Validator = NewValidator()
 
 	c := jaegertracing.New(e, urlSkipper)
 	defer func(c io.Closer) {
-		// TODO: deferのエラー処理
-		err := c.Close()
-		if err != nil {
-			panic(err)
+		if closeErr := c.Close(); closeErr != nil {
+			err = fmt.Errorf("original error: %v, defer close error: %v", err, closeErr)
 		}
 	}(c)
 
@@ -54,7 +53,7 @@ func Router() *echo.Echo {
 
 	// ここで処理しないとjaegerのtracingが取れなくなる
 	e.Logger.Fatal(e.Start(":1323"))
-	return e
+	return e, nil
 }
 
 func urlSkipper(c echo.Context) bool {

@@ -5,5 +5,8 @@ import (
 )
 
 func main() {
-	router.Router()
+	_, err := router.Router()
+	if err != nil {
+		panic(err)
+	}
 }
