@@ -4,6 +4,7 @@
       <w>cctx</w>
       <w>ectx</w>
       <w>initdb</w>
+      <w>jwks</w>
       <w>mailhog</w>
     </words>
   </dictionary>

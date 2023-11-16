@@ -11,11 +11,7 @@ import (
 	fdatabase "github.com/y-nosuke/sample-task-api-go/app/framework/database/infrastructure"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure"
 	fep "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure/presenter"
-	"github.com/y-nosuke/sample-task-api-go/app/task/application/usecase"
-	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/handler"
-	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/presenter"
-	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/repository"
-	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
+	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
 	"io"
 	"strings"
 )
@@ -24,7 +20,7 @@ func Router() *echo.Echo {
 	e := echo.New()
 
 	e.HTTPErrorHandler = customHTTPErrorHandler
-	e.Validator = handler.NewValidator()
+	e.Validator = NewValidator()
 
 	c := jaegertracing.New(e, urlSkipper)
 	defer func(c io.Closer) {
@@ -44,36 +40,16 @@ func Router() *echo.Echo {
 
 	g := e.Group("/api/v1")
 
-	errorHandlerPresenterImpl := fep.NewSystemErrorHandlerPresenterImpl()
+	systemErrorHandlerPresenterImpl := fep.NewSystemErrorHandlerPresenterImpl()
 	authHandlerPresenterImpl := fap.NewAuthHandlerPresenterImpl()
 	g.Use(
 		fcontext.CustomContextMiddleware,
-		ferrors.ErrorHandlerMiddlewareFunc(errorHandlerPresenterImpl),
-		fauth.ValidateTokenMiddlewareFunc(authHandlerPresenterImpl),
+		ferrors.ErrorHandlerMiddleware(systemErrorHandlerPresenterImpl),
+		fauth.ValidateTokenMiddleware(authHandlerPresenterImpl),
 		fdatabase.TransactionMiddleware,
 	)
 
-	taskRepositoryImpl := repository.NewTaskRepositoryImpl()
-	taskPresenterImpl := presenter.NewTaskPresenterImpl()
-	registerTaskUseCase := usecase.NewRegisterTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
-	getAllTaskUseCase := usecase.NewGetAllTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
-	getTaskUseCase := usecase.NewGetTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
-	updateTaskUseCase := usecase.NewUpdateTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
-	completeTaskUseCase := usecase.NewCompleteTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
-	unCompleteTaskUseCase := usecase.NewUnCompleteTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
-	deleteTaskUseCase := usecase.NewDeleteTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
-	taskHandler := handler.NewTaskHandler(
-		registerTaskUseCase,
-		getAllTaskUseCase,
-		getTaskUseCase,
-		updateTaskUseCase,
-		completeTaskUseCase,
-		unCompleteTaskUseCase,
-		deleteTaskUseCase,
-		taskPresenterImpl,
-	)
-
-	openapi.RegisterHandlers(g, taskHandler)
+	tr.TaskRouter(g)
 
 	// ここで処理しないとjaegerのtracingが取れなくなる
 	e.Logger.Fatal(e.Start(":1323"))
