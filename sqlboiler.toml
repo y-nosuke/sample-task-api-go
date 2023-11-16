@@ -1,8 +1,9 @@
-pkgname  = "dao"
-output   = "generated/infrastructure/database/dao"
-wipe     = true
-no-tests = true
-add-enum-types = true
+pkgname            = "dao"
+output             = "generated/infrastructure/database/dao"
+wipe               = true
+no-tests           = true
+add-enum-types     = true
+no-auto-timestamps = true
 
 [mysql]
   dbname  = "task"

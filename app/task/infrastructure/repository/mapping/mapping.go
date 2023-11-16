@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func TaskDto(task *entity.Task, userId *uuid.UUID) (*dao.Task, error) {
+func RTask(task *entity.Task, userId *uuid.UUID) (*dao.RTask, error) {
 	id, err := task.Id.MarshalBinary()
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
@@ -28,7 +28,7 @@ func TaskDto(task *entity.Task, userId *uuid.UUID) (*dao.Task, error) {
 		return nil, xerrors.Errorf(": %w", err)
 	}
 
-	return &dao.Task{
+	return &dao.RTask{
 		ID:        id,
 		Title:     task.Title,
 		Detail:    null.StringFromPtr(task.Detail),
@@ -40,61 +40,61 @@ func TaskDto(task *entity.Task, userId *uuid.UUID) (*dao.Task, error) {
 	}, nil
 }
 
-func TaskSlice(taskSlice dao.TaskSlice) (entity.TaskSlice, error) {
-	var tasks entity.TaskSlice
-	for _, t := range taskSlice {
+func TaskSlice(rTaskSlice dao.RTaskSlice) (entity.TaskSlice, error) {
+	var taskSlice entity.TaskSlice
+	for _, t := range rTaskSlice {
 		task, err := Task(t)
 		if err != nil {
 			return nil, xerrors.Errorf(": %w", err)
 		}
 
-		tasks = append(tasks, task)
+		taskSlice = append(taskSlice, task)
 	}
 
-	return tasks, nil
+	return taskSlice, nil
 }
 
-func Task(taskDto *dao.Task) (*entity.Task, error) {
-	id, err := uuid.FromBytes(taskDto.ID)
+func Task(rTask *dao.RTask) (*entity.Task, error) {
+	id, err := uuid.FromBytes(rTask.ID)
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
 	}
 
 	var detail *string
-	if taskDto.Detail.Valid {
-		detail = &taskDto.Detail.String
+	if rTask.Detail.Valid {
+		detail = &rTask.Detail.String
 	}
 
 	var deadline *time.Time
-	if taskDto.Deadline.Valid {
-		deadline = &taskDto.Deadline.Time
+	if rTask.Deadline.Valid {
+		deadline = &rTask.Deadline.Time
 	}
 
-	createdBy, err := uuid.FromBytes(taskDto.CreatedBy)
+	createdBy, err := uuid.FromBytes(rTask.CreatedBy)
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
 	}
 
-	updatedBy, err := uuid.FromBytes(taskDto.UpdatedBy)
+	updatedBy, err := uuid.FromBytes(rTask.UpdatedBy)
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
 	}
 
-	version, err := uuid.FromBytes(taskDto.Version)
+	version, err := uuid.FromBytes(rTask.Version)
 	if err != nil {
 		return nil, xerrors.Errorf(": %w", err)
 	}
 
 	return &entity.Task{
 		Id:        &id,
-		Title:     taskDto.Title,
+		Title:     rTask.Title,
 		Detail:    detail,
-		Completed: taskDto.Completed,
+		Completed: rTask.Completed,
 		Deadline:  deadline,
 		CreatedBy: &createdBy,
-		CreatedAt: &taskDto.CreatedAt,
+		CreatedAt: &rTask.CreatedAt,
 		UpdatedBy: &updatedBy,
-		UpdatedAt: &taskDto.UpdatedAt,
+		UpdatedAt: &rTask.UpdatedAt,
 		Version:   &version,
 	}, nil
 }

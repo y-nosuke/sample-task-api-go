@@ -39,7 +39,7 @@ bin: generate
 run: build
 	go run ./...
 
-air: build
+air: generate
 	air
 
 image: generate
