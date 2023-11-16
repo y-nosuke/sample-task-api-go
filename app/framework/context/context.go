@@ -11,7 +11,7 @@ const (
 	ECTX ctxKey = iota
 )
 
-func SetEctx(cctx *CustomContext, ectx echo.Context) {
+func SetEctx(cctx *CustomContextImpl, ectx echo.Context) {
 	cctx.WithValue(ECTX, ectx)
 }
 
@@ -20,26 +20,31 @@ func GetEctx(ctx context.Context) echo.Context {
 }
 
 func Ctx(ectx echo.Context) context.Context {
-	return ectx.(*CustomContext).Ctx
+	return ectx.(*CustomContextImpl).Ctx
 }
 
-func Cctx(ectx echo.Context) *CustomContext {
-	return ectx.(*CustomContext)
+func Cctx(ectx echo.Context) *CustomContextImpl {
+	return ectx.(*CustomContextImpl)
 }
 
-type CustomContext struct {
+type CustomContext interface {
+	WithValue(key any, val any)
+	Value(key any) any
+}
+
+type CustomContextImpl struct {
 	echo.Context
 	Ctx context.Context
 }
 
-func NewCustomContext(ectx echo.Context, ctx context.Context) *CustomContext {
-	return &CustomContext{ectx, ctx}
+func NewCustomContext(ectx echo.Context, ctx context.Context) *CustomContextImpl {
+	return &CustomContextImpl{ectx, ctx}
 }
 
-func (c *CustomContext) WithValue(key any, val any) {
+func (c *CustomContextImpl) WithValue(key any, val any) {
 	c.Ctx = context.WithValue(c.Ctx, key, val)
 }
 
-func (c *CustomContext) Value(key any) any {
+func (c *CustomContextImpl) Value(key any) any {
 	return c.Ctx.Value(key)
 }

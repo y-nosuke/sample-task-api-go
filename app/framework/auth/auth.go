@@ -17,7 +17,7 @@ const (
 	AUTH ctxKey = iota
 )
 
-func SetAuth(cctx *fcontext.CustomContext, auth *Authentication) {
+func SetAuth(cctx fcontext.CustomContext, auth *Authentication) {
 	cctx.WithValue(AUTH, auth)
 }
 

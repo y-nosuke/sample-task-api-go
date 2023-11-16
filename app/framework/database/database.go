@@ -12,7 +12,7 @@ const (
 	TRANSACTION ctxKey = iota
 )
 
-func SetTransaction(cctx *fcontext.CustomContext, tx *sql.Tx) {
+func SetTransaction(cctx fcontext.CustomContext, tx *sql.Tx) {
 	cctx.WithValue(TRANSACTION, tx)
 }
 
