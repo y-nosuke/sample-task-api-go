@@ -24,7 +24,7 @@ func NewDeleteTaskUseCase(taskRepository repository.TaskRepository, taskPresente
 func (u *DeleteTaskUseCase) Invoke(ctx context.Context, args *DeleteTaskUseCaseArgs) error {
 	task, err := u.taskRepository.GetById(ctx, args.Id)
 	if err != nil {
-		return xerrors.Errorf(": %w", err)
+		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
 
 	if task == nil {
@@ -32,11 +32,11 @@ func (u *DeleteTaskUseCase) Invoke(ctx context.Context, args *DeleteTaskUseCaseA
 	}
 
 	if err := u.taskRepository.Delete(ctx, task); err != nil {
-		return xerrors.Errorf(": %w", err)
+		return xerrors.Errorf("taskRepository.Delete(): %w", err)
 	}
 
 	if err := u.taskPresenter.NoContentResponse(ctx); err != nil {
-		return xerrors.Errorf(": %w", err)
+		return xerrors.Errorf("taskPresenter.NoContentResponse(): %w", err)
 	}
 
 	return nil

@@ -2,7 +2,7 @@ package auth
 
 import (
 	"context"
-	"fmt"
+	"github.com/friendsofgo/errors"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
@@ -37,7 +37,7 @@ type Authentication struct {
 func NewAuth(token *jwt.Token) (*Authentication, error) {
 	mapClaims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return nil, fmt.Errorf("invalid token")
+		return nil, errors.Errorf("invalid token")
 	}
 
 	iRoles := mapClaims["realm_access"].(map[string]interface{})["roles"].([]interface{})
@@ -49,7 +49,7 @@ func NewAuth(token *jwt.Token) (*Authentication, error) {
 	sUserId := mapClaims["sub"].(string)
 	userId, err := uuid.Parse(sUserId)
 	if err != nil {
-		return nil, xerrors.Errorf(": %w", err)
+		return nil, xerrors.Errorf("uuid.Parse(): %w", err)
 	}
 
 	return &Authentication{

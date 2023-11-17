@@ -18,7 +18,7 @@ func ErrorHandlerMiddleware(systemErrorHandlerPresenter presenter.SystemErrorHan
 				fmt.Println("エラーハンドラー")
 
 				if err := systemErrorHandlerPresenter.ErrorResponse(cctx.Ctx); err != nil {
-					return xerrors.Errorf(": %w", err)
+					return xerrors.Errorf("systemErrorHandlerPresenter.ErrorResponse(): %w", err)
 				}
 
 				return err

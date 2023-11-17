@@ -12,20 +12,20 @@ import (
 func RTask(task *entity.Task, userId *uuid.UUID, version *uuid.UUID) (*dao.RTask, error) {
 	id, err := task.Id.MarshalBinary()
 	if err != nil {
-		return nil, xerrors.Errorf(": %w", err)
+		return nil, xerrors.Errorf("task.Id.MarshalBinary(): %w", err)
 	}
 
 	var byteVersion []byte
 	if version != nil {
 		byteVersion, err = version.MarshalBinary()
 		if err != nil {
-			return nil, xerrors.Errorf(": %w", err)
+			return nil, xerrors.Errorf("version.MarshalBinary(): %w", err)
 		}
 	}
 
 	byteUserId, err := userId.MarshalBinary()
 	if err != nil {
-		return nil, xerrors.Errorf(": %w", err)
+		return nil, xerrors.Errorf("userId.MarshalBinary(): %w", err)
 	}
 
 	return &dao.RTask{
@@ -45,7 +45,7 @@ func TaskSlice(rTaskSlice dao.RTaskSlice) (entity.TaskSlice, error) {
 	for _, t := range rTaskSlice {
 		task, err := Task(t)
 		if err != nil {
-			return nil, xerrors.Errorf(": %w", err)
+			return nil, xerrors.Errorf("Task(): %w", err)
 		}
 
 		taskSlice = append(taskSlice, task)
@@ -57,7 +57,7 @@ func TaskSlice(rTaskSlice dao.RTaskSlice) (entity.TaskSlice, error) {
 func Task(rTask *dao.RTask) (*entity.Task, error) {
 	id, err := uuid.FromBytes(rTask.ID)
 	if err != nil {
-		return nil, xerrors.Errorf(": %w", err)
+		return nil, xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
 
 	var detail *string
@@ -72,17 +72,17 @@ func Task(rTask *dao.RTask) (*entity.Task, error) {
 
 	createdBy, err := uuid.FromBytes(rTask.CreatedBy)
 	if err != nil {
-		return nil, xerrors.Errorf(": %w", err)
+		return nil, xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
 
 	updatedBy, err := uuid.FromBytes(rTask.UpdatedBy)
 	if err != nil {
-		return nil, xerrors.Errorf(": %w", err)
+		return nil, xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
 
 	version, err := uuid.FromBytes(rTask.Version)
 	if err != nil {
-		return nil, xerrors.Errorf(": %w", err)
+		return nil, xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
 
 	return &entity.Task{

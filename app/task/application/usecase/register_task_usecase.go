@@ -29,11 +29,11 @@ func (u *RegisterTaskUseCase) Invoke(ctx context.Context, args *RegisterTaskUseC
 	task := entity.NewTask(args.Title, args.Detail, args.Deadline)
 
 	if err := u.taskRepository.Register(ctx, task); err != nil {
-		return xerrors.Errorf(": %w", err)
+		return xerrors.Errorf("taskRepository.Register(): %w", err)
 	}
 
 	if err := u.taskPresenter.RegisterTaskResponse(ctx, task); err != nil {
-		return xerrors.Errorf(": %w", err)
+		return xerrors.Errorf("taskPresenter.RegisterTaskResponse(): %w", err)
 	}
 
 	return nil

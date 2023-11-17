@@ -24,7 +24,7 @@ func NewGetTaskUseCase(taskRepository repository.TaskRepository, taskPresenter p
 func (u *GetTaskUseCase) Invoke(ctx context.Context, args *GetTaskUseCaseArgs) error {
 	task, err := u.taskRepository.GetById(ctx, args.Id)
 	if err != nil {
-		return xerrors.Errorf(": %w", err)
+		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
 
 	if task == nil {
@@ -32,7 +32,7 @@ func (u *GetTaskUseCase) Invoke(ctx context.Context, args *GetTaskUseCaseArgs) e
 	}
 
 	if err := u.taskPresenter.GetTaskResponse(ctx, task); err != nil {
-		return xerrors.Errorf(": %w", err)
+		return xerrors.Errorf("taskPresenter.GetTaskResponse(): %w", err)
 	}
 
 	return nil

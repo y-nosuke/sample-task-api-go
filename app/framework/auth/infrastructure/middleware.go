@@ -46,11 +46,11 @@ func ValidateTokenMiddleware(authHandlerPresenter presenter.AuthHandlerPresenter
 
 				publicKey, err := getPublicKey(kid)
 				if err != nil {
-					return nil, fmt.Errorf("unable to get the public key. Error: %s", err.Error())
+					return nil, xerrors.Errorf("unable to get the public key. Error: %s", err.Error())
 				}
 
 				if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+					return nil, xerrors.Errorf("unexpected signing method: %v", token.Header["alg"])
 				}
 				return publicKey, nil
 			})

@@ -43,18 +43,18 @@ func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 		tx, err := boil.BeginTx(cctx.Ctx, nil)
 		if err != nil {
-			return xerrors.Errorf(": %w", err)
+			return xerrors.Errorf("boil.BeginTx(): %w", err)
 		}
 		defer func() {
 			if p := recover(); p != nil {
 				fmt.Println("ロールバックします。")
 				rollbackErr := tx.Rollback()
-				err = fmt.Errorf("original error: %v, defer rollback error: %v", err, rollbackErr)
+				err = xerrors.Errorf("original error: %v, defer rollback error: %v", err, rollbackErr)
 			} else if err != nil {
 				fmt.Println("ロールバックします。")
 				rollbackErr := tx.Rollback()
 				if err != nil {
-					err = fmt.Errorf("original error: %v, defer rollback error: %v", err, rollbackErr)
+					err = xerrors.Errorf("original error: %v, defer rollback error: %v", err, rollbackErr)
 				}
 			} else {
 				fmt.Println("コミットします。")

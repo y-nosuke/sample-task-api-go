@@ -30,7 +30,7 @@ func NewUpdateTaskUseCase(taskRepository repository.TaskRepository, taskPresente
 func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseArgs) error {
 	task, err := u.taskRepository.GetById(ctx, args.Id)
 	if err != nil {
-		return xerrors.Errorf(": %w", err)
+		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
 
 	if task == nil {
@@ -40,13 +40,13 @@ func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseA
 	task.Update(args.Title, args.Detail, args.Deadline, args.Version)
 
 	if row, err := u.taskRepository.Update(ctx, task, args.Version); err != nil {
-		return xerrors.Errorf(": %w", err)
+		return xerrors.Errorf("taskRepository.Update(): %w", err)
 	} else if row != 1 {
 		return u.taskPresenter.Conflict(ctx, "タスクは既に更新済みです。")
 	}
 
 	if err := u.taskPresenter.UpdateTaskResponse(ctx, task); err != nil {
-		return xerrors.Errorf(": %w", err)
+		return xerrors.Errorf("taskPresenter.UpdateTaskResponse(): %w", err)
 	}
 
 	return nil

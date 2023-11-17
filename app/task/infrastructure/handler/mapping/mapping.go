@@ -20,26 +20,26 @@ func RegisterTaskUseCaseArgs(request *openapi.RegisterTaskRequest) *usecase.Regi
 	}
 }
 
-func UpdateTaskUseCaseArgs(id uuid.UUID, request *openapi.UpdateTaskRequest) (*usecase.UpdateTaskUseCaseArgs, error) {
+func UpdateTaskUseCaseArgs(id uuid.UUID, request *openapi.UpdateTaskRequest) *usecase.UpdateTaskUseCaseArgs {
 	return &usecase.UpdateTaskUseCaseArgs{
 		Id:       id,
 		Title:    request.Title,
 		Detail:   request.Detail,
 		Deadline: &request.Deadline.Time,
 		Version:  &request.Version,
-	}, nil
+	}
 }
 
-func CompleteTaskUseCaseArgs(id uuid.UUID, request *openapi.CompleteTaskRequest) (*usecase.CompleteTaskUseCaseArgs, error) {
+func CompleteTaskUseCaseArgs(id uuid.UUID, request *openapi.CompleteTaskRequest) *usecase.CompleteTaskUseCaseArgs {
 	return &usecase.CompleteTaskUseCaseArgs{
 		Id:      id,
 		Version: &request.Version,
-	}, nil
+	}
 }
 
-func UnCompleteTaskUseCaseArgs(id uuid.UUID, request *openapi.UnCompleteTaskRequest) (*usecase.UnCompleteTaskUseCaseArgs, error) {
+func UnCompleteTaskUseCaseArgs(id uuid.UUID, request *openapi.UnCompleteTaskRequest) *usecase.UnCompleteTaskUseCaseArgs {
 	return &usecase.UnCompleteTaskUseCaseArgs{
 		Id:      id,
 		Version: &request.Version,
-	}, nil
+	}
 }
