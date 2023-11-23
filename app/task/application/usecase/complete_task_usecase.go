@@ -3,6 +3,8 @@ package usecase
 import (
 	"context"
 	"github.com/google/uuid"
+	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
+	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"golang.org/x/xerrors"
@@ -16,10 +18,11 @@ type CompleteTaskUseCaseArgs struct {
 type CompleteTaskUseCase struct {
 	taskRepository repository.TaskRepository
 	taskPresenter  presenter.TaskPresenter
+	publisher      observer.Publisher[nevent.DomainEvent]
 }
 
-func NewCompleteTaskUseCase(taskRepository repository.TaskRepository, taskPresenter presenter.TaskPresenter) *CompleteTaskUseCase {
-	return &CompleteTaskUseCase{taskRepository, taskPresenter}
+func NewCompleteTaskUseCase(taskRepository repository.TaskRepository, taskPresenter presenter.TaskPresenter, publisher observer.Publisher[nevent.DomainEvent]) *CompleteTaskUseCase {
+	return &CompleteTaskUseCase{taskRepository, taskPresenter, publisher}
 }
 
 func (u *CompleteTaskUseCase) Invoke(ctx context.Context, args *CompleteTaskUseCaseArgs) error {
@@ -32,7 +35,7 @@ func (u *CompleteTaskUseCase) Invoke(ctx context.Context, args *CompleteTaskUseC
 		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
 	}
 
-	task.Complete(args.Version)
+	taskCompleted := task.Complete(args.Version)
 
 	// TODO 重複エラーは独自errorを返すようにする
 	if row, err := u.taskRepository.Update(ctx, task, args.Version); err != nil {
@@ -44,6 +47,8 @@ func (u *CompleteTaskUseCase) Invoke(ctx context.Context, args *CompleteTaskUseC
 	if err := u.taskPresenter.NilResponse(ctx); err != nil {
 		return xerrors.Errorf("taskPresenter.NilResponse(): %w", err)
 	}
+
+	u.publisher.Publish(taskCompleted)
 
 	return nil
 }

@@ -3,7 +3,10 @@ package usecase
 import (
 	"context"
 	"github.com/google/uuid"
+	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
+	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
+	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"golang.org/x/xerrors"
 )
@@ -15,10 +18,11 @@ type DeleteTaskUseCaseArgs struct {
 type DeleteTaskUseCase struct {
 	taskRepository repository.TaskRepository
 	taskPresenter  presenter.TaskPresenter
+	publisher      observer.Publisher[nevent.DomainEvent]
 }
 
-func NewDeleteTaskUseCase(taskRepository repository.TaskRepository, taskPresenter presenter.TaskPresenter) *DeleteTaskUseCase {
-	return &DeleteTaskUseCase{taskRepository, taskPresenter}
+func NewDeleteTaskUseCase(taskRepository repository.TaskRepository, taskPresenter presenter.TaskPresenter, publisher observer.Publisher[nevent.DomainEvent]) *DeleteTaskUseCase {
+	return &DeleteTaskUseCase{taskRepository, taskPresenter, publisher}
 }
 
 func (u *DeleteTaskUseCase) Invoke(ctx context.Context, args *DeleteTaskUseCaseArgs) error {
@@ -38,6 +42,9 @@ func (u *DeleteTaskUseCase) Invoke(ctx context.Context, args *DeleteTaskUseCaseA
 	if err := u.taskPresenter.NoContentResponse(ctx); err != nil {
 		return xerrors.Errorf("taskPresenter.NoContentResponse(): %w", err)
 	}
+
+	taskDeleted := event.NewTaskDeleted(task.Id)
+	u.publisher.Publish(taskDeleted)
 
 	return nil
 }

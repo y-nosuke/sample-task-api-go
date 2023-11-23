@@ -12,8 +12,10 @@ import (
 	fdatabase "github.com/y-nosuke/sample-task-api-go/app/framework/database/infrastructure"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure"
 	fep "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure/presenter"
+	"github.com/y-nosuke/sample-task-api-go/app/notification/infrastructure/observer"
 	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
 	"io"
+	"os"
 	"strings"
 )
 
@@ -49,7 +51,11 @@ func Router() (e *echo.Echo, err error) {
 		fdatabase.TransactionMiddleware,
 	)
 
-	tr.TaskRouter(g)
+	domainEventPublisherImpl := observer.NewDomainEventPublisherImpl()
+	slackSubscriberImpl := observer.NewSlackSubscriberImpl(os.Getenv("SLACK_TOKEN"), os.Getenv("CHANNEL_ID"))
+	domainEventPublisherImpl.Register(slackSubscriberImpl)
+
+	tr.TaskRouter(g, domainEventPublisherImpl)
 
 	// ここで処理しないとjaegerのtracingが取れなくなる
 	e.Logger.Fatal(e.Start(":1323"))

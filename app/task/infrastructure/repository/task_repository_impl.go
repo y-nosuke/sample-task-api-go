@@ -113,10 +113,11 @@ func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task, oldV
 	}
 
 	tx := database.GetTransaction(ctx)
-	if rowsAff, err := dao.
+	rowsAff, err := dao.
 		RTasks(dao.RTaskWhere.ID.EQ(rTask.ID), dao.RTaskWhere.Version.EQ(byteOldVersion)).
-		UpdateAll(ctx, tx, dao.M{"id": rTask.ID, "title": rTask.Title, "detail": rTask.Detail, "completed": rTask.Completed, "deadline": rTask.Deadline, "version": rTask.Version}); err != nil || rowsAff != 1 {
-		return int(rowsAff), xerrors.Errorf("dao.RTasks().UpdateAll(): %w", err)
+		UpdateAll(ctx, tx, dao.M{"id": rTask.ID, "title": rTask.Title, "detail": rTask.Detail, "completed": rTask.Completed, "deadline": rTask.Deadline, "version": rTask.Version})
+	if err != nil {
+		return 0, xerrors.Errorf("dao.RTasks().UpdateAll(): %w", err)
 	}
 
 	fmt.Printf("データベースのタスクが更新されました。 rTask: %+v\n", rTask)
@@ -133,7 +134,7 @@ func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task, oldV
 	}
 	task.Version = &_version
 
-	return 1, nil
+	return int(rowsAff), nil
 }
 
 func (t *TaskRepositoryImpl) Delete(ctx context.Context, task *entity.Task) error {
