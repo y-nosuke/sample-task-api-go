@@ -29,6 +29,12 @@ export AUTH_JWKS_URL=http://keycloak.localhost/realms/sample/protocol/openid-con
 export KEYCLOAK_ADMIN=admin
 export KEYCLOAK_ADMIN_PASSWORD=admin
 export JAEGER_SERVICE_NAME=sample-task-api-go
+export SLACK_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+export CHANNEL_ID=xxxxxxxxxxx
+export MAIL_HOST=localhost
+export MAIL_PORT=1025
+export MAIL_FROM=toni.sender@example.com
+export MAIL_TO=tina.recipient@example.com
 ```
 
 ## プロジェクト作成

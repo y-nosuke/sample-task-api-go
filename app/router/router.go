@@ -16,6 +16,7 @@ import (
 	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -53,7 +54,12 @@ func Router() (e *echo.Echo, err error) {
 
 	domainEventPublisherImpl := observer.NewDomainEventPublisherImpl()
 	slackSubscriberImpl := observer.NewSlackSubscriberImpl(os.Getenv("SLACK_TOKEN"), os.Getenv("CHANNEL_ID"))
-	domainEventPublisherImpl.Register(slackSubscriberImpl)
+	port, err := strconv.Atoi(os.Getenv("MAIL_PORT"))
+	if err != nil {
+		return nil, fmt.Errorf("strconv.Atoi(): %v", err)
+	}
+	mailSubscriberImpl := observer.NewMailSubscriberImpl(os.Getenv("MAIL_HOST"), port, os.Getenv("MAIL_FROM"), os.Getenv("MAIL_TO"))
+	domainEventPublisherImpl.Register(slackSubscriberImpl, mailSubscriberImpl)
 
 	tr.TaskRouter(g, domainEventPublisherImpl)
 
