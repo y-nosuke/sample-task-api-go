@@ -14,9 +14,7 @@ func NewDomainEventPublisherImpl() *DomainEventPublisherImpl[event.DomainEvent] 
 }
 
 func (p *DomainEventPublisherImpl[T]) Register(subscribers ...observer.Subscriber[T]) {
-	for _, s := range subscribers {
-		p.subscribers = append(p.subscribers, s)
-	}
+	p.subscribers = append(p.subscribers, subscribers...)
 }
 
 func (p *DomainEventPublisherImpl[T]) Remove(subscriber observer.Subscriber[T]) {
