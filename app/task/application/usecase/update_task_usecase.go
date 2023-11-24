@@ -5,6 +5,7 @@ import (
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
+	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"time"
 
@@ -40,7 +41,7 @@ func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseA
 		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
 	}
 
-	taskUpdated := task.Update(args.Title, args.Detail, args.Deadline, args.Version)
+	task.Update(args.Title, args.Detail, args.Deadline, args.Version)
 
 	if row, err := u.taskRepository.Update(ctx, task, args.Version); err != nil {
 		return xerrors.Errorf("taskRepository.Update(): %w", err)
@@ -52,6 +53,7 @@ func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseA
 		return xerrors.Errorf("taskPresenter.UpdateTaskResponse(): %w", err)
 	}
 
+	taskUpdated := event.NewTaskUpdated(task.Id)
 	u.publisher.Publish(taskUpdated)
 
 	return nil

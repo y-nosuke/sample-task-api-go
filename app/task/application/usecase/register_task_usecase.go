@@ -6,6 +6,7 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
+	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"time"
 
@@ -29,7 +30,7 @@ func NewRegisterTaskUseCase(taskRepository repository.TaskRepository, taskPresen
 }
 
 func (u *RegisterTaskUseCase) Invoke(ctx context.Context, args *RegisterTaskUseCaseArgs) error {
-	task, taskCreated := entity.NewTask(args.Title, args.Detail, args.Deadline)
+	task := entity.NewTask(args.Title, args.Detail, args.Deadline)
 
 	if err := u.taskRepository.Register(ctx, task); err != nil {
 		return xerrors.Errorf("taskRepository.Register(): %w", err)
@@ -39,6 +40,7 @@ func (u *RegisterTaskUseCase) Invoke(ctx context.Context, args *RegisterTaskUseC
 		return xerrors.Errorf("taskPresenter.RegisterTaskResponse(): %w", err)
 	}
 
+	taskCreated := event.NewTaskCreated(task.Id)
 	u.publisher.Publish(taskCreated)
 
 	return nil

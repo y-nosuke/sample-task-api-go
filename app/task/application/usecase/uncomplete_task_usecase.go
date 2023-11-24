@@ -6,6 +6,7 @@ import (
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
+	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"golang.org/x/xerrors"
 )
@@ -35,7 +36,7 @@ func (u *UnCompleteTaskUseCase) Invoke(ctx context.Context, args *UnCompleteTask
 		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
 	}
 
-	taskUnCompleted := task.UnComplete(args.Version)
+	task.UnComplete(args.Version)
 
 	if row, err := u.taskRepository.Update(ctx, task, args.Version); err != nil {
 		return xerrors.Errorf("taskRepository.Update(): %w", err)
@@ -47,6 +48,7 @@ func (u *UnCompleteTaskUseCase) Invoke(ctx context.Context, args *UnCompleteTask
 		return xerrors.Errorf("taskPresenter.NilResponse(): %w", err)
 	}
 
+	taskUnCompleted := event.NewTaskUnCompleted(task.Id)
 	u.publisher.Publish(taskUnCompleted)
 
 	return nil

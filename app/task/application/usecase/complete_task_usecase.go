@@ -6,6 +6,7 @@ import (
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
+	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"golang.org/x/xerrors"
 )
@@ -35,7 +36,7 @@ func (u *CompleteTaskUseCase) Invoke(ctx context.Context, args *CompleteTaskUseC
 		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
 	}
 
-	taskCompleted := task.Complete(args.Version)
+	task.Complete(args.Version)
 
 	// TODO 重複エラーは独自errorを返すようにする
 	if row, err := u.taskRepository.Update(ctx, task, args.Version); err != nil {
@@ -48,6 +49,7 @@ func (u *CompleteTaskUseCase) Invoke(ctx context.Context, args *CompleteTaskUseC
 		return xerrors.Errorf("taskPresenter.NilResponse(): %w", err)
 	}
 
+	taskCompleted := event.NewTaskCompleted(task.Id)
 	u.publisher.Publish(taskCompleted)
 
 	return nil
