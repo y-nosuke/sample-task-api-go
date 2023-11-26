@@ -52,6 +52,10 @@ func (u *CompleteTaskUseCase) Invoke(ctx context.Context, args *CompleteTaskUseC
 	}
 
 	taskCompleted := event.NewTaskCompleted(task)
+	err = u.taskEventRepository.Register(ctx, taskCompleted)
+	if err != nil {
+		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
+	}
 	u.publisher.Publish(taskCompleted)
 
 	return nil
