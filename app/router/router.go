@@ -2,6 +2,11 @@ package router
 
 import (
 	"fmt"
+	"io"
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo-contrib/jaegertracing"
 	"github.com/labstack/echo/v4"
@@ -14,10 +19,6 @@ import (
 	fep "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/infrastructure/observer"
 	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
-	"io"
-	"os"
-	"strconv"
-	"strings"
 )
 
 func Router() (e *echo.Echo, err error) {

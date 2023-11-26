@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"

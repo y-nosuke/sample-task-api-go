@@ -1,9 +1,10 @@
 package event
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
-	"time"
 )
 
 type TaskUnCompleted struct {
@@ -18,7 +19,7 @@ type TaskUnCompletedData struct {
 
 func NewTaskUnCompleted(task *entity.Task) *TaskUnCompleted {
 	return &TaskUnCompleted{
-		TaskEventCommon: *newTaskEventCommon(task.Id, ETaskUnCompleted),
+		TaskEventCommon: *newTaskEventCommon(task.Id),
 		data: TaskUnCompletedData{
 			UpdatedBy: task.CreatedBy,
 			UpdatedAt: task.CreatedAt,

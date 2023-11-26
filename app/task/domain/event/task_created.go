@@ -1,9 +1,10 @@
 package event
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
-	"time"
 )
 
 type TaskCreated struct {
@@ -22,7 +23,7 @@ type TaskCreatedData struct {
 
 func NewTaskCreated(task *entity.Task) *TaskCreated {
 	return &TaskCreated{
-		TaskEventCommon: *newTaskEventCommon(task.Id, ETaskCreated),
+		TaskEventCommon: *newTaskEventCommon(task.Id),
 		data: TaskCreatedData{
 			Title:     task.Title,
 			Detail:    task.Detail,

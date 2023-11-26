@@ -2,13 +2,14 @@ package mapping
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/database/dao"
 	"golang.org/x/xerrors"
-	"time"
 )
 
 func RTask(task *entity.Task, userId *uuid.UUID, version *uuid.UUID) (*dao.RTask, error) {
@@ -107,6 +108,11 @@ func ETaskEvent(taskEvent event.TaskEvent, userId *uuid.UUID) (*dao.ETaskEvent, 
 		return nil, xerrors.Errorf("task.ID().MarshalBinary(): %w", err)
 	}
 
+	eventType, err := taskEventType(taskEvent)
+	if err != nil {
+		return nil, xerrors.Errorf("taskEventType(): %w", err)
+	}
+
 	taskID, err := taskEvent.TaskID().MarshalBinary()
 	if err != nil {
 		return nil, xerrors.Errorf("task.TaskID().MarshalBinary(): %w", err)
@@ -124,9 +130,33 @@ func ETaskEvent(taskEvent event.TaskEvent, userId *uuid.UUID) (*dao.ETaskEvent, 
 
 	return &dao.ETaskEvent{
 		ID:        id,
-		Type:      taskEvent.Type(),
+		Type:      eventType,
 		TaskID:    taskID,
 		Data:      data,
 		CreatedBy: byteUserId,
 	}, nil
+}
+
+const (
+	ETaskCreated     = "TaskCreated"
+	ETaskUpdated     = "TaskUpdated"
+	ETaskDeleted     = "TaskDeleted"
+	ETaskCompleted   = "TaskCompleted"
+	ETaskUnCompleted = "TaskUnCompleted"
+)
+
+func taskEventType(taskEvent event.TaskEvent) (string, error) {
+	if _, ok := taskEvent.(*event.TaskCreated); ok {
+		return ETaskCreated, nil
+	} else if _, ok := taskEvent.(*event.TaskUpdated); ok {
+		return ETaskUpdated, nil
+	} else if _, ok := taskEvent.(*event.TaskCompleted); ok {
+		return ETaskCompleted, nil
+	} else if _, ok := taskEvent.(*event.TaskUnCompleted); ok {
+		return ETaskUnCompleted, nil
+	} else if _, ok := taskEvent.(*event.TaskDeleted); ok {
+		return ETaskDeleted, nil
+	} else {
+		return "", xerrors.Errorf("unknown event. eventID: %s\n", taskEvent.ID())
+	}
 }

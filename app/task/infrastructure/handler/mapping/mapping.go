@@ -1,10 +1,11 @@
 package mapping
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/usecase"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
-	"time"
 )
 
 func RegisterTaskUseCaseArgs(request *openapi.RegisterTaskRequest) *usecase.RegisterTaskUseCaseArgs {

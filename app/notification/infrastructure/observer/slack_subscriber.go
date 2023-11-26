@@ -2,6 +2,7 @@ package observer
 
 import (
 	"fmt"
+
 	"github.com/slack-go/slack"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	tevent "github.com/y-nosuke/sample-task-api-go/app/task/domain/event"

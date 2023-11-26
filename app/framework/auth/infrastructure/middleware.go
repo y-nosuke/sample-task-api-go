@@ -3,6 +3,10 @@ package infrastructure
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"os"
+	"strings"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/lestrrat-go/jwx/jwk"
@@ -10,9 +14,6 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth/application/presenter"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"golang.org/x/xerrors"
-	"net/http"
-	"os"
-	"strings"
 )
 
 var keySet jwk.Set

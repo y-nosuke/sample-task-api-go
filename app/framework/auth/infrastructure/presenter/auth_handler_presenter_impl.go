@@ -2,9 +2,10 @@ package presenter
 
 import (
 	"context"
+	"net/http"
+
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
-	"net/http"
 )
 
 type AuthHandlerPresenterImpl struct {

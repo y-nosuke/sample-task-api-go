@@ -3,10 +3,11 @@ package infrastructure
 import (
 	"database/sql"
 	"fmt"
-	"github.com/y-nosuke/sample-task-api-go/app/framework/context"
-	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
 	"os"
 	"time"
+
+	"github.com/y-nosuke/sample-task-api-go/app/framework/context"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"

@@ -2,13 +2,14 @@ package auth
 
 import (
 	"context"
+	"strings"
+
 	"github.com/friendsofgo/errors"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"golang.org/x/exp/slices"
 	"golang.org/x/xerrors"
-	"strings"
 )
 
 type ctxKey int

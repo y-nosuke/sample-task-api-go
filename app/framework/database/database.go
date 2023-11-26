@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 )
 

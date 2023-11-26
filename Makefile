@@ -24,6 +24,9 @@ generate: migrate_up
 build: generate
 	go build -v ./...
 
+fmt:
+	goreturns -w .
+
 lint: generate
 	golangci-lint run ./...
 
