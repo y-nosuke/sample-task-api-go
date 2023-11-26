@@ -112,7 +112,7 @@ func ETaskEvent(taskEvent event.TaskEvent, userId *uuid.UUID) (*dao.ETaskEvent, 
 		return nil, xerrors.Errorf("task.TaskID().MarshalBinary(): %w", err)
 	}
 
-	data, err := json.Marshal(taskEvent)
+	data, err := json.Marshal(taskEvent.Data())
 	if err != nil {
 		return nil, xerrors.Errorf("json.Marshal(): %w", err)
 	}

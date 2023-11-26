@@ -7,8 +7,8 @@ import (
 )
 
 type TaskUpdated struct {
-	TaskEvent
-	Data TaskUpdatedData
+	TaskEventCommon
+	data TaskUpdatedData
 }
 
 type TaskUpdatedData struct {
@@ -22,8 +22,8 @@ type TaskUpdatedData struct {
 
 func NewTaskUpdated(task *entity.Task) *TaskUpdated {
 	return &TaskUpdated{
-		TaskEvent: newTaskEvent(task.Id, ETaskUpdated),
-		Data: TaskUpdatedData{
+		TaskEventCommon: *newTaskEventCommon(task.Id, ETaskUpdated),
+		data: TaskUpdatedData{
 			Title:     task.Title,
 			Detail:    task.Detail,
 			Completed: task.Completed,
@@ -32,4 +32,8 @@ func NewTaskUpdated(task *entity.Task) *TaskUpdated {
 			UpdatedAt: task.UpdatedAt,
 		},
 	}
+}
+
+func (t TaskUpdated) Data() any {
+	return t.data
 }

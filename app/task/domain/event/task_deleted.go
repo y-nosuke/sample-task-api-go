@@ -7,8 +7,8 @@ import (
 )
 
 type TaskDeleted struct {
-	TaskEvent
-	Data TaskDeletedData
+	TaskEventCommon
+	data TaskDeletedData
 }
 
 type TaskDeletedData struct {
@@ -19,10 +19,14 @@ type TaskDeletedData struct {
 func NewTaskDeleted(task *entity.Task, deletedBy *uuid.UUID) *TaskDeleted {
 	now := time.Now()
 	return &TaskDeleted{
-		TaskEvent: newTaskEvent(task.Id, ETaskDeleted),
-		Data: TaskDeletedData{
+		TaskEventCommon: *newTaskEventCommon(task.Id, ETaskDeleted),
+		data: TaskDeletedData{
 			DeletedBy: deletedBy,
 			DeletedAt: &now,
 		},
 	}
+}
+
+func (t TaskDeleted) Data() any {
+	return t.data
 }
