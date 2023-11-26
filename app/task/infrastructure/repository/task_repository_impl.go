@@ -10,7 +10,6 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
-	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/repository/mapping"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/database/dao"
 	"golang.org/x/xerrors"
 )
@@ -24,7 +23,7 @@ func NewTaskRepositoryImpl() *TaskRepositoryImpl {
 
 func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entity.Task) error {
 	a := auth.GetAuth(ctx)
-	rTask, err := mapping.RTask(task, &a.UserId, task.Version)
+	rTask, err := RTask(task, &a.UserId, task.Version)
 	if err != nil {
 		return xerrors.Errorf("mapping.RTask(): %w", err)
 	}
@@ -66,7 +65,7 @@ func (t *TaskRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Task, error)
 
 	fmt.Println("データベースからタスク一覧が取得されました。")
 
-	taskSlice, err := mapping.TaskSlice(rTaskSlice)
+	taskSlice, err := TaskSlice(rTaskSlice)
 	if err != nil {
 		return nil, xerrors.Errorf("mapping.TaskSlice(): %w", err)
 	}
@@ -92,7 +91,7 @@ func (t *TaskRepositoryImpl) GetById(ctx context.Context, id uuid.UUID) (*entity
 
 	fmt.Printf("データベースからタスクが取得されました。 rTask: %+v\n", rTask)
 
-	task, err := mapping.Task(rTask)
+	task, err := Task(rTask)
 	if err != nil {
 		return nil, xerrors.Errorf("mapping.Task(): %w", err)
 	}
@@ -103,7 +102,7 @@ func (t *TaskRepositoryImpl) GetById(ctx context.Context, id uuid.UUID) (*entity
 func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task, oldVersion *uuid.UUID) (int, error) {
 	a := auth.GetAuth(ctx)
 	newVersion := uuid.New()
-	rTask, err := mapping.RTask(task, &a.UserId, &newVersion)
+	rTask, err := RTask(task, &a.UserId, &newVersion)
 	if err != nil {
 		return 0, xerrors.Errorf("mapping.RTask(): %w", err)
 	}
@@ -140,7 +139,7 @@ func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task, oldV
 
 func (t *TaskRepositoryImpl) Delete(ctx context.Context, task *entity.Task) error {
 	a := auth.GetAuth(ctx)
-	rTask, err := mapping.RTask(task, &a.UserId, task.Version)
+	rTask, err := RTask(task, &a.UserId, task.Version)
 	if err != nil {
 		return xerrors.Errorf("mapping.RTask(): %w", err)
 	}

@@ -1,4 +1,4 @@
-package router
+package interfaces
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func customHTTPErrorHandler(err error, ectx echo.Context) {
+func CustomHTTPErrorHandler(err error, ectx echo.Context) {
 	ectx.Logger().Error(err)
 	fmt.Printf("%+v\n", xerrors.Errorf(": %w", err))
 }

@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/validation/infrastructure"
 	"io"
 	"os"
 	"strconv"
@@ -24,8 +25,8 @@ import (
 func Router() (e *echo.Echo, err error) {
 	e = echo.New()
 
-	e.HTTPErrorHandler = customHTTPErrorHandler
-	e.Validator = NewValidator()
+	e.HTTPErrorHandler = ferrors.CustomHTTPErrorHandler
+	e.Validator = infrastructure.NewValidator()
 
 	c := jaegertracing.New(e, urlSkipper)
 	defer func(c io.Closer) {

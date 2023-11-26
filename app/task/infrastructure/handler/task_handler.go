@@ -9,7 +9,6 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/usecase"
-	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/handler/mapping"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
 	"golang.org/x/xerrors"
 )
@@ -64,7 +63,7 @@ func (h *TaskHandler) RegisterTask(ectx echo.Context) error {
 		return h.taskPresenter.BadRequest(ctx, "バリデーションエラーです。", err)
 	}
 
-	args := mapping.RegisterTaskUseCaseArgs(request)
+	args := RegisterTaskUseCaseArgs(request)
 
 	if err := h.registerTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("registerTaskUseCase.Invoke(): %w", err)
@@ -127,7 +126,7 @@ func (h *TaskHandler) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 		return h.taskPresenter.BadRequest(ctx, "バリデーションエラーです。", err)
 	}
 
-	args := mapping.UpdateTaskUseCaseArgs(id, request)
+	args := UpdateTaskUseCaseArgs(id, request)
 
 	if err := h.updateTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("updateTaskUseCase.Invoke(): %w", err)
@@ -150,7 +149,7 @@ func (h *TaskHandler) CompleteTask(ectx echo.Context, id uuid.UUID) error {
 		return xerrors.Errorf("ectx.Bind(): %w", err)
 	}
 
-	args := mapping.CompleteTaskUseCaseArgs(id, request)
+	args := CompleteTaskUseCaseArgs(id, request)
 
 	if err := h.completeTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("completeTaskUseCase.Invoke(): %w", err)
@@ -173,7 +172,7 @@ func (h *TaskHandler) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
 		return xerrors.Errorf("ectx.Bind(): %w", err)
 	}
 
-	args := mapping.UnCompleteTaskUseCaseArgs(id, request)
+	args := UnCompleteTaskUseCaseArgs(id, request)
 
 	if err := h.unCompleteTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("unCompleteTaskUseCase.Invoke(): %w", err)

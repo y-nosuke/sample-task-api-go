@@ -1,4 +1,4 @@
-package router
+package infrastructure
 
 import (
 	"github.com/go-playground/validator/v10"

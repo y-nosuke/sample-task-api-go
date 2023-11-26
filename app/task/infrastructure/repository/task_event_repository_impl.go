@@ -9,7 +9,6 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
-	"github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/repository/mapping"
 	"golang.org/x/xerrors"
 )
 
@@ -22,7 +21,7 @@ func NewTaskEventRepositoryImpl() *TaskEventRepositoryImpl {
 
 func (t *TaskEventRepositoryImpl) Register(ctx context.Context, taskEvent event.TaskEvent) error {
 	a := auth.GetAuth(ctx)
-	eTaskEvent, err := mapping.ETaskEvent(taskEvent, &a.UserId)
+	eTaskEvent, err := ETaskEvent(taskEvent, &a.UserId)
 	if err != nil {
 		return xerrors.Errorf("mapping.RTask(): %w", err)
 	}
