@@ -20,13 +20,14 @@ type RegisterTaskUseCaseArgs struct {
 }
 
 type RegisterTaskUseCase struct {
-	taskRepository repository.TaskRepository
-	taskPresenter  presenter.TaskPresenter
-	publisher      observer.Publisher[nevent.DomainEvent]
+	taskRepository      repository.TaskRepository
+	taskEventRepository repository.TaskEventRepository
+	taskPresenter       presenter.TaskPresenter
+	publisher           observer.Publisher[nevent.DomainEvent]
 }
 
-func NewRegisterTaskUseCase(taskRepository repository.TaskRepository, taskPresenter presenter.TaskPresenter, publisher observer.Publisher[nevent.DomainEvent]) *RegisterTaskUseCase {
-	return &RegisterTaskUseCase{taskRepository, taskPresenter, publisher}
+func NewRegisterTaskUseCase(taskRepository repository.TaskRepository, taskEventRepository repository.TaskEventRepository, taskPresenter presenter.TaskPresenter, publisher observer.Publisher[nevent.DomainEvent]) *RegisterTaskUseCase {
+	return &RegisterTaskUseCase{taskRepository, taskEventRepository, taskPresenter, publisher}
 }
 
 func (u *RegisterTaskUseCase) Invoke(ctx context.Context, args *RegisterTaskUseCaseArgs) error {
@@ -40,7 +41,12 @@ func (u *RegisterTaskUseCase) Invoke(ctx context.Context, args *RegisterTaskUseC
 		return xerrors.Errorf("taskPresenter.RegisterTaskResponse(): %w", err)
 	}
 
-	taskCreated := event.NewTaskCreated(task.Id)
+	taskCreated := event.NewTaskCreated(task)
+	err := u.taskEventRepository.Register(ctx, taskCreated)
+	if err != nil {
+		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
+	}
+
 	u.publisher.Publish(taskCreated)
 
 	return nil

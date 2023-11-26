@@ -17,13 +17,14 @@ type CompleteTaskUseCaseArgs struct {
 }
 
 type CompleteTaskUseCase struct {
-	taskRepository repository.TaskRepository
-	taskPresenter  presenter.TaskPresenter
-	publisher      observer.Publisher[nevent.DomainEvent]
+	taskRepository      repository.TaskRepository
+	taskEventRepository repository.TaskEventRepository
+	taskPresenter       presenter.TaskPresenter
+	publisher           observer.Publisher[nevent.DomainEvent]
 }
 
-func NewCompleteTaskUseCase(taskRepository repository.TaskRepository, taskPresenter presenter.TaskPresenter, publisher observer.Publisher[nevent.DomainEvent]) *CompleteTaskUseCase {
-	return &CompleteTaskUseCase{taskRepository, taskPresenter, publisher}
+func NewCompleteTaskUseCase(taskRepository repository.TaskRepository, taskEventRepository repository.TaskEventRepository, taskPresenter presenter.TaskPresenter, publisher observer.Publisher[nevent.DomainEvent]) *CompleteTaskUseCase {
+	return &CompleteTaskUseCase{taskRepository, taskEventRepository, taskPresenter, publisher}
 }
 
 func (u *CompleteTaskUseCase) Invoke(ctx context.Context, args *CompleteTaskUseCaseArgs) error {
@@ -49,7 +50,7 @@ func (u *CompleteTaskUseCase) Invoke(ctx context.Context, args *CompleteTaskUseC
 		return xerrors.Errorf("taskPresenter.NilResponse(): %w", err)
 	}
 
-	taskCompleted := event.NewTaskCompleted(task.Id)
+	taskCompleted := event.NewTaskCompleted(task)
 	u.publisher.Publish(taskCompleted)
 
 	return nil

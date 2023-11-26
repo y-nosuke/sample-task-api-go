@@ -22,13 +22,14 @@ type UpdateTaskUseCaseArgs struct {
 }
 
 type UpdateTaskUseCase struct {
-	taskRepository repository.TaskRepository
-	taskPresenter  presenter.TaskPresenter
-	publisher      observer.Publisher[nevent.DomainEvent]
+	taskRepository      repository.TaskRepository
+	taskEventRepository repository.TaskEventRepository
+	taskPresenter       presenter.TaskPresenter
+	publisher           observer.Publisher[nevent.DomainEvent]
 }
 
-func NewUpdateTaskUseCase(taskRepository repository.TaskRepository, taskPresenter presenter.TaskPresenter, publisher observer.Publisher[nevent.DomainEvent]) *UpdateTaskUseCase {
-	return &UpdateTaskUseCase{taskRepository, taskPresenter, publisher}
+func NewUpdateTaskUseCase(taskRepository repository.TaskRepository, taskEventRepository repository.TaskEventRepository, taskPresenter presenter.TaskPresenter, publisher observer.Publisher[nevent.DomainEvent]) *UpdateTaskUseCase {
+	return &UpdateTaskUseCase{taskRepository, taskEventRepository, taskPresenter, publisher}
 }
 
 func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseArgs) error {
@@ -53,7 +54,7 @@ func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseA
 		return xerrors.Errorf("taskPresenter.UpdateTaskResponse(): %w", err)
 	}
 
-	taskUpdated := event.NewTaskUpdated(task.Id)
+	taskUpdated := event.NewTaskUpdated(task)
 	u.publisher.Publish(taskUpdated)
 
 	return nil

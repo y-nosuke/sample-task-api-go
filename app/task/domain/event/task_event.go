@@ -3,17 +3,49 @@ package event
 import (
 	"github.com/google/uuid"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
+	"time"
 )
 
-type TaskEvent struct {
+const (
+	ETaskCreated     = "TaskCreated"
+	ETaskUpdated     = "TaskUpdated"
+	ETaskDeleted     = "TaskDeleted"
+	ETaskCompleted   = "TaskCompleted"
+	ETaskUnCompleted = "TaskUnCompleted"
+)
+
+type TaskEvent interface {
 	event.DomainEvent
-	taskID *uuid.UUID
+	TaskID() uuid.UUID
+	Type() string
+	Created(CreatedBy *uuid.UUID, CreatedAt *time.Time)
 }
 
-func NewTaskEvent(taskID *uuid.UUID) *TaskEvent {
-	return &TaskEvent{DomainEvent: event.NewDomainEvent(), taskID: taskID}
+type TaskEventImpl struct {
+	event.DomainEvent
+	taskID    *uuid.UUID
+	eventType string
+	CreatedBy *uuid.UUID
+	CreatedAt *time.Time
 }
 
-func (t TaskEvent) TaskID() uuid.UUID {
+func newTaskEvent(taskID *uuid.UUID, eventType string) TaskEvent {
+	return &TaskEventImpl{
+		DomainEvent: event.NewDomainEvent(),
+		taskID:      taskID,
+		eventType:   eventType,
+	}
+}
+
+func (t *TaskEventImpl) TaskID() uuid.UUID {
 	return *t.taskID
+}
+
+func (t *TaskEventImpl) Type() string {
+	return t.eventType
+}
+
+func (t *TaskEventImpl) Created(CreatedBy *uuid.UUID, CreatedAt *time.Time) {
+	t.CreatedBy = CreatedBy
+	t.CreatedAt = CreatedAt
 }

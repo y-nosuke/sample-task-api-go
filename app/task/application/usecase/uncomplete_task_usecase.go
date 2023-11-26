@@ -17,13 +17,14 @@ type UnCompleteTaskUseCaseArgs struct {
 }
 
 type UnCompleteTaskUseCase struct {
-	taskRepository repository.TaskRepository
-	taskPresenter  presenter.TaskPresenter
-	publisher      observer.Publisher[nevent.DomainEvent]
+	taskRepository      repository.TaskRepository
+	taskEventRepository repository.TaskEventRepository
+	taskPresenter       presenter.TaskPresenter
+	publisher           observer.Publisher[nevent.DomainEvent]
 }
 
-func NewUnCompleteTaskUseCase(taskRepository repository.TaskRepository, taskPresenter presenter.TaskPresenter, publisher observer.Publisher[nevent.DomainEvent]) *UnCompleteTaskUseCase {
-	return &UnCompleteTaskUseCase{taskRepository, taskPresenter, publisher}
+func NewUnCompleteTaskUseCase(taskRepository repository.TaskRepository, taskEventRepository repository.TaskEventRepository, taskPresenter presenter.TaskPresenter, publisher observer.Publisher[nevent.DomainEvent]) *UnCompleteTaskUseCase {
+	return &UnCompleteTaskUseCase{taskRepository, taskEventRepository, taskPresenter, publisher}
 }
 
 func (u *UnCompleteTaskUseCase) Invoke(ctx context.Context, args *UnCompleteTaskUseCaseArgs) error {
@@ -48,7 +49,7 @@ func (u *UnCompleteTaskUseCase) Invoke(ctx context.Context, args *UnCompleteTask
 		return xerrors.Errorf("taskPresenter.NilResponse(): %w", err)
 	}
 
-	taskUnCompleted := event.NewTaskUnCompleted(task.Id)
+	taskUnCompleted := event.NewTaskUnCompleted(task)
 	u.publisher.Publish(taskUnCompleted)
 
 	return nil
