@@ -9,5 +9,5 @@ import (
 
 func CustomHTTPErrorHandler(err error, ectx echo.Context) {
 	ectx.Logger().Error(err)
-	fmt.Printf("%+v\n", xerrors.Errorf(": %w", err))
+	fmt.Printf("%+v\n", xerrors.Errorf("system error!: %w", err))
 }
