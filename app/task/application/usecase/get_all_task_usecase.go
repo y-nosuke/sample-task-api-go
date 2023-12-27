@@ -2,10 +2,10 @@ package usecase
 
 import (
 	"context"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
-	"golang.org/x/xerrors"
 )
 
 type GetAllTaskUseCaseArgs struct {
@@ -23,11 +23,11 @@ func NewGetAllTaskUseCase(taskRepository repository.TaskRepository, taskPresente
 func (u *GetAllTaskUseCase) Invoke(ctx context.Context, _ *GetAllTaskUseCaseArgs) error {
 	tasks, err := u.taskRepository.GetAll(ctx)
 	if err != nil {
-		return xerrors.Errorf("taskRepository.GetAll(): %w", err)
+		return errors.SystemErrorf("taskRepository.GetAll(): %w", err)
 	}
 
 	if err := u.taskPresenter.TaskAllResponse(ctx, tasks); err != nil {
-		return xerrors.Errorf("taskPresenter.TaskAllResponse(): %w", err)
+		return errors.SystemErrorf("taskPresenter.TaskAllResponse(): %w", err)
 	}
 
 	return nil

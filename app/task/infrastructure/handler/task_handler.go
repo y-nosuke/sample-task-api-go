@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -10,7 +11,6 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/usecase"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
-	"golang.org/x/xerrors"
 )
 
 type TaskHandler struct {
@@ -51,22 +51,28 @@ func (h *TaskHandler) RegisterTask(ectx echo.Context) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("create:task") {
-		return h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing create:task")
+		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing create:task"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Forbidden()")
 	}
 
 	request := new(openapi.RegisterTaskRequest)
 	if err := ectx.Bind(request); err != nil {
-		return xerrors.Errorf("ectx.Bind(): %w", err)
+		return errors.SystemErrorf("ectx.Bind(): %w", err)
 	}
 
 	if err := ectx.Validate(request); err != nil {
-		return h.taskPresenter.BadRequest(ctx, "バリデーションエラーです。", err)
+		if err := h.taskPresenter.BadRequest(ctx, "バリデーションエラーです。", err); err != nil {
+			return errors.SystemErrorf("taskPresenter.BadRequest(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.BadRequest()")
 	}
 
 	args := RegisterTaskUseCaseArgs(request)
 
 	if err := h.registerTaskUseCase.Invoke(ctx, args); err != nil {
-		return xerrors.Errorf("registerTaskUseCase.Invoke(): %w", err)
+		return errors.SystemErrorf("registerTaskUseCase.Invoke(): %w", err)
 	}
 
 	return nil
@@ -78,13 +84,16 @@ func (h *TaskHandler) GetAllTasks(ectx echo.Context) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("read:task") {
-		return h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing read:task")
+		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing read:task"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Forbidden()")
 	}
 
 	args := &usecase.GetAllTaskUseCaseArgs{}
 
 	if err := h.getAllTaskUseCase.Invoke(ctx, args); err != nil {
-		return xerrors.Errorf("getAllTaskUseCase.Invoke(): %w", err)
+		return errors.SystemErrorf("getAllTaskUseCase.Invoke(): %w", err)
 	}
 
 	return nil
@@ -96,13 +105,16 @@ func (h *TaskHandler) GetTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("read:task") {
-		return h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing read:task")
+		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing read:task"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Forbidden()")
 	}
 
 	args := &usecase.GetTaskUseCaseArgs{Id: id}
 
 	if err := h.getTaskUseCase.Invoke(ctx, args); err != nil {
-		return xerrors.Errorf("getTaskUseCase.Invoke(): %w", err)
+		return errors.SystemErrorf("getTaskUseCase.Invoke(): %w", err)
 	}
 
 	return nil
@@ -114,22 +126,28 @@ func (h *TaskHandler) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("update:task") {
-		return h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing update:task")
+		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing update:task"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Forbidden()")
 	}
 
 	request := new(openapi.UpdateTaskRequest)
 	if err := ectx.Bind(request); err != nil {
-		return xerrors.Errorf("ectx.Bind(): %w", err)
+		return errors.SystemErrorf("ectx.Bind(): %w", err)
 	}
 
 	if err := ectx.Validate(request); err != nil {
-		return h.taskPresenter.BadRequest(ctx, "バリデーションエラーです。", err)
+		if err := h.taskPresenter.BadRequest(ctx, "バリデーションエラーです。", err); err != nil {
+			return errors.SystemErrorf("taskPresenter.BadRequest(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.BadRequest()")
 	}
 
 	args := UpdateTaskUseCaseArgs(id, request)
 
 	if err := h.updateTaskUseCase.Invoke(ctx, args); err != nil {
-		return xerrors.Errorf("updateTaskUseCase.Invoke(): %w", err)
+		return errors.SystemErrorf("updateTaskUseCase.Invoke(): %w", err)
 	}
 
 	return nil
@@ -141,18 +159,21 @@ func (h *TaskHandler) CompleteTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("update:task") {
-		return h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing update:task")
+		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing update:task"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Forbidden()")
 	}
 
 	request := new(openapi.CompleteTaskRequest)
 	if err := ectx.Bind(request); err != nil {
-		return xerrors.Errorf("ectx.Bind(): %w", err)
+		return errors.SystemErrorf("ectx.Bind(): %w", err)
 	}
 
 	args := CompleteTaskUseCaseArgs(id, request)
 
 	if err := h.completeTaskUseCase.Invoke(ctx, args); err != nil {
-		return xerrors.Errorf("completeTaskUseCase.Invoke(): %w", err)
+		return errors.SystemErrorf("completeTaskUseCase.Invoke(): %w", err)
 	}
 
 	return nil
@@ -164,18 +185,21 @@ func (h *TaskHandler) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("update:task") {
-		return h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing update:task")
+		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing update:task"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Forbidden()")
 	}
 
 	request := new(openapi.UnCompleteTaskRequest)
 	if err := ectx.Bind(request); err != nil {
-		return xerrors.Errorf("ectx.Bind(): %w", err)
+		return errors.SystemErrorf("ectx.Bind(): %w", err)
 	}
 
 	args := UnCompleteTaskUseCaseArgs(id, request)
 
 	if err := h.unCompleteTaskUseCase.Invoke(ctx, args); err != nil {
-		return xerrors.Errorf("unCompleteTaskUseCase.Invoke(): %w", err)
+		return errors.SystemErrorf("unCompleteTaskUseCase.Invoke(): %w", err)
 	}
 
 	return nil
@@ -187,13 +211,16 @@ func (h *TaskHandler) DeleteTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("delete:task") {
-		return h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing delete:task")
+		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing delete:task"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Forbidden()")
 	}
 
 	args := &usecase.DeleteTaskUseCaseArgs{Id: id}
 
 	if err := h.deleteTaskUseCase.Invoke(ctx, args); err != nil {
-		return xerrors.Errorf("deleteTaskUseCase.Invoke(): %w", err)
+		return errors.SystemErrorf("deleteTaskUseCase.Invoke(): %w", err)
 	}
 
 	return nil

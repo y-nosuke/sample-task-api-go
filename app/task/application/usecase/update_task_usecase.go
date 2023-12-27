@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"time"
 
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
@@ -11,7 +12,6 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 
 	"github.com/google/uuid"
-	"golang.org/x/xerrors"
 )
 
 type UpdateTaskUseCaseArgs struct {
@@ -36,29 +36,35 @@ func NewUpdateTaskUseCase(taskRepository repository.TaskRepository, taskEventRep
 func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseArgs) error {
 	task, err := u.taskRepository.GetById(ctx, args.Id)
 	if err != nil {
-		return xerrors.Errorf("taskRepository.GetById(): %w", err)
+		return errors.SystemErrorf("taskRepository.GetById(): %w", err)
 	}
 
 	if task == nil {
-		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
+		if err := u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Forbidden()")
 	}
 
 	task.Update(args.Title, args.Detail, args.Deadline, args.Version)
 
 	if row, err := u.taskRepository.Update(ctx, task, args.Version); err != nil {
-		return xerrors.Errorf("taskRepository.Update(): %w", err)
+		return errors.SystemErrorf("taskRepository.Update(): %w", err)
 	} else if row != 1 {
-		return u.taskPresenter.Conflict(ctx, "タスクは既に更新済みです。")
+		if err := u.taskPresenter.Conflict(ctx, "タスクは既に更新済みです。"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Conflict(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Conflict()")
 	}
 
 	if err := u.taskPresenter.UpdateTaskResponse(ctx, task); err != nil {
-		return xerrors.Errorf("taskPresenter.UpdateTaskResponse(): %w", err)
+		return errors.SystemErrorf("taskPresenter.UpdateTaskResponse(): %w", err)
 	}
 
 	taskUpdated := event.NewTaskUpdated(task)
 	err = u.taskEventRepository.Register(ctx, taskUpdated)
 	if err != nil {
-		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
+		return errors.SystemErrorf("taskEventRepository.Register(): %w", err)
 	}
 
 	u.publisher.Publish(taskUpdated)

@@ -1,7 +1,10 @@
 package interfaces
 
 import (
+	"errors"
 	"fmt"
+
+	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 
 	"github.com/labstack/echo/v4"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/context"
@@ -18,10 +21,13 @@ func ErrorHandlerMiddleware(systemErrorHandlerPresenter presenter.SystemErrorHan
 			if err := next(ectx); err != nil {
 				fmt.Println("エラーハンドラー")
 
-				if err := systemErrorHandlerPresenter.ErrorResponse(cctx.Ctx); err != nil {
-					return xerrors.Errorf("systemErrorHandlerPresenter.ErrorResponse(): %w", err)
+				var businessError ferrors.BusinessError
+				if !errors.Is(err, &businessError) {
+					fmt.Println(11)
+					if err := systemErrorHandlerPresenter.ErrorResponse(cctx.Ctx); err != nil {
+						return xerrors.Errorf("systemErrorHandlerPresenter.ErrorResponse(): %w", err)
+					}
 				}
-
 				return err
 			}
 

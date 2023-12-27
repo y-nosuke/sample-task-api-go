@@ -2,11 +2,11 @@ package usecase
 
 import (
 	"context"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 
 	"github.com/google/uuid"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
-	"golang.org/x/xerrors"
 )
 
 type GetTaskUseCaseArgs struct {
@@ -25,15 +25,18 @@ func NewGetTaskUseCase(taskRepository repository.TaskRepository, taskPresenter p
 func (u *GetTaskUseCase) Invoke(ctx context.Context, args *GetTaskUseCaseArgs) error {
 	task, err := u.taskRepository.GetById(ctx, args.Id)
 	if err != nil {
-		return xerrors.Errorf("taskRepository.GetById(): %w", err)
+		return errors.SystemErrorf("taskRepository.GetById(): %w", err)
 	}
 
 	if task == nil {
-		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
+		if err := u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Forbidden()")
 	}
 
 	if err := u.taskPresenter.GetTaskResponse(ctx, task); err != nil {
-		return xerrors.Errorf("taskPresenter.GetTaskResponse(): %w", err)
+		return errors.SystemErrorf("taskPresenter.GetTaskResponse(): %w", err)
 	}
 
 	return nil

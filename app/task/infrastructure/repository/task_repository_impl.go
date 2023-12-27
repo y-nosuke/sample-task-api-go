@@ -53,7 +53,7 @@ func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entity.Task) er
 	}
 	task.Version = &version
 
-	return nil
+	return xerrors.Errorf("error")
 }
 
 func (t *TaskRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Task, error) {

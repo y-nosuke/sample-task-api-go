@@ -4,14 +4,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/y-nosuke/sample-task-api-go/app/framework/errors"
+
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
-
-	"golang.org/x/xerrors"
 )
 
 type RegisterTaskUseCaseArgs struct {
@@ -35,17 +35,17 @@ func (u *RegisterTaskUseCase) Invoke(ctx context.Context, args *RegisterTaskUseC
 	task := entity.NewTask(args.Title, args.Detail, args.Deadline)
 
 	if err := u.taskRepository.Register(ctx, task); err != nil {
-		return xerrors.Errorf("taskRepository.Register(): %w", err)
+		return errors.SystemErrorf("taskRepository.Register(): %w", err)
 	}
 
 	if err := u.taskPresenter.RegisterTaskResponse(ctx, task); err != nil {
-		return xerrors.Errorf("taskPresenter.RegisterTaskResponse(): %w", err)
+		return errors.SystemErrorf("taskPresenter.RegisterTaskResponse(): %w", err)
 	}
 
 	taskCreated := event.NewTaskCreated(task)
 	err := u.taskEventRepository.Register(ctx, taskCreated)
 	if err != nil {
-		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
+		return errors.SystemErrorf("taskEventRepository.Register(): %w", err)
 	}
 
 	u.publisher.Publish(taskCreated)

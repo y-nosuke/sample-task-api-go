@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"context"
 	"fmt"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"net/http"
 	"os"
 	"strings"
@@ -56,14 +57,20 @@ func ValidateTokenMiddleware(authHandlerPresenter presenter.AuthHandlerPresenter
 				return publicKey, nil
 			})
 			if err != nil {
-				fmt.Println(err.Error())
-				return authHandlerPresenter.Unauthorized(cctx.Ctx, "認証されていません。 invalid token")
+				if err := authHandlerPresenter.Unauthorized(cctx.Ctx, "認証されていません。 invalid token"); err != nil {
+					fmt.Println(1)
+					return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+				}
+				fmt.Println(2)
+				return errors.BusinessErrorf("taskPresenter.Forbidden()")
 			}
 
 			auths, err := auth.NewAuth(token)
 			if err != nil {
-				fmt.Println(err.Error())
-				return authHandlerPresenter.Unauthorized(cctx.Ctx, "認証されていません。")
+				if err := authHandlerPresenter.Unauthorized(cctx.Ctx, "認証されていません。"); err != nil {
+					return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+				}
+				return errors.BusinessErrorf("taskPresenter.Forbidden()")
 			}
 
 			auth.SetAuth(cctx, auths)
@@ -91,12 +98,12 @@ func getToken(r *http.Request) string {
 func getPublicKey(kid string) (interface{}, error) {
 	key, ok := keySet.LookupKeyID(kid)
 	if !ok {
-		return nil, fmt.Errorf("key not found in key set")
+		return nil, xerrors.Errorf("key not found in key set")
 	}
 
 	var publicKey interface{}
 	if err := key.Raw(&publicKey); err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("key.Raw()")
 	}
 
 	return publicKey, nil

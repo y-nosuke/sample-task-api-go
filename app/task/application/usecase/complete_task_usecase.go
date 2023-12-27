@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 
 	"github.com/google/uuid"
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
@@ -9,7 +10,6 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
-	"golang.org/x/xerrors"
 )
 
 type CompleteTaskUseCaseArgs struct {
@@ -31,30 +31,36 @@ func NewCompleteTaskUseCase(taskRepository repository.TaskRepository, taskEventR
 func (u *CompleteTaskUseCase) Invoke(ctx context.Context, args *CompleteTaskUseCaseArgs) error {
 	task, err := u.taskRepository.GetById(ctx, args.Id)
 	if err != nil {
-		return xerrors.Errorf("taskRepository.GetById(): %w", err)
+		return errors.SystemErrorf("taskRepository.GetById(): %w", err)
 	}
 
 	if task == nil {
-		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
+		if err := u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Forbidden(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Forbidden()")
 	}
 
 	task.Complete(args.Version)
 
 	// TODO 重複エラーは独自errorを返すようにする
 	if row, err := u.taskRepository.Update(ctx, task, args.Version); err != nil {
-		return xerrors.Errorf("taskRepository.Update(): %w", err)
+		return errors.SystemErrorf("taskRepository.Update(): %w", err)
 	} else if row != 1 {
-		return u.taskPresenter.Conflict(ctx, "タスクは既に更新済みです。")
+		if err := u.taskPresenter.Conflict(ctx, "タスクは既に更新済みです。"); err != nil {
+			return errors.SystemErrorf("taskPresenter.Conflict(): %w", err)
+		}
+		return errors.BusinessErrorf("taskPresenter.Conflict()")
 	}
 
 	if err := u.taskPresenter.NilResponse(ctx); err != nil {
-		return xerrors.Errorf("taskPresenter.NilResponse(): %w", err)
+		return errors.SystemErrorf("taskPresenter.NilResponse(): %w", err)
 	}
 
 	taskCompleted := event.NewTaskCompleted(task)
 	err = u.taskEventRepository.Register(ctx, taskCompleted)
 	if err != nil {
-		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
+		return errors.SystemErrorf("taskEventRepository.Register(): %w", err)
 	}
 	u.publisher.Publish(taskCompleted)
 

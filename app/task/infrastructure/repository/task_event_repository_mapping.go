@@ -2,6 +2,7 @@ package repository
 
 import (
 	"encoding/json"
+
 	"github.com/google/uuid"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/database/dao"
