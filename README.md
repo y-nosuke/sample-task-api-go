@@ -12,7 +12,7 @@
 127.0.0.1 keycloak.localhost
 ```
 
-### .direnv の作成
+### .envrc の作成
 
 ```sh
 direnv edit .
@@ -107,7 +107,7 @@ sqlboiler mysql
 mkdir -p generated/interfaces/openapi
 
 # command option
-oapi-codegen -old-config-style -templates oapi-codegen/templates/ -generate types,server,spec -package openapi -o generated/interfaces/openapi/task.gen.go sample-task-openapi/openapi.yaml
+oapi-codegen -old-config-style -templates oapi-codegen/templates/ -generate types,server,spec -package openapi -o generated/infrastructure/openapi/task.gen.go sample-task-openapi/openapi.yaml
 
 # config file -templatesオブションが使えないので、こちらは使えない
 oapi-codegen --config oapi-codegen/config.yaml sample-task-openapi/openapi.yaml
