@@ -12,11 +12,6 @@ type Task struct {
 	Detail    *string
 	Completed bool
 	Deadline  *time.Time
-	CreatedBy *uuid.UUID
-	CreatedAt *time.Time
-	UpdatedBy *uuid.UUID
-	UpdatedAt *time.Time
-	Version   *uuid.UUID
 }
 
 type TaskSlice []*Task
@@ -26,19 +21,16 @@ func NewTask(title string, detail *string, deadline *time.Time) *Task {
 	return &Task{Id: &id, Title: title, Detail: detail, Completed: false, Deadline: deadline}
 }
 
-func (t *Task) Update(title string, detail *string, deadline *time.Time, version *uuid.UUID) {
+func (t *Task) Update(title string, detail *string, deadline *time.Time) {
 	t.Title = title
 	t.Detail = detail
 	t.Deadline = deadline
-	t.Version = version
 }
 
-func (t *Task) Complete(version *uuid.UUID) {
+func (t *Task) Complete() {
 	t.Completed = true
-	t.Version = version
 }
 
-func (t *Task) UnComplete(version *uuid.UUID) {
+func (t *Task) UnComplete() {
 	t.Completed = false
-	t.Version = version
 }

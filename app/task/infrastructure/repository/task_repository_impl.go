@@ -39,19 +39,14 @@ func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entity.Task) er
 	if err != nil {
 		return xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
-	task.CreatedBy = &createdBy
 	updatedBy, err := uuid.FromBytes(rTask.UpdatedBy)
 	if err != nil {
 		return xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
-	task.UpdatedBy = &updatedBy
-	task.CreatedAt = &rTask.CreatedAt
-	task.UpdatedAt = &rTask.UpdatedAt
 	version, err := uuid.FromBytes(rTask.Version)
 	if err != nil {
 		return xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
-	task.Version = &version
 
 	return nil
 }

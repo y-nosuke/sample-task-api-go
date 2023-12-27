@@ -71,31 +71,11 @@ func Task(rTask *dao.RTask) (*entity.Task, error) {
 		deadline = &rTask.Deadline.Time
 	}
 
-	createdBy, err := uuid.FromBytes(rTask.CreatedBy)
-	if err != nil {
-		return nil, xerrors.Errorf("uuid.FromBytes(): %w", err)
-	}
-
-	updatedBy, err := uuid.FromBytes(rTask.UpdatedBy)
-	if err != nil {
-		return nil, xerrors.Errorf("uuid.FromBytes(): %w", err)
-	}
-
-	version, err := uuid.FromBytes(rTask.Version)
-	if err != nil {
-		return nil, xerrors.Errorf("uuid.FromBytes(): %w", err)
-	}
-
 	return &entity.Task{
 		Id:        &id,
 		Title:     rTask.Title,
 		Detail:    detail,
 		Completed: rTask.Completed,
 		Deadline:  deadline,
-		CreatedBy: &createdBy,
-		CreatedAt: &rTask.CreatedAt,
-		UpdatedBy: &updatedBy,
-		UpdatedAt: &rTask.UpdatedAt,
-		Version:   &version,
 	}, nil
 }
