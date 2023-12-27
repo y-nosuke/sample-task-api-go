@@ -7,5 +7,5 @@ import (
 )
 
 type TaskEventRepository interface {
-	Register(context.Context, event.TaskEvent) error
+	Register(context.Context, event.TaskEvent[event.TaskCreatedData]) error
 }

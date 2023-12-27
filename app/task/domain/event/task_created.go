@@ -8,8 +8,7 @@ import (
 )
 
 type TaskCreated struct {
-	TaskEventCommon
-	data TaskCreatedData
+	TaskEventCommon[TaskCreatedData]
 }
 
 type TaskCreatedData struct {
@@ -21,20 +20,15 @@ type TaskCreatedData struct {
 	CreatedAt *time.Time `json:"created_at"`
 }
 
-func NewTaskCreated(task *entity.Task) *TaskCreated {
+func NewTaskCreated(task *entity.Task) TaskEvent[TaskCreatedData] {
 	return &TaskCreated{
-		TaskEventCommon: *newTaskEventCommon(task.Id),
-		data: TaskCreatedData{
+		TaskEventCommon: *newTaskEventCommon[TaskCreatedData](task.Id, ETaskCreated, TaskCreatedData{
 			Title:     task.Title,
 			Detail:    task.Detail,
 			Completed: task.Completed,
 			Deadline:  task.Deadline,
 			CreatedBy: task.CreatedBy,
 			CreatedAt: task.CreatedAt,
-		},
+		}),
 	}
-}
-
-func (t TaskCreated) Data() any {
-	return t.data
 }

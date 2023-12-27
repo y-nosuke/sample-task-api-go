@@ -19,7 +19,7 @@ func NewTaskEventRepositoryImpl() *TaskEventRepositoryImpl {
 	return &TaskEventRepositoryImpl{}
 }
 
-func (t *TaskEventRepositoryImpl) Register(ctx context.Context, taskEvent event.TaskEvent) error {
+func (t *TaskEventRepositoryImpl) Register(ctx context.Context, taskEvent event.TaskEvent[event.TaskEventData]) error {
 	a := auth.GetAuth(ctx)
 	eTaskEvent, err := ETaskEvent(taskEvent, &a.UserId)
 	if err != nil {

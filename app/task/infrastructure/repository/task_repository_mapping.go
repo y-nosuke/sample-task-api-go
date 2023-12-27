@@ -1,11 +1,13 @@
 package repository
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
+	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/database/dao"
 	"golang.org/x/xerrors"
 )
@@ -97,5 +99,35 @@ func Task(rTask *dao.RTask) (*entity.Task, error) {
 		UpdatedBy: &updatedBy,
 		UpdatedAt: &rTask.UpdatedAt,
 		Version:   &version,
+	}, nil
+}
+
+func ETaskEvent(taskEvent event.TaskEvent[event.TaskEventData], userId *uuid.UUID) (*dao.ETaskEvent, error) {
+	id, err := taskEvent.ID().MarshalBinary()
+	if err != nil {
+		return nil, xerrors.Errorf("task.ID().MarshalBinary(): %w", err)
+	}
+
+	taskID, err := taskEvent.TaskID().MarshalBinary()
+	if err != nil {
+		return nil, xerrors.Errorf("task.TaskID().MarshalBinary(): %w", err)
+	}
+
+	data, err := json.Marshal(taskEvent.Data())
+	if err != nil {
+		return nil, xerrors.Errorf("json.Marshal(): %w", err)
+	}
+
+	byteUserId, err := userId.MarshalBinary()
+	if err != nil {
+		return nil, xerrors.Errorf("userId.MarshalBinary(): %w", err)
+	}
+
+	return &dao.ETaskEvent{
+		ID:        id,
+		Type:      taskEvent.Type(),
+		TaskID:    taskID,
+		Data:      data,
+		CreatedBy: byteUserId,
 	}, nil
 }
