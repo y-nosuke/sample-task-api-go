@@ -62,6 +62,7 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
     volumes:
+      - ./docker/resources/keycloak/realm.json:/tmp/realm.json
       - ./docker/volumes/keycloak:/opt/keycloak/data/h2
     command:
       - start-dev

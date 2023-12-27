@@ -78,9 +78,13 @@ make install
 
 make docker_up
 
+# keycloak初回データ登録時
 # sample-task-terraform-keycloak
 cd envs/local/
 # 反映方法はREADME参照
+
+# keycloakデータimport時
+make keycloak_import
 
 make air
 

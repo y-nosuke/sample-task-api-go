@@ -55,6 +55,12 @@ image: generate
 publish: image
 	docker push ${DOCKER_IMAGE}:latest
 
+keycloak_export:
+	MSYS_NO_PATHCONV=1 docker exec -it keycloak /opt/keycloak/bin/kc.sh export --file /tmp/realm.json --realm sample
+
+keycloak_import:
+	MSYS_NO_PATHCONV=1 docker exec -it keycloak /opt/keycloak/bin/kc.sh import --file /tmp/realm.json
+
 down: docker_down
 
 clean: down
