@@ -6,7 +6,7 @@
 
 ### hosts ファイルの編集
 
-末尾に以下を追加する
+`C:\windows\system32\drivers\etc\hosts`末尾に以下を追加する
 
 ```text
 127.0.0.1 keycloak.localhost
@@ -104,7 +104,7 @@ sqlboiler mysql
 ### oapi-codegen
 
 ```sh
-mkdir -p generated/interfaces/openapi
+mkdir -p generated/infrastructure/openapi
 
 # command option
 oapi-codegen -old-config-style -templates oapi-codegen/templates/ -generate types,server,spec -package openapi -o generated/infrastructure/openapi/task.gen.go sample-task-openapi/openapi.yaml
@@ -174,6 +174,8 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 ### OpenAPI
 
 - [deepmap/oapi-codegen](https://github.com/deepmap/oapi-codegen)
+  - [pkg/codegen/configuration.go](https://github.com/deepmap/oapi-codegen/blob/master/pkg/codegen/configuration.go#L14)
+- [Echo Groups not working with OpenAPI generated code using oapi-codegen](https://stackoverflow.com/questions/70087465/echo-groups-not-working-with-openapi-generated-code-using-oapi-codegen)
 
 ### Validation
 
