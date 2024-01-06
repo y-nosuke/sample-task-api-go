@@ -53,7 +53,7 @@ go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
 go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest
 
 # goreturns
-go get -u github.com/sqs/goreturns
+go install github.com/sqs/goreturns
 
 # xerrors
 go get -u golang.org/x/xerrors

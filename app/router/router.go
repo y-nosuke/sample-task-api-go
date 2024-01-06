@@ -2,11 +2,12 @@ package router
 
 import (
 	"fmt"
-	"github.com/y-nosuke/sample-task-api-go/app/framework/validation/infrastructure"
 	"io"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/y-nosuke/sample-task-api-go/app/framework/validation/infrastructure"
 
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo-contrib/jaegertracing"
