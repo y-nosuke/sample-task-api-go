@@ -4,7 +4,7 @@
 
 ## 事前準備
 
-### hosts ファイルの編集
+###  ファイルの編集
 
 `C:\windows\system32\drivers\etc\hosts`末尾に以下を追加する
 
@@ -50,7 +50,7 @@ go install github.com/volatiletech/sqlboiler/v4@latest
 go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
 
 # oapi-codegen
-go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest
 
 # goreturns
 go get -u github.com/sqs/goreturns
@@ -107,10 +107,7 @@ sqlboiler mysql
 mkdir -p generated/infrastructure/openapi
 
 # command option
-oapi-codegen -old-config-style -templates oapi-codegen/templates/ -generate types,server,spec -package openapi -o generated/infrastructure/openapi/task.gen.go sample-task-openapi/openapi.yaml
-
-# config file -templatesオブションが使えないので、こちらは使えない
-oapi-codegen --config oapi-codegen/config.yaml sample-task-openapi/openapi.yaml
+oapi-codegen --config oapi-codegen-config.yaml sample-task-openapi/openapi.yaml
 ```
 
 ### 実行

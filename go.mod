@@ -14,7 +14,7 @@ require (
 	github.com/labstack/echo-contrib v0.15.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/lestrrat-go/jwx v1.2.27
-	github.com/oapi-codegen/runtime v1.1.0
+	github.com/oapi-codegen/runtime v1.1.1
 	github.com/slack-go/slack v0.12.3
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.15.0

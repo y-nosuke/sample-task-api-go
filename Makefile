@@ -2,7 +2,7 @@ install:
 	go install -tags mysql github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 	go install github.com/volatiletech/sqlboiler/v4@latest
 	go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
-	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+	go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest
 	go mod tidy
 
 docker_up:
@@ -24,7 +24,7 @@ migrate_down:
 generate: migrate_up
 	sqlboiler mysql
 	mkdir -p generated/infrastructure/openapi
-	oapi-codegen -old-config-style -templates oapi-codegen/templates/ -generate types,server,spec -package openapi -o generated/infrastructure/openapi/task.gen.go sample-task-openapi/openapi.yaml
+	oapi-codegen --config oapi-codegen-config.yaml sample-task-openapi/openapi.yaml
 
 build: generate
 	go build -v ./...
