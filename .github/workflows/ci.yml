@@ -49,7 +49,7 @@ jobs:
           go install github.com/volatiletech/sqlboiler/v4@latest
           go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
           # oapi-codegen
-          go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest
+          go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 
       - name: Run Migration
         run: migrate -path sample-task-golang-migrate/migrations -database "mysql://$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE_NAME?multiStatements=true" up
