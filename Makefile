@@ -2,7 +2,8 @@ install:
 	go install -tags mysql github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 	go install github.com/volatiletech/sqlboiler/v4@latest
 	go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
-	go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest
+	go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+	go install github.com/air-verse/air@latest
 	go mod tidy
 
 docker_up:
@@ -59,4 +60,4 @@ publish: image
 down: docker_down
 
 clean: down
-	rm -rf generated bin docker/volumes
+	rm -rf generated bin tmp docker/volumes

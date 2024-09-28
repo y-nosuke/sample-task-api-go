@@ -50,7 +50,7 @@ go install github.com/volatiletech/sqlboiler/v4@latest
 go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
 
 # oapi-codegen
-go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest
+go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 
 # goreturns
 go install github.com/sqs/goreturns
@@ -67,6 +67,9 @@ go get -u "github.com/labstack/echo-contrib/prometheus"
 
 # database
 go get -u github.com/go-sql-driver/mysql
+
+# air
+go install github.com/air-verse/air@latest
 
 go mod tidy
 ```
@@ -160,6 +163,7 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
   - [Installation](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
 - [github.com/google/UUID](https://pkg.go.dev/github.com/google/UUID)
 - [time](https://pkg.go.dev/time)
+- [air](https://github.com/air-verse/air)
 
 - [Postgres と MySQL における id, created_at, updated_at に関するベストプラクティス](https://zenn.dev/mpyw/articles/rdb-ids-and-timestamps-best-practices)
 - [Go 言語におけるエラーハンドリングベストプラクティス](https://zenn.dev/malt03/articles/cd0365608a26c4)
@@ -170,8 +174,8 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 
 ### OpenAPI
 
-- [deepmap/oapi-codegen](https://github.com/deepmap/oapi-codegen)
-  - [pkg/codegen/configuration.go](https://github.com/deepmap/oapi-codegen/blob/master/pkg/codegen/configuration.go#L14)
+- [oapi-codegen/oapi-codegen](https://github.com/oapi-codegen/oapi-codegen)
+  - [pkg/codegen/configuration.go](https://github.com/oapi-codegen/oapi-codegen/blob/master/pkg/codegen/configuration.go#L14)
 - [Echo Groups not working with OpenAPI generated code using oapi-codegen](https://stackoverflow.com/questions/70087465/echo-groups-not-working-with-openapi-generated-code-using-oapi-codegen)
 
 ### Validation
