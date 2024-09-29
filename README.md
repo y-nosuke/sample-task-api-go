@@ -197,6 +197,11 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
   - [Build and push Docker images](https://github.com/marketplace/actions/build-and-push-docker-images)
   - [slack-send](https://github.com/marketplace/actions/slack-send)
 
+## keycloak
+
+- [Script upload is disabled in Keycloak during importing a realm](https://medium.com/@ramanamuttana/script-upload-is-disabled-in-keycloak-4cb22d9358c8)
+- [Importing and Exporting Realms](https://www.keycloak.org/server/importExport)
+
 ### Slack
 
 - [Reference: Message payloads](https://api.slack.com/reference/messaging/payload)

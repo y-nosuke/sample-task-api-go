@@ -60,9 +60,18 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
     volumes:
-      - ./docker/volumes/keycloak:/opt/keycloak/data/h2
+      - ./docker/resources/keycloak/import:/opt/keycloak/data/import
+      - ./docker/volumes/keycloak/h2:/opt/keycloak/data/h2
     command:
       - start-dev
+# exportするときはコメントアウトする。
+      - --import-realm
+# exportするときはコメントアウトを解除する。exportしたあと、sample-realm.jsonから「authorizationSettings」を削除する
+#      - export
+#      - --realm
+#      - sample
+#      - --dir
+#      - /opt/keycloak/data/import
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.keycloak.rule=Host(`keycloak.localhost`)"
