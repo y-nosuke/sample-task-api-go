@@ -12,21 +12,23 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/framework/validation"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/infrastructure/observer"
 	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.opentelemetry.io/otel"
+
+	//nolint:staticcheck
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
-	"go.opentelemetry.io/otel/trace"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
-var tracer trace.Tracer
+// golangci-lintでエラーになるので一時的にコメントアウト
+//var tracer trace.Tracer
 
 func Router() (e *echo.Echo, err error) {
 	e = echo.New()
@@ -34,11 +36,15 @@ func Router() (e *echo.Echo, err error) {
 	e.HTTPErrorHandler = ferrors.CustomHTTPErrorHandler
 	e.Validator = validation.NewValidator()
 
-	tracer = otel.Tracer("github.com/y-nosuke/sample-task-api-go")
+	//tracer = otel.Tracer("github.com/y-nosuke/sample-task-api-go")
+	otel.Tracer("github.com/y-nosuke/sample-task-api-go")
 
 	ctx := context.Background()
 	endpoint := os.Getenv("EXPORTER_ENDPOINT")
 	exporter, err := otlptracehttp.New(ctx, otlptracehttp.WithEndpoint(endpoint), otlptracehttp.WithInsecure())
+	if err != nil {
+		return nil, fmt.Errorf("otlptracehttp.New(): %v", err)
+	}
 
 	r, err := resource.New(
 		ctx,
@@ -51,7 +57,7 @@ func Router() (e *echo.Echo, err error) {
 		),
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("resource.New(): %v", err)
 	}
 
 	e.Use(
