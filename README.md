@@ -79,7 +79,7 @@ go mod tidy
 ```sh
 make install
 
-make docker_up
+make up
 
 # sample-task-terraform-keycloak
 cd envs/local/

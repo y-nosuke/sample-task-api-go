@@ -9,7 +9,7 @@ install:
 docker_up:
 	docker compose up -d
 
-docker: docker_up
+up: docker_up
 
 docker_down:
 	docker compose down
