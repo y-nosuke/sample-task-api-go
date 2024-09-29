@@ -50,11 +50,11 @@ func taskForm(task *entity.Task) *openapi.TaskForm {
 	}
 }
 
-func BadRequestMessage(message string, err error) *string {
+func BadRequestMessage(message string, err error) string {
 	var invalidValidationError *validator.InvalidValidationError
 	if errors.As(err, &invalidValidationError) {
 		msg := invalidValidationError.Error()
-		return &msg
+		return msg
 	}
 	msg := message + "\n"
 	msg += "errors: \n"
@@ -76,5 +76,5 @@ func BadRequestMessage(message string, err error) *string {
 		//message += "Value: " + err.Value().(string) + "\n"
 	}
 	fmt.Println("====================================================================")
-	return &msg
+	return msg
 }

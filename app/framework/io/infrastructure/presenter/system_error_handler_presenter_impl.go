@@ -18,7 +18,6 @@ func NewSystemErrorHandlerPresenterImpl() *SystemErrorHandlerPresenterImpl {
 
 func (p *SystemErrorHandlerPresenterImpl) ErrorResponse(ctx context.Context) error {
 	ectx := fcontext.GetEctx(ctx)
-	message := "システムエラーが発生しました。"
-	errorResponse := &openapi.ErrorResponse{Message: &message}
+	errorResponse := &openapi.ErrorResponse{Message: "システムエラーが発生しました。"}
 	return ectx.JSON(http.StatusInternalServerError, errorResponse)
 }

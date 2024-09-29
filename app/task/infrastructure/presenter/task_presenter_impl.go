@@ -55,20 +55,20 @@ func (p *TaskPresenterImpl) BadRequest(ctx context.Context, message string, err 
 
 func (p *TaskPresenterImpl) Forbidden(ctx context.Context, message string) error {
 	ectx := fcontext.GetEctx(ctx)
-	return ectx.JSON(http.StatusForbidden, &openapi.ErrorResponse{Message: &message})
+	return ectx.JSON(http.StatusForbidden, &openapi.ErrorResponse{Message: message})
 }
 
 func (p *TaskPresenterImpl) NotFound(ctx context.Context, message string) error {
 	ectx := fcontext.GetEctx(ctx)
-	return ectx.JSON(http.StatusNotFound, &openapi.ErrorResponse{Message: &message})
+	return ectx.JSON(http.StatusNotFound, &openapi.ErrorResponse{Message: message})
 }
 
 func (p *TaskPresenterImpl) Conflict(ctx context.Context, message string) error {
 	ectx := fcontext.GetEctx(ctx)
-	return ectx.JSON(http.StatusConflict, &openapi.ErrorResponse{Message: &message})
+	return ectx.JSON(http.StatusConflict, &openapi.ErrorResponse{Message: message})
 }
 
 func (p *TaskPresenterImpl) InternalServerError(ctx context.Context, message string) error {
 	ectx := fcontext.GetEctx(ctx)
-	return ectx.JSON(http.StatusInternalServerError, &openapi.ErrorResponse{Message: &message})
+	return ectx.JSON(http.StatusInternalServerError, &openapi.ErrorResponse{Message: message})
 }

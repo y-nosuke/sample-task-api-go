@@ -17,5 +17,5 @@ func NewAuthHandlerPresenterImpl() *AuthHandlerPresenterImpl {
 
 func (p *AuthHandlerPresenterImpl) Unauthorized(ctx context.Context, message string) error {
 	ectx := fcontext.GetEctx(ctx)
-	return ectx.JSON(http.StatusUnauthorized, &openapi.ErrorResponse{Message: &message})
+	return ectx.JSON(http.StatusUnauthorized, &openapi.ErrorResponse{Message: message})
 }
