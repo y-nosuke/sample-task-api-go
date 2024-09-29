@@ -144,7 +144,7 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 - [traefik](http://localhost:8080/)
 - [Keycloak](http://Keycloak.localhost/admin/) admin/admin
 - [mailhog](http://mailhog.localhost/)
-- [jeager](http://jeager.localhost/)
+- [jaeger](http://jaeger.localhost/)
 - [prometheus](http://prometheus.localhost/)
 - [alertmanager](http://alertmanager.localhost/)
 - [grafana](http://grafana.localhost/) admin/admin
@@ -206,7 +206,7 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 
 - [dockerhub golang](https://hub.docker.com/_/golang)
 
-### jeager
+### jaeger
 
 - [Jaeger](https://www.jaegertracing.io/)
 - [echo Jaeger Tracing Middleware](https://echo.labstack.com/middleware/jaegertracing/)
@@ -219,3 +219,4 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 ### Open Telemetry
 
 - [Open Telemetry](https://opentelemetry.io/)
+- [Monitor Labstack Echo with OpenTelemetry](https://uptrace.dev/get/instrument/opentelemetry-echo.html)

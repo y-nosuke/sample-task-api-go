@@ -88,22 +88,27 @@ services:
       - "traefik.http.services.mail.loadbalancer.server.port=8025"
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.61.0
+    image: otel/opentelemetry-collector:latest
     container_name: otel-collector
+    hostname: otel-collector.localhost
     restart: always
     ports:
-      - "6831:6831/udp"
+      - "4318:4318"
     volumes:
       - ./docker/resources/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml
     command: [ "--config=/etc/otel-collector.yaml" ]
     depends_on:
-      - jeager
+      - jaeger
       - prometheus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.otel-collector.rule=Host(`otel-collector.localhost`)"
+      - "traefik.http.routers.otel-collector.entrypoints=web"
 
-  jeager:
-    image: jaegertracing/all-in-one
-    container_name: jeager
-    hostname: jeager.localhost
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    hostname: jaeger.localhost
     restart: always
 #    ports:
 #      - "6831:6831/udp"
@@ -122,12 +127,12 @@ services:
       - BADGER_DIRECTORY_VALUE=/badger/data
       - BADGER_DIRECTORY_KEY=/badger/key
     volumes:
-      - ./docker/volumes/jeager:/badger
+      - ./docker/volumes/jaeger:/badger
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.jeager.rule=Host(`jeager.localhost`)"
-      - "traefik.http.routers.jeager.entrypoints=web"
-      - "traefik.http.services.jeager.loadbalancer.server.port=16686"
+      - "traefik.http.routers.jaeger.rule=Host(`jaeger.localhost`)"
+      - "traefik.http.routers.jaeger.entrypoints=web"
+      - "traefik.http.services.jaeger.loadbalancer.server.port=16686"
 
   prometheus:
     image: prom/prometheus
