@@ -1,44 +1,84 @@
 package router
 
 import (
+	"context"
 	"fmt"
-	"io"
+	"github.com/labstack/echo-contrib/echoprometheus"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
+	fep "github.com/y-nosuke/sample-task-api-go/app/framework/io/infrastructure/presenter"
+	fmiddleware "github.com/y-nosuke/sample-task-api-go/app/framework/middleware"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/validation"
+	"github.com/y-nosuke/sample-task-api-go/app/notification/infrastructure/observer"
+	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
+	"go.opentelemetry.io/otel"
+
+	//nolint:staticcheck
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/y-nosuke/sample-task-api-go/app/framework/validation/infrastructure"
-
-	"github.com/labstack/echo-contrib/echoprometheus"
-	"github.com/labstack/echo-contrib/jaegertracing"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	fauth "github.com/y-nosuke/sample-task-api-go/app/framework/auth/infrastructure"
-	fap "github.com/y-nosuke/sample-task-api-go/app/framework/auth/infrastructure/presenter"
-	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context/infrastructure"
-	fdatabase "github.com/y-nosuke/sample-task-api-go/app/framework/database/infrastructure"
-	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure"
-	fep "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure/presenter"
-	"github.com/y-nosuke/sample-task-api-go/app/notification/infrastructure/observer"
-	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
+	"time"
 )
+
+// golangci-lintでエラーになるので一時的にコメントアウト
+//var tracer trace.Tracer
 
 func Router() (e *echo.Echo, err error) {
 	e = echo.New()
 
 	e.HTTPErrorHandler = ferrors.CustomHTTPErrorHandler
-	e.Validator = infrastructure.NewValidator()
+	e.Validator = validation.NewValidator()
 
-	c := jaegertracing.New(e, urlSkipper)
-	defer func(c io.Closer) {
-		if closeErr := c.Close(); closeErr != nil {
-			err = fmt.Errorf("original error: %v, defer close error: %v", err, closeErr)
-		}
-	}(c)
+	//tracer = otel.Tracer("github.com/y-nosuke/sample-task-api-go")
+	otel.Tracer("github.com/y-nosuke/sample-task-api-go")
+
+	ctx := context.Background()
+	endpoint := os.Getenv("EXPORTER_ENDPOINT")
+	exporter, err := otlptracehttp.New(ctx, otlptracehttp.WithEndpoint(endpoint), otlptracehttp.WithInsecure())
+	if err != nil {
+		return nil, fmt.Errorf("otlptracehttp.New(): %v", err)
+	}
+
+	r, err := resource.New(
+		ctx,
+		resource.WithProcessPID(),
+		resource.WithHost(),
+		resource.WithAttributes(
+			semconv.ServiceName("sample-task-api-go"),
+			semconv.ServiceVersion("1.0.0"),
+			semconv.DeploymentEnvironment("local"),
+		),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("resource.New(): %v", err)
+	}
 
 	e.Use(
 		middleware.Logger(),
 		middleware.Recover(),
+		otelecho.Middleware("sample-task-api-go",
+			otelecho.WithSkipper(urlSkipper),
+			otelecho.WithTracerProvider(sdkTrace.NewTracerProvider(
+				sdkTrace.WithBatcher(exporter,
+					// Default is 5s. Set to 1s for demonstrative purposes.
+					sdkTrace.WithBatchTimeout(time.Second),
+				),
+				sdkTrace.WithResource(r),
+			)),
+			otelecho.WithPropagators(
+				propagation.NewCompositeTextMapPropagator(
+					propagation.TraceContext{},
+					propagation.Baggage{},
+				),
+			),
+		),
 		echoprometheus.NewMiddleware("sample_task_api_go"),
 	)
 
@@ -47,12 +87,12 @@ func Router() (e *echo.Echo, err error) {
 	g := e.Group("/api/v1")
 
 	systemErrorHandlerPresenterImpl := fep.NewSystemErrorHandlerPresenterImpl()
-	authHandlerPresenterImpl := fap.NewAuthHandlerPresenterImpl()
+	authHandlerPresenterImpl := fep.NewAuthHandlerPresenterImpl()
 	g.Use(
-		fcontext.CustomContextMiddleware,
-		ferrors.ErrorHandlerMiddleware(systemErrorHandlerPresenterImpl),
-		fauth.ValidateTokenMiddleware(authHandlerPresenterImpl),
-		fdatabase.TransactionMiddleware,
+		fmiddleware.CustomContextMiddleware,
+		fmiddleware.ErrorHandlerMiddleware(systemErrorHandlerPresenterImpl),
+		fmiddleware.ValidateTokenMiddleware(authHandlerPresenterImpl),
+		fmiddleware.TransactionMiddleware,
 	)
 
 	domainEventPublisherImpl := observer.NewDomainEventPublisherImpl()

@@ -50,7 +50,7 @@ go install github.com/volatiletech/sqlboiler/v4@latest
 go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
 
 # oapi-codegen
-go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest
+go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 
 # goreturns
 go install github.com/sqs/goreturns
@@ -68,6 +68,9 @@ go get -u "github.com/labstack/echo-contrib/prometheus"
 # database
 go get -u github.com/go-sql-driver/mysql
 
+# air
+go install github.com/air-verse/air@latest
+
 go mod tidy
 ```
 
@@ -76,7 +79,7 @@ go mod tidy
 ```sh
 make install
 
-make docker_up
+make up
 
 # sample-task-terraform-keycloak
 cd envs/local/
@@ -141,7 +144,7 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 - [traefik](http://localhost:8080/)
 - [Keycloak](http://Keycloak.localhost/admin/) admin/admin
 - [mailhog](http://mailhog.localhost/)
-- [jeager](http://jeager.localhost/)
+- [jaeger](http://jaeger.localhost/)
 - [prometheus](http://prometheus.localhost/)
 - [alertmanager](http://alertmanager.localhost/)
 - [grafana](http://grafana.localhost/) admin/admin
@@ -160,6 +163,7 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
   - [Installation](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
 - [github.com/google/UUID](https://pkg.go.dev/github.com/google/UUID)
 - [time](https://pkg.go.dev/time)
+- [air](https://github.com/air-verse/air)
 
 - [Postgres と MySQL における id, created_at, updated_at に関するベストプラクティス](https://zenn.dev/mpyw/articles/rdb-ids-and-timestamps-best-practices)
 - [Go 言語におけるエラーハンドリングベストプラクティス](https://zenn.dev/malt03/articles/cd0365608a26c4)
@@ -170,8 +174,8 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 
 ### OpenAPI
 
-- [deepmap/oapi-codegen](https://github.com/deepmap/oapi-codegen)
-  - [pkg/codegen/configuration.go](https://github.com/deepmap/oapi-codegen/blob/master/pkg/codegen/configuration.go#L14)
+- [oapi-codegen/oapi-codegen](https://github.com/oapi-codegen/oapi-codegen)
+  - [pkg/codegen/configuration.go](https://github.com/oapi-codegen/oapi-codegen/blob/master/pkg/codegen/configuration.go#L14)
 - [Echo Groups not working with OpenAPI generated code using oapi-codegen](https://stackoverflow.com/questions/70087465/echo-groups-not-working-with-openapi-generated-code-using-oapi-codegen)
 
 ### Validation
@@ -187,11 +191,16 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 - [GitHub Action](https://github.com/marketplace?type=actions)
   - [Checkout](https://github.com/marketplace/actions/checkout)
   - [Setup Go environment](https://github.com/marketplace/actions/setup-go-environment)
-  - [Run golangci-lint](https://github.com/marketplace/actions/run-golangci-lint)
+  - [Golangci-lint](https://github.com/marketplace/actions/golangci-lint)
   - [Docker Login](https://github.com/marketplace/actions/docker-login)
   - [Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action)
   - [Build and push Docker images](https://github.com/marketplace/actions/build-and-push-docker-images)
   - [slack-send](https://github.com/marketplace/actions/slack-send)
+
+## keycloak
+
+- [Script upload is disabled in Keycloak during importing a realm](https://medium.com/@ramanamuttana/script-upload-is-disabled-in-keycloak-4cb22d9358c8)
+- [Importing and Exporting Realms](https://www.keycloak.org/server/importExport)
 
 ### Slack
 
@@ -202,7 +211,7 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 
 - [dockerhub golang](https://hub.docker.com/_/golang)
 
-### jeager
+### jaeger
 
 - [Jaeger](https://www.jaegertracing.io/)
 - [echo Jaeger Tracing Middleware](https://echo.labstack.com/middleware/jaegertracing/)
@@ -215,3 +224,4 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 ### Open Telemetry
 
 - [Open Telemetry](https://opentelemetry.io/)
+- [Monitor Labstack Echo with OpenTelemetry](https://uptrace.dev/get/instrument/opentelemetry-echo.html)

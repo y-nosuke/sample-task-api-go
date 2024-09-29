@@ -1,8 +1,9 @@
-package infrastructure
+package middleware
 
 import (
 	"context"
 	"fmt"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/io/application/presenter"
 	"net/http"
 	"os"
 	"strings"
@@ -11,7 +12,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
-	"github.com/y-nosuke/sample-task-api-go/app/framework/auth/application/presenter"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"golang.org/x/xerrors"
 )

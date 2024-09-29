@@ -1,9 +1,7 @@
-version: '3.7'
-
 services:
   traefik:
-    image: "traefik"
-    container_name: "traefik"
+    image: traefik:latest
+    container_name: traefik
     restart: always
     ports:
       - "${TRAEFIK_PORT:-80}:80"
@@ -34,7 +32,7 @@ services:
       - ./docker/volumes/mysql:/var/lib/mysql
 
   phpmyadmin:
-    image: phpmyadmin
+    image: phpmyadmin:latest
     container_name: phpmyadmin
     hostname: phpmyadmin.localhost
     restart: always
@@ -62,22 +60,30 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
     volumes:
-      - ./docker/volumes/keycloak:/opt/keycloak/data/h2
+      - ./docker/resources/keycloak/import:/opt/keycloak/data/import
+      - ./docker/volumes/keycloak/h2:/opt/keycloak/data/h2
     command:
       - start-dev
+# exportするときはコメントアウトする。
+      - --import-realm
+# exportするときはコメントアウトを解除する。exportしたあと、sample-realm.jsonから「authorizationSettings」を削除する
+#      - export
+#      - --realm
+#      - sample
+#      - --dir
+#      - /opt/keycloak/data/import
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.keycloak.rule=Host(`keycloak.localhost`)"
       - "traefik.http.routers.keycloak.entrypoints=web"
 
   mailhog:
-    image: mailhog/mailhog
+    image: mailhog/mailhog:latest
     container_name: mailhog
     hostname: mailhog.localhost
     restart: always
     ports:
       - "1025:1025"
-#      - "8025:8025"
     environment:
       MH_STORAGE: maildir
       MH_MAILDIR_PATH: /tmp
@@ -90,33 +96,28 @@ services:
       - "traefik.http.services.mail.loadbalancer.server.port=8025"
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.61.0
+    image: otel/opentelemetry-collector:latest
     container_name: otel-collector
+    hostname: otel-collector.localhost
     restart: always
     ports:
-      - "6831:6831/udp"
+      - "4318:4318"
     volumes:
       - ./docker/resources/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml
     command: [ "--config=/etc/otel-collector.yaml" ]
     depends_on:
-      - jeager
+      - jaeger
       - prometheus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.otel-collector.rule=Host(`otel-collector.localhost`)"
+      - "traefik.http.routers.otel-collector.entrypoints=web"
 
-  jeager:
-    image: jaegertracing/all-in-one
-    container_name: jeager
-    hostname: jeager.localhost
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    hostname: jaeger.localhost
     restart: always
-#    ports:
-#      - "6831:6831/udp"
-#      - "6832:6832/udp"
-#      - "5778:5778"
-#      - "16686:16686"
-#      - "4317:4317"
-#      - "4318:4318"
-#      - "14250:14250"
-#      - "14268:14268"
-#      - "14269:14269"
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - SPAN_STORAGE_TYPE=badger
@@ -124,15 +125,15 @@ services:
       - BADGER_DIRECTORY_VALUE=/badger/data
       - BADGER_DIRECTORY_KEY=/badger/key
     volumes:
-      - ./docker/volumes/jeager:/badger
+      - ./docker/volumes/jaeger:/badger
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.jeager.rule=Host(`jeager.localhost`)"
-      - "traefik.http.routers.jeager.entrypoints=web"
-      - "traefik.http.services.jeager.loadbalancer.server.port=16686"
+      - "traefik.http.routers.jaeger.rule=Host(`jaeger.localhost`)"
+      - "traefik.http.routers.jaeger.entrypoints=web"
+      - "traefik.http.services.jaeger.loadbalancer.server.port=16686"
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:latest
     container_name: prometheus
     hostname: prometheus.localhost
     restart: always
@@ -146,7 +147,7 @@ services:
       - "traefik.http.routers.prometheus.entrypoints=web"
 
   alertmanager:
-    image: prom/alertmanager
+    image: prom/alertmanager:latest
     container_name: alertmanager
     hostname: alertmanager.localhost
     restart: always
@@ -159,7 +160,7 @@ services:
       - "traefik.http.routers.alertmanager.entrypoints=web"
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:latest
     container_name: grafana
     hostname: grafana.localhost
     restart: always

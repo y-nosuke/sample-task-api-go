@@ -1,7 +1,8 @@
 receivers:
-  jaeger:
+  otlp:
     protocols:
-      thrift_compact:
+      http:
+        endpoint: "0.0.0.0:4318"
   prometheus:
     config:
       scrape_configs:
@@ -11,8 +12,8 @@ receivers:
             - targets: ["host.docker.internal:1323"]
 
 exporters:
-  jaeger:
-    endpoint: jeager:14250
+  otlp/jaeger:
+    endpoint: http://jaeger:4317
     tls:
       insecure: true
   prometheus:
@@ -22,8 +23,8 @@ exporters:
 service:
   pipelines:
     traces:
-      receivers: [jaeger]
-      exporters: [logging, jaeger]
+      receivers: [otlp]
+      exporters: [logging, otlp/jaeger]
     metrics:
       receivers: [prometheus]
       exporters: [logging, prometheus]
