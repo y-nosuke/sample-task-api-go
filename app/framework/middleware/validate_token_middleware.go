@@ -28,7 +28,7 @@ func init() {
 	}
 }
 
-func ValidateTokenMiddleware(authHandlerPresenter presenter.AuthHandlerPresenter) func(next echo.HandlerFunc) echo.HandlerFunc {
+func ValidateTokenMiddleware(authHandlerPresenter presenter.BusinessErrorPresenter) func(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ectx echo.Context) error {
 			fmt.Println("トークン検証を実行します。")

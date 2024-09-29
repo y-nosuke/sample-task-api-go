@@ -16,8 +16,7 @@ func NewSystemErrorHandlerPresenterImpl() *SystemErrorHandlerPresenterImpl {
 	return &SystemErrorHandlerPresenterImpl{}
 }
 
-func (p *SystemErrorHandlerPresenterImpl) ErrorResponse(ctx context.Context) error {
+func (p SystemErrorHandlerPresenterImpl) InternalServerError(ctx context.Context) error {
 	ectx := fcontext.GetEctx(ctx)
-	errorResponse := &openapi.ErrorResponse{Message: "システムエラーが発生しました。"}
-	return ectx.JSON(http.StatusInternalServerError, errorResponse)
+	return ectx.JSON(http.StatusInternalServerError, &openapi.ErrorResponse{Message: "システムエラーが発生しました。"})
 }

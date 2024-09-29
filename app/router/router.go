@@ -87,11 +87,11 @@ func Router() (e *echo.Echo, err error) {
 	g := e.Group("/api/v1")
 
 	systemErrorHandlerPresenterImpl := fep.NewSystemErrorHandlerPresenterImpl()
-	authHandlerPresenterImpl := fep.NewAuthHandlerPresenterImpl()
+	businessErrorPresenterImpl := fep.NewBusinessErrorPresenterImpl()
 	g.Use(
 		fmiddleware.CustomContextMiddleware,
 		fmiddleware.ErrorHandlerMiddleware(systemErrorHandlerPresenterImpl),
-		fmiddleware.ValidateTokenMiddleware(authHandlerPresenterImpl),
+		fmiddleware.ValidateTokenMiddleware(businessErrorPresenterImpl),
 		fmiddleware.TransactionMiddleware,
 	)
 
@@ -104,7 +104,7 @@ func Router() (e *echo.Echo, err error) {
 	mailSubscriberImpl := observer.NewMailSubscriberImpl(os.Getenv("MAIL_HOST"), port, os.Getenv("MAIL_FROM"), os.Getenv("MAIL_TO"))
 	domainEventPublisherImpl.Register(slackSubscriberImpl, mailSubscriberImpl)
 
-	tr.TaskRouter(g, domainEventPublisherImpl)
+	tr.TaskRouter(g, businessErrorPresenterImpl, domainEventPublisherImpl)
 
 	// ここで処理しないとjaegerのtracingが取れなくなる
 	e.Logger.Fatal(e.Start(":1323"))

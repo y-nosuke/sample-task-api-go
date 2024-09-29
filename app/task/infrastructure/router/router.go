@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/labstack/echo/v4"
+	fpresenter "github.com/y-nosuke/sample-task-api-go/app/framework/io/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/usecase"
@@ -11,10 +12,10 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
 )
 
-func TaskRouter(g *echo.Group, publisher observer.Publisher[event.DomainEvent]) {
+func TaskRouter(g *echo.Group, businessErrorPresenter fpresenter.BusinessErrorPresenter, publisher observer.Publisher[event.DomainEvent]) {
 	taskRepositoryImpl := repository.NewTaskRepositoryImpl()
 	taskEventRepositoryImpl := repository.NewTaskEventRepositoryImpl()
-	taskPresenterImpl := presenter.NewTaskPresenterImpl()
+	taskPresenterImpl := presenter.NewTaskPresenterImpl(businessErrorPresenter)
 	registerTaskUseCase := usecase.NewRegisterTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
 	getAllTaskUseCase := usecase.NewGetAllTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
 	getTaskUseCase := usecase.NewGetTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
