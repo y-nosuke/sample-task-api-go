@@ -1,9 +1,9 @@
 package presenter
 
 import (
-	"context"
+	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 )
 
 type SystemErrorPresenter interface {
-	InternalServerError(ctx context.Context) error
+	InternalServerError(ctx fcontext.Context) error
 }

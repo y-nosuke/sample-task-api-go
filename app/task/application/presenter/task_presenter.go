@@ -1,18 +1,17 @@
 package presenter
 
 import (
-	"context"
-
+	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	fpresenter "github.com/y-nosuke/sample-task-api-go/app/framework/io/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
 )
 
 type TaskPresenter interface {
-	RegisterTaskResponse(context.Context, *entity.Task) error
-	UpdateTaskResponse(context.Context, *entity.Task) error
-	GetTaskResponse(context.Context, *entity.Task) error
-	TaskAllResponse(context.Context, entity.TaskSlice) error
-	NilResponse(context.Context) error
-	NoContentResponse(context.Context) error
+	RegisterTaskResponse(fcontext.Context, *entity.Task) error
+	UpdateTaskResponse(fcontext.Context, *entity.Task) error
+	GetTaskResponse(fcontext.Context, *entity.Task) error
+	TaskAllResponse(fcontext.Context, entity.TaskSlice) error
+	NilResponse(fcontext.Context) error
+	NoContentResponse(fcontext.Context) error
 	fpresenter.BusinessErrorPresenter
 }

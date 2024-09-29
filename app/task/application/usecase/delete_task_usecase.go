@@ -1,10 +1,9 @@
 package usecase
 
 import (
-	"context"
-
 	"github.com/google/uuid"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
+	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
@@ -28,27 +27,27 @@ func NewDeleteTaskUseCase(taskRepository repository.TaskRepository, taskEventRep
 	return &DeleteTaskUseCase{taskRepository, taskEventRepository, taskPresenter, publisher}
 }
 
-func (u *DeleteTaskUseCase) Invoke(ctx context.Context, args *DeleteTaskUseCaseArgs) error {
-	task, err := u.taskRepository.GetById(ctx, args.Id)
+func (u *DeleteTaskUseCase) Invoke(cctx fcontext.Context, args *DeleteTaskUseCaseArgs) error {
+	task, err := u.taskRepository.GetById(cctx, args.Id)
 	if err != nil {
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
 
 	if task == nil {
-		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
+		return u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。")
 	}
 
-	if err := u.taskRepository.Delete(ctx, task); err != nil {
+	if err := u.taskRepository.Delete(cctx, task); err != nil {
 		return xerrors.Errorf("taskRepository.Delete(): %w", err)
 	}
 
-	if err := u.taskPresenter.NoContentResponse(ctx); err != nil {
+	if err := u.taskPresenter.NoContentResponse(cctx); err != nil {
 		return xerrors.Errorf("taskPresenter.NoContentResponse(): %w", err)
 	}
 
-	a := auth.GetAuth(ctx)
+	a := auth.GetAuth(cctx)
 	taskDeleted := event.NewTaskDeleted(task, &a.UserId)
-	err = u.taskEventRepository.Register(ctx, taskDeleted)
+	err = u.taskEventRepository.Register(cctx, taskDeleted)
 	if err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}

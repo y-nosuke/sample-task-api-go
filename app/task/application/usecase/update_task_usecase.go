@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"context"
+	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"time"
 
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
@@ -33,30 +33,30 @@ func NewUpdateTaskUseCase(taskRepository repository.TaskRepository, taskEventRep
 	return &UpdateTaskUseCase{taskRepository, taskEventRepository, taskPresenter, publisher}
 }
 
-func (u *UpdateTaskUseCase) Invoke(ctx context.Context, args *UpdateTaskUseCaseArgs) error {
-	task, err := u.taskRepository.GetById(ctx, args.Id)
+func (u *UpdateTaskUseCase) Invoke(cctx fcontext.Context, args *UpdateTaskUseCaseArgs) error {
+	task, err := u.taskRepository.GetById(cctx, args.Id)
 	if err != nil {
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
 
 	if task == nil {
-		return u.taskPresenter.NotFound(ctx, "指定されたタスクが見つかりませんでした。")
+		return u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。")
 	}
 
 	task.Update(args.Title, args.Detail, args.Deadline, args.Version)
 
-	if row, err := u.taskRepository.Update(ctx, task, args.Version); err != nil {
+	if row, err := u.taskRepository.Update(cctx, task, args.Version); err != nil {
 		return xerrors.Errorf("taskRepository.Update(): %w", err)
 	} else if row != 1 {
-		return u.taskPresenter.Conflict(ctx, "タスクは既に更新済みです。")
+		return u.taskPresenter.Conflict(cctx, "タスクは既に更新済みです。")
 	}
 
-	if err := u.taskPresenter.UpdateTaskResponse(ctx, task); err != nil {
+	if err := u.taskPresenter.UpdateTaskResponse(cctx, task); err != nil {
 		return xerrors.Errorf("taskPresenter.UpdateTaskResponse(): %w", err)
 	}
 
 	taskUpdated := event.NewTaskUpdated(task)
-	err = u.taskEventRepository.Register(ctx, taskUpdated)
+	err = u.taskEventRepository.Register(cctx, taskUpdated)
 	if err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}

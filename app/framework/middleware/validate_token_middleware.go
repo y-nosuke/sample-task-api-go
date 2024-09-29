@@ -3,17 +3,16 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"github.com/y-nosuke/sample-task-api-go/app/framework/io/application/presenter"
-	"net/http"
-	"os"
-	"strings"
-
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/io/application/presenter"
 	"golang.org/x/xerrors"
+	"net/http"
+	"os"
+	"strings"
 )
 
 var keySet jwk.Set
@@ -32,11 +31,11 @@ func ValidateTokenMiddleware(authHandlerPresenter presenter.BusinessErrorPresent
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ectx echo.Context) error {
 			fmt.Println("トークン検証を実行します。")
-			cctx := fcontext.Cctx(ectx)
+			cctx := fcontext.CastContext(ectx)
 
 			tokenString := getToken(ectx.Request())
 			if tokenString == "" {
-				return authHandlerPresenter.Unauthorized(cctx.Ctx, "認証されていません。 missing Authorization Header")
+				return authHandlerPresenter.Unauthorized(cctx, "認証されていません。 missing Authorization Header")
 			}
 
 			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -57,13 +56,13 @@ func ValidateTokenMiddleware(authHandlerPresenter presenter.BusinessErrorPresent
 			})
 			if err != nil {
 				fmt.Println(err.Error())
-				return authHandlerPresenter.Unauthorized(cctx.Ctx, "認証されていません。 invalid token")
+				return authHandlerPresenter.Unauthorized(cctx, "認証されていません。 invalid token")
 			}
 
 			auths, err := auth.NewAuth(token)
 			if err != nil {
 				fmt.Println(err.Error())
-				return authHandlerPresenter.Unauthorized(cctx.Ctx, "認証されていません。")
+				return authHandlerPresenter.Unauthorized(cctx, "認証されていません。")
 			}
 
 			auth.SetAuth(cctx, auths)

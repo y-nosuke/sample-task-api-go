@@ -11,11 +11,11 @@ import (
 	"net/http"
 )
 
-func ErrorHandlerMiddleware(systemErrorHandlerPresenter presenter.SystemErrorPresenter) func(next echo.HandlerFunc) echo.HandlerFunc {
+func ErrorHandleMiddleware(systemErrorHandlerPresenter presenter.SystemErrorPresenter) func(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ectx echo.Context) error {
 			fmt.Println("エラーハンドラーを実行します。")
-			cctx := context.Cctx(ectx)
+			cctx := context.CastContext(ectx)
 
 			if err := next(ectx); err != nil {
 				fmt.Println("エラーハンドラー")
@@ -26,7 +26,7 @@ func ErrorHandlerMiddleware(systemErrorHandlerPresenter presenter.SystemErrorPre
 						return xerrors.Errorf("ectx.JSON(): %w", err)
 					}
 				} else {
-					if err = systemErrorHandlerPresenter.InternalServerError(cctx.Ctx); err != nil {
+					if err = systemErrorHandlerPresenter.InternalServerError(cctx); err != nil {
 						return xerrors.Errorf("systemErrorHandlerPresenter.SystemError(): %w", err)
 					}
 				}

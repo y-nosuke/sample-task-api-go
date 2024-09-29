@@ -1,13 +1,12 @@
 package repository
 
 import (
-	"context"
 	"fmt"
-
 	"github.com/google/uuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
+	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/database/dao"
@@ -21,14 +20,16 @@ func NewTaskRepositoryImpl() *TaskRepositoryImpl {
 	return &TaskRepositoryImpl{}
 }
 
-func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entity.Task) error {
-	a := auth.GetAuth(ctx)
+func (t *TaskRepositoryImpl) Register(cctx fcontext.Context, task *entity.Task) error {
+	ctx := cctx.GetContext()
+	tx := database.GetTransaction(cctx)
+
+	a := auth.GetAuth(cctx)
 	rTask, err := RTask(task, &a.UserId, task.Version)
 	if err != nil {
 		return xerrors.Errorf("mapping.RTask(): %w", err)
 	}
 
-	tx := database.GetTransaction(ctx)
 	if err = rTask.Insert(ctx, tx, boil.Infer()); err != nil {
 		return xerrors.Errorf("rTask.Insert(): %w", err)
 	}
@@ -56,8 +57,10 @@ func (t *TaskRepositoryImpl) Register(ctx context.Context, task *entity.Task) er
 	return nil
 }
 
-func (t *TaskRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Task, error) {
-	tx := database.GetTransaction(ctx)
+func (t *TaskRepositoryImpl) GetAll(cctx fcontext.Context) ([]*entity.Task, error) {
+	ctx := cctx.GetContext()
+	tx := database.GetTransaction(cctx)
+
 	rTaskSlice, err := dao.RTasks(qm.OrderBy("updated_at DESC")).All(ctx, tx)
 	if err != nil {
 		return nil, xerrors.Errorf("dao.RTasks(): %w", err)
@@ -73,13 +76,15 @@ func (t *TaskRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Task, error)
 	return taskSlice, nil
 }
 
-func (t *TaskRepositoryImpl) GetById(ctx context.Context, id uuid.UUID) (*entity.Task, error) {
+func (t *TaskRepositoryImpl) GetById(cctx fcontext.Context, id uuid.UUID) (*entity.Task, error) {
+	ctx := cctx.GetContext()
+	tx := database.GetTransaction(cctx)
+
 	taskId, err := id.MarshalBinary()
 	if err != nil {
 		return nil, xerrors.Errorf("id.MarshalBinary(): %w", err)
 	}
 
-	tx := database.GetTransaction(ctx)
 	rTask, err := dao.FindRTask(ctx, tx, taskId)
 	if err != nil {
 		return nil, xerrors.Errorf("dao.FindRTask(): %w", err)
@@ -99,8 +104,11 @@ func (t *TaskRepositoryImpl) GetById(ctx context.Context, id uuid.UUID) (*entity
 	return task, nil
 }
 
-func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task, oldVersion *uuid.UUID) (int, error) {
-	a := auth.GetAuth(ctx)
+func (t *TaskRepositoryImpl) Update(cctx fcontext.Context, task *entity.Task, oldVersion *uuid.UUID) (int, error) {
+	ctx := cctx.GetContext()
+	tx := database.GetTransaction(cctx)
+
+	a := auth.GetAuth(cctx)
 	newVersion := uuid.New()
 	rTask, err := RTask(task, &a.UserId, &newVersion)
 	if err != nil {
@@ -112,7 +120,6 @@ func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task, oldV
 		return 0, xerrors.Errorf("oldVersion.MarshalBinary(): %w", err)
 	}
 
-	tx := database.GetTransaction(ctx)
 	rowsAff, err := dao.
 		RTasks(dao.RTaskWhere.ID.EQ(rTask.ID), dao.RTaskWhere.Version.EQ(byteOldVersion)).
 		UpdateAll(ctx, tx, dao.M{"id": rTask.ID, "title": rTask.Title, "detail": rTask.Detail, "completed": rTask.Completed, "deadline": rTask.Deadline, "version": rTask.Version})
@@ -137,14 +144,16 @@ func (t *TaskRepositoryImpl) Update(ctx context.Context, task *entity.Task, oldV
 	return int(rowsAff), nil
 }
 
-func (t *TaskRepositoryImpl) Delete(ctx context.Context, task *entity.Task) error {
-	a := auth.GetAuth(ctx)
+func (t *TaskRepositoryImpl) Delete(cctx fcontext.Context, task *entity.Task) error {
+	ctx := cctx.GetContext()
+	tx := database.GetTransaction(cctx)
+
+	a := auth.GetAuth(cctx)
 	rTask, err := RTask(task, &a.UserId, task.Version)
 	if err != nil {
 		return xerrors.Errorf("mapping.RTask(): %w", err)
 	}
 
-	tx := database.GetTransaction(ctx)
 	if _, err = rTask.Delete(ctx, tx); err != nil {
 		return xerrors.Errorf("rTask.Delete(): %w", err)
 	}

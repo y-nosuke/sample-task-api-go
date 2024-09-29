@@ -6,46 +6,36 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ctxKey int
-
-const (
-	ECTX ctxKey = iota
-)
-
-func SetEctx(cctx *CustomContextImpl, ectx echo.Context) {
-	cctx.WithValue(ECTX, ectx)
+type Context interface {
+	Set(key string, val any)
+	Get(key string) any
+	GetContext() context.Context
 }
 
-func GetEctx(ctx context.Context) echo.Context {
-	return ctx.Value(ECTX).(echo.Context)
-}
-
-func Ctx(ectx echo.Context) context.Context {
-	return ectx.(*CustomContextImpl).Ctx
-}
-
-func Cctx(ectx echo.Context) *CustomContextImpl {
-	return ectx.(*CustomContextImpl)
-}
-
-type CustomContext interface {
-	WithValue(key any, val any)
-	Value(key any) any
-}
-
-type CustomContextImpl struct {
+type CustomContext struct {
 	echo.Context
-	Ctx context.Context
 }
 
-func NewCustomContext(ectx echo.Context, ctx context.Context) *CustomContextImpl {
-	return &CustomContextImpl{ectx, ctx}
+func NewCustomContext(ectx echo.Context) *CustomContext {
+	return &CustomContext{ectx}
 }
 
-func (c *CustomContextImpl) WithValue(key any, val any) {
-	c.Ctx = context.WithValue(c.Ctx, key, val)
+func (c *CustomContext) Set(key string, val any) {
+	c.Context.Set(key, val)
 }
 
-func (c *CustomContextImpl) Value(key any) any {
-	return c.Ctx.Value(key)
+func (c *CustomContext) Get(key string) any {
+	return c.Context.Get(key)
+}
+
+func (c *CustomContext) GetContext() context.Context {
+	return c.Context.Request().Context()
+}
+
+func GetEchoContext(ctx Context) echo.Context {
+	return ctx.(*CustomContext).Context
+}
+
+func CastContext(ectx echo.Context) *CustomContext {
+	return ectx.(*CustomContext)
 }

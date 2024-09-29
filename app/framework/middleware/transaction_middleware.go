@@ -3,16 +3,14 @@ package middleware
 import (
 	"database/sql"
 	"fmt"
-	"os"
-	"time"
-
-	"github.com/y-nosuke/sample-task-api-go/app/framework/context"
-	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/context"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
 	"golang.org/x/xerrors"
+	"os"
+	"time"
 )
 
 func init() {
@@ -40,9 +38,9 @@ func init() {
 func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(ectx echo.Context) (err error) {
 		fmt.Println("トランザクションを開始します。")
-		cctx := context.Cctx(ectx)
+		cctx := context.CastContext(ectx)
 
-		tx, err := boil.BeginTx(cctx.Ctx, nil)
+		tx, err := boil.BeginTx(cctx.GetContext(), nil)
 		if err != nil {
 			return xerrors.Errorf("boil.BeginTx(): %w", err)
 		}

@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"context"
 	"strings"
 
 	"github.com/friendsofgo/errors"
@@ -12,18 +11,16 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type ctxKey int
-
 const (
-	AUTH ctxKey = iota
+	Auth = "auth.Auth"
 )
 
-func SetAuth(cctx fcontext.CustomContext, auth *Authentication) {
-	cctx.WithValue(AUTH, auth)
+func SetAuth(cctx fcontext.Context, auth *Authentication) {
+	cctx.Set(Auth, auth)
 }
 
-func GetAuth(ctx context.Context) *Authentication {
-	return ctx.Value(AUTH).(*Authentication)
+func GetAuth(cctx fcontext.Context) *Authentication {
+	return cctx.Get(Auth).(*Authentication)
 }
 
 type Authentication struct {

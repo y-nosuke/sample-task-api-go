@@ -13,7 +13,6 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/notification/infrastructure/observer"
 	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
 	"go.opentelemetry.io/otel"
-
 	//nolint:staticcheck
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
@@ -89,8 +88,8 @@ func Router() (e *echo.Echo, err error) {
 	systemErrorHandlerPresenterImpl := fep.NewSystemErrorHandlerPresenterImpl()
 	businessErrorPresenterImpl := fep.NewBusinessErrorPresenterImpl()
 	g.Use(
-		fmiddleware.CustomContextMiddleware,
-		fmiddleware.ErrorHandlerMiddleware(systemErrorHandlerPresenterImpl),
+		fmiddleware.ContextMiddleware,
+		fmiddleware.ErrorHandleMiddleware(systemErrorHandlerPresenterImpl),
 		fmiddleware.ValidateTokenMiddleware(businessErrorPresenterImpl),
 		fmiddleware.TransactionMiddleware,
 	)

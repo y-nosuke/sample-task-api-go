@@ -1,16 +1,15 @@
 package repository
 
 import (
-	"context"
-
 	"github.com/google/uuid"
+	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
 )
 
 type TaskRepository interface {
-	Register(context.Context, *entity.Task) error
-	GetAll(context.Context) ([]*entity.Task, error)
-	GetById(context.Context, uuid.UUID) (*entity.Task, error)
-	Update(context.Context, *entity.Task, *uuid.UUID) (int, error)
-	Delete(context.Context, *entity.Task) error
+	Register(fcontext.Context, *entity.Task) error
+	GetAll(fcontext.Context) ([]*entity.Task, error)
+	GetById(fcontext.Context, uuid.UUID) (*entity.Task, error)
+	Update(fcontext.Context, *entity.Task, *uuid.UUID) (int, error)
+	Delete(fcontext.Context, *entity.Task) error
 }

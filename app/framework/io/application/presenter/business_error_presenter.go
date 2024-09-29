@@ -1,11 +1,11 @@
 package presenter
 
-import "context"
+import fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 
 type BusinessErrorPresenter interface {
-	BadRequest(ctx context.Context, message string, err error) error
-	Unauthorized(context.Context, string) error
-	Forbidden(ctx context.Context, message string) error
-	NotFound(ctx context.Context, message string) error
-	Conflict(ctx context.Context, message string) error
+	BadRequest(ctx fcontext.Context, message string, err error) error
+	Unauthorized(fcontext.Context, string) error
+	Forbidden(ctx fcontext.Context, message string) error
+	NotFound(ctx fcontext.Context, message string) error
+	Conflict(ctx fcontext.Context, message string) error
 }

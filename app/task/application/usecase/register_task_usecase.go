@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"context"
+	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"time"
 
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
@@ -31,19 +31,19 @@ func NewRegisterTaskUseCase(taskRepository repository.TaskRepository, taskEventR
 	return &RegisterTaskUseCase{taskRepository, taskEventRepository, taskPresenter, publisher}
 }
 
-func (u *RegisterTaskUseCase) Invoke(ctx context.Context, args *RegisterTaskUseCaseArgs) error {
+func (u *RegisterTaskUseCase) Invoke(cctx fcontext.Context, args *RegisterTaskUseCaseArgs) error {
 	task := entity.NewTask(args.Title, args.Detail, args.Deadline)
 
-	if err := u.taskRepository.Register(ctx, task); err != nil {
+	if err := u.taskRepository.Register(cctx, task); err != nil {
 		return xerrors.Errorf("taskRepository.Register(): %w", err)
 	}
 
-	if err := u.taskPresenter.RegisterTaskResponse(ctx, task); err != nil {
+	if err := u.taskPresenter.RegisterTaskResponse(cctx, task); err != nil {
 		return xerrors.Errorf("taskPresenter.RegisterTaskResponse(): %w", err)
 	}
 
 	taskCreated := event.NewTaskCreated(task)
-	err := u.taskEventRepository.Register(ctx, taskCreated)
+	err := u.taskEventRepository.Register(cctx, taskCreated)
 	if err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
