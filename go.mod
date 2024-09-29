@@ -2,7 +2,7 @@ module github.com/y-nosuke/sample-task-api-go
 
 go 1.23
 
-toolchain go1.23.0
+toolchain go1.23.1
 
 require (
 	github.com/friendsofgo/errors v0.9.2

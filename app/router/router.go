@@ -6,13 +6,10 @@ import (
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	fauth "github.com/y-nosuke/sample-task-api-go/app/framework/auth/infrastructure"
-	fap "github.com/y-nosuke/sample-task-api-go/app/framework/auth/infrastructure/presenter"
-	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context/infrastructure"
-	fdatabase "github.com/y-nosuke/sample-task-api-go/app/framework/database/infrastructure"
-	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure"
-	fep "github.com/y-nosuke/sample-task-api-go/app/framework/errors/infrastructure/presenter"
-	"github.com/y-nosuke/sample-task-api-go/app/framework/validation/infrastructure"
+	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
+	fep "github.com/y-nosuke/sample-task-api-go/app/framework/io/infrastructure/presenter"
+	fmiddleware "github.com/y-nosuke/sample-task-api-go/app/framework/middleware"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/validation"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/infrastructure/observer"
 	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
@@ -35,7 +32,7 @@ func Router() (e *echo.Echo, err error) {
 	e = echo.New()
 
 	e.HTTPErrorHandler = ferrors.CustomHTTPErrorHandler
-	e.Validator = infrastructure.NewValidator()
+	e.Validator = validation.NewValidator()
 
 	tracer = otel.Tracer("github.com/y-nosuke/sample-task-api-go")
 
@@ -84,12 +81,12 @@ func Router() (e *echo.Echo, err error) {
 	g := e.Group("/api/v1")
 
 	systemErrorHandlerPresenterImpl := fep.NewSystemErrorHandlerPresenterImpl()
-	authHandlerPresenterImpl := fap.NewAuthHandlerPresenterImpl()
+	authHandlerPresenterImpl := fep.NewAuthHandlerPresenterImpl()
 	g.Use(
-		fcontext.CustomContextMiddleware,
-		ferrors.ErrorHandlerMiddleware(systemErrorHandlerPresenterImpl),
-		fauth.ValidateTokenMiddleware(authHandlerPresenterImpl),
-		fdatabase.TransactionMiddleware,
+		fmiddleware.CustomContextMiddleware,
+		fmiddleware.ErrorHandlerMiddleware(systemErrorHandlerPresenterImpl),
+		fmiddleware.ValidateTokenMiddleware(authHandlerPresenterImpl),
+		fmiddleware.TransactionMiddleware,
 	)
 
 	domainEventPublisherImpl := observer.NewDomainEventPublisherImpl()

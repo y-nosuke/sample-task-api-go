@@ -191,7 +191,7 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
 - [GitHub Action](https://github.com/marketplace?type=actions)
   - [Checkout](https://github.com/marketplace/actions/checkout)
   - [Setup Go environment](https://github.com/marketplace/actions/setup-go-environment)
-  - [Run golangci-lint](https://github.com/marketplace/actions/run-golangci-lint)
+  - [Golangci-lint](https://github.com/marketplace/actions/golangci-lint)
   - [Docker Login](https://github.com/marketplace/actions/docker-login)
   - [Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action)
   - [Build and push Docker images](https://github.com/marketplace/actions/build-and-push-docker-images)
