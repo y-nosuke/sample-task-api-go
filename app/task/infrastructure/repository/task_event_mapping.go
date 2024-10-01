@@ -9,7 +9,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func ETaskEvent(taskEvent event.TaskEvent, userId *uuid.UUID) (*dao.ETaskEvent, error) {
+func ETaskEvent(taskEvent event.TaskEvent, userId uuid.UUID) (*dao.ETaskEvent, error) {
 	id, err := taskEvent.ID().MarshalBinary()
 	if err != nil {
 		return nil, xerrors.Errorf("task.ID().MarshalBinary(): %w", err)

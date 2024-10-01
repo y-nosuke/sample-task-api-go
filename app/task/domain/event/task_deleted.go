@@ -13,17 +13,17 @@ type TaskDeleted struct {
 }
 
 type TaskDeletedData struct {
-	DeletedBy *uuid.UUID `json:"deleted_by"`
-	DeletedAt *time.Time `json:"deleted_at"`
+	DeletedBy uuid.UUID `json:"deleted_by"`
+	DeletedAt time.Time `json:"deleted_at"`
 }
 
-func NewTaskDeleted(task *entity.Task, deletedBy *uuid.UUID) *TaskDeleted {
+func NewTaskDeleted(task *entity.Task, deletedBy uuid.UUID) *TaskDeleted {
 	now := time.Now()
 	return &TaskDeleted{
 		TaskEventCommon: *newTaskEventCommon(task.Id),
 		data: TaskDeletedData{
 			DeletedBy: deletedBy,
-			DeletedAt: &now,
+			DeletedAt: now,
 		},
 	}
 }

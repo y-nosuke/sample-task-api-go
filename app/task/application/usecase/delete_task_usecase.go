@@ -46,7 +46,7 @@ func (u *DeleteTaskUseCase) Invoke(cctx fcontext.Context, args *DeleteTaskUseCas
 	}
 
 	a := auth.GetAuth(cctx)
-	taskDeleted := event.NewTaskDeleted(task, &a.UserId)
+	taskDeleted := event.NewTaskDeleted(task, a.UserId)
 	err = u.taskEventRepository.Register(cctx, taskDeleted)
 	if err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)

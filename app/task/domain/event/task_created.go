@@ -17,8 +17,8 @@ type TaskCreatedData struct {
 	Detail    *string    `json:"detail"`
 	Completed bool       `json:"completed"`
 	Deadline  *time.Time `json:"deadline"`
-	CreatedBy *uuid.UUID `json:"created_by"`
-	CreatedAt *time.Time `json:"created_at"`
+	CreatedBy uuid.UUID  `json:"created_by"`
+	CreatedAt time.Time  `json:"created_at"`
 }
 
 func NewTaskCreated(task *entity.Task) *TaskCreated {

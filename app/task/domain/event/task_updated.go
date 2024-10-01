@@ -17,8 +17,8 @@ type TaskUpdatedData struct {
 	Detail    *string    `json:"detail"`
 	Completed bool       `json:"completed"`
 	Deadline  *time.Time `json:"deadline"`
-	UpdatedBy *uuid.UUID `json:"updated_by"`
-	UpdatedAt *time.Time `json:"updated_at"`
+	UpdatedBy uuid.UUID  `json:"updated_by"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 func NewTaskUpdated(task *entity.Task) *TaskUpdated {

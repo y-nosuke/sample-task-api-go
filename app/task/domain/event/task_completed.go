@@ -13,8 +13,8 @@ type TaskCompleted struct {
 }
 
 type TaskCompletedData struct {
-	UpdatedBy *uuid.UUID `json:"updated_by"`
-	UpdatedAt *time.Time `json:"updated_at"`
+	UpdatedBy uuid.UUID `json:"updated_by"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func NewTaskCompleted(task *entity.Task) *TaskCompleted {

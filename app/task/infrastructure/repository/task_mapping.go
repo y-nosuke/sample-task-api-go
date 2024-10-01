@@ -10,18 +10,15 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func RTask(task *entity.Task, userId *uuid.UUID, version *uuid.UUID) (*dao.RTask, error) {
+func RTask(task *entity.Task, userId uuid.UUID, version uuid.UUID) (*dao.RTask, error) {
 	id, err := task.Id.MarshalBinary()
 	if err != nil {
 		return nil, xerrors.Errorf("task.Id.MarshalBinary(): %w", err)
 	}
 
-	var byteVersion []byte
-	if version != nil {
-		byteVersion, err = version.MarshalBinary()
-		if err != nil {
-			return nil, xerrors.Errorf("version.MarshalBinary(): %w", err)
-		}
+	byteVersion, err := version.MarshalBinary()
+	if err != nil {
+		return nil, xerrors.Errorf("version.MarshalBinary(): %w", err)
 	}
 
 	byteUserId, err := userId.MarshalBinary()
@@ -87,15 +84,15 @@ func Task(rTask *dao.RTask) (*entity.Task, error) {
 	}
 
 	return &entity.Task{
-		Id:        &id,
+		Id:        id,
 		Title:     rTask.Title,
 		Detail:    detail,
 		Completed: rTask.Completed,
 		Deadline:  deadline,
-		CreatedBy: &createdBy,
-		CreatedAt: &rTask.CreatedAt,
-		UpdatedBy: &updatedBy,
-		UpdatedAt: &rTask.UpdatedAt,
-		Version:   &version,
+		CreatedBy: createdBy,
+		CreatedAt: rTask.CreatedAt,
+		UpdatedBy: updatedBy,
+		UpdatedAt: rTask.UpdatedAt,
+		Version:   version,
 	}, nil
 }

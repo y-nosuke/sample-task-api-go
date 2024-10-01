@@ -27,20 +27,20 @@ func UpdateTaskUseCaseArgs(id uuid.UUID, request *openapi.UpdateTaskRequest) *us
 		Title:    request.Title,
 		Detail:   request.Detail,
 		Deadline: &request.Deadline.Time,
-		Version:  &request.Version,
+		Version:  request.Version,
 	}
 }
 
 func CompleteTaskUseCaseArgs(id uuid.UUID, request *openapi.CompleteTaskRequest) *usecase.CompleteTaskUseCaseArgs {
 	return &usecase.CompleteTaskUseCaseArgs{
 		Id:      id,
-		Version: &request.Version,
+		Version: request.Version,
 	}
 }
 
 func UnCompleteTaskUseCaseArgs(id uuid.UUID, request *openapi.UnCompleteTaskRequest) *usecase.UnCompleteTaskUseCaseArgs {
 	return &usecase.UnCompleteTaskUseCaseArgs{
 		Id:      id,
-		Version: &request.Version,
+		Version: request.Version,
 	}
 }

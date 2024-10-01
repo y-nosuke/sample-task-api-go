@@ -10,6 +10,6 @@ type TaskRepository interface {
 	Register(fcontext.Context, *entity.Task) error
 	GetAll(fcontext.Context) ([]*entity.Task, error)
 	GetById(fcontext.Context, uuid.UUID) (*entity.Task, error)
-	Update(fcontext.Context, *entity.Task, *uuid.UUID) (int, error)
+	Update(fcontext.Context, *entity.Task, uuid.UUID) (int, error)
 	Delete(fcontext.Context, *entity.Task) error
 }

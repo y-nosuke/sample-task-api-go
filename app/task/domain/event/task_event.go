@@ -11,17 +11,17 @@ type TaskEvent interface {
 	event.DomainEvent
 	TaskID() uuid.UUID
 	Data() any
-	Created(CreatedBy *uuid.UUID, CreatedAt *time.Time)
+	Created(CreatedBy uuid.UUID, CreatedAt time.Time)
 }
 
 type TaskEventCommon struct {
 	event.DomainEvent
-	taskID    *uuid.UUID
-	CreatedBy *uuid.UUID
-	CreatedAt *time.Time
+	taskID    uuid.UUID
+	CreatedBy uuid.UUID
+	CreatedAt time.Time
 }
 
-func newTaskEventCommon(taskID *uuid.UUID) *TaskEventCommon {
+func newTaskEventCommon(taskID uuid.UUID) *TaskEventCommon {
 	return &TaskEventCommon{
 		DomainEvent: event.NewDomainEvent(),
 		taskID:      taskID,
@@ -29,10 +29,10 @@ func newTaskEventCommon(taskID *uuid.UUID) *TaskEventCommon {
 }
 
 func (t *TaskEventCommon) TaskID() uuid.UUID {
-	return *t.taskID
+	return t.taskID
 }
 
-func (t *TaskEventCommon) Created(CreatedBy *uuid.UUID, CreatedAt *time.Time) {
+func (t *TaskEventCommon) Created(CreatedBy uuid.UUID, CreatedAt time.Time) {
 	t.CreatedBy = CreatedBy
 	t.CreatedAt = CreatedAt
 }

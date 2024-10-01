@@ -1,17 +1,15 @@
 package usecase
 
 import (
+	"github.com/google/uuid"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
-	"time"
-
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
-
-	"github.com/google/uuid"
 	"golang.org/x/xerrors"
+	"time"
 )
 
 type UpdateTaskUseCaseArgs struct {
@@ -19,7 +17,7 @@ type UpdateTaskUseCaseArgs struct {
 	Title    string
 	Detail   *string
 	Deadline *time.Time
-	Version  *uuid.UUID
+	Version  uuid.UUID
 }
 
 type UpdateTaskUseCase struct {

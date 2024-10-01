@@ -23,9 +23,10 @@ func NewTaskRepositoryImpl() *TaskRepositoryImpl {
 func (t *TaskRepositoryImpl) Register(cctx fcontext.Context, task *entity.Task) error {
 	ctx := cctx.GetContext()
 	tx := database.GetTransaction(cctx)
-
 	a := auth.GetAuth(cctx)
-	rTask, err := RTask(task, &a.UserId, task.Version)
+
+	newVersion := uuid.New()
+	rTask, err := RTask(task, a.UserId, newVersion)
 	if err != nil {
 		return xerrors.Errorf("mapping.RTask(): %w", err)
 	}
@@ -40,19 +41,17 @@ func (t *TaskRepositoryImpl) Register(cctx fcontext.Context, task *entity.Task) 
 	if err != nil {
 		return xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
-	task.CreatedBy = &createdBy
+	task.CreatedBy = createdBy
+	task.CreatedAt = rTask.CreatedAt
+
 	updatedBy, err := uuid.FromBytes(rTask.UpdatedBy)
 	if err != nil {
 		return xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
-	task.UpdatedBy = &updatedBy
-	task.CreatedAt = &rTask.CreatedAt
-	task.UpdatedAt = &rTask.UpdatedAt
-	version, err := uuid.FromBytes(rTask.Version)
-	if err != nil {
-		return xerrors.Errorf("uuid.FromBytes(): %w", err)
-	}
-	task.Version = &version
+	task.UpdatedBy = updatedBy
+	task.UpdatedAt = rTask.UpdatedAt
+
+	task.Version = newVersion
 
 	return nil
 }
@@ -61,7 +60,10 @@ func (t *TaskRepositoryImpl) GetAll(cctx fcontext.Context) ([]*entity.Task, erro
 	ctx := cctx.GetContext()
 	tx := database.GetTransaction(cctx)
 
-	rTaskSlice, err := dao.RTasks(qm.OrderBy("updated_at DESC")).All(ctx, tx)
+	qs := []qm.QueryMod{
+		qm.OrderBy(dao.RTaskColumns.UpdatedAt + " DESC"),
+	}
+	rTaskSlice, err := dao.RTasks(qs...).All(ctx, tx)
 	if err != nil {
 		return nil, xerrors.Errorf("dao.RTasks(): %w", err)
 	}
@@ -70,7 +72,7 @@ func (t *TaskRepositoryImpl) GetAll(cctx fcontext.Context) ([]*entity.Task, erro
 
 	taskSlice, err := TaskSlice(rTaskSlice)
 	if err != nil {
-		return nil, xerrors.Errorf("mapping.TaskSlice(): %w", err)
+		return nil, xerrors.Errorf("TaskSlice(): %w", err)
 	}
 
 	return taskSlice, nil
@@ -89,7 +91,6 @@ func (t *TaskRepositoryImpl) GetById(cctx fcontext.Context, id uuid.UUID) (*enti
 	if err != nil {
 		return nil, xerrors.Errorf("dao.FindRTask(): %w", err)
 	}
-
 	if rTask == nil {
 		return nil, nil
 	}
@@ -104,25 +105,35 @@ func (t *TaskRepositoryImpl) GetById(cctx fcontext.Context, id uuid.UUID) (*enti
 	return task, nil
 }
 
-func (t *TaskRepositoryImpl) Update(cctx fcontext.Context, task *entity.Task, oldVersion *uuid.UUID) (int, error) {
+func (t *TaskRepositoryImpl) Update(cctx fcontext.Context, task *entity.Task, version uuid.UUID) (int, error) {
 	ctx := cctx.GetContext()
 	tx := database.GetTransaction(cctx)
-
 	a := auth.GetAuth(cctx)
+
 	newVersion := uuid.New()
-	rTask, err := RTask(task, &a.UserId, &newVersion)
+	rTask, err := RTask(task, a.UserId, newVersion)
 	if err != nil {
 		return 0, xerrors.Errorf("mapping.RTask(): %w", err)
 	}
 
-	byteOldVersion, err := oldVersion.MarshalBinary()
+	byteVersion, err := version.MarshalBinary()
 	if err != nil {
-		return 0, xerrors.Errorf("oldVersion.MarshalBinary(): %w", err)
+		return 0, xerrors.Errorf("version.MarshalBinary(): %w", err)
 	}
 
-	rowsAff, err := dao.
-		RTasks(dao.RTaskWhere.ID.EQ(rTask.ID), dao.RTaskWhere.Version.EQ(byteOldVersion)).
-		UpdateAll(ctx, tx, dao.M{"id": rTask.ID, "title": rTask.Title, "detail": rTask.Detail, "completed": rTask.Completed, "deadline": rTask.Deadline, "version": rTask.Version})
+	qs := []qm.QueryMod{
+		dao.RTaskWhere.ID.EQ(rTask.ID),
+		dao.RTaskWhere.Version.EQ(byteVersion),
+	}
+	cols := dao.M{
+		dao.RTaskColumns.ID:        rTask.ID,
+		dao.RTaskColumns.Title:     rTask.Title,
+		dao.RTaskColumns.Detail:    rTask.Detail,
+		dao.RTaskColumns.Completed: rTask.Completed,
+		dao.RTaskColumns.Deadline:  rTask.Deadline,
+		dao.RTaskColumns.Version:   rTask.Version,
+	}
+	rowsAff, err := dao.RTasks(qs...).UpdateAll(ctx, tx, cols)
 	if err != nil {
 		return 0, xerrors.Errorf("dao.RTasks().UpdateAll(): %w", err)
 	}
@@ -133,13 +144,10 @@ func (t *TaskRepositoryImpl) Update(cctx fcontext.Context, task *entity.Task, ol
 	if err != nil {
 		return 0, xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
-	task.UpdatedBy = &updatedBy
-	task.UpdatedAt = &rTask.UpdatedAt
-	_version, err := uuid.FromBytes(rTask.Version)
-	if err != nil {
-		return 0, xerrors.Errorf("uuid.FromBytes(): %w", err)
-	}
-	task.Version = &_version
+	task.UpdatedBy = updatedBy
+	task.UpdatedAt = rTask.UpdatedAt
+
+	task.Version = newVersion
 
 	return int(rowsAff), nil
 }
@@ -149,9 +157,9 @@ func (t *TaskRepositoryImpl) Delete(cctx fcontext.Context, task *entity.Task) er
 	tx := database.GetTransaction(cctx)
 
 	a := auth.GetAuth(cctx)
-	rTask, err := RTask(task, &a.UserId, task.Version)
+	rTask, err := RTask(task, a.UserId, task.Version)
 	if err != nil {
-		return xerrors.Errorf("mapping.RTask(): %w", err)
+		return xerrors.Errorf("RTask(): %w", err)
 	}
 
 	if _, err = rTask.Delete(ctx, tx); err != nil {

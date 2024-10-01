@@ -13,7 +13,7 @@ import (
 
 type UnCompleteTaskUseCaseArgs struct {
 	Id      uuid.UUID
-	Version *uuid.UUID
+	Version uuid.UUID
 }
 
 type UnCompleteTaskUseCase struct {

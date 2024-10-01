@@ -33,15 +33,15 @@ func taskForm(task *entity.Task) *openapi.TaskForm {
 	}
 
 	return &openapi.TaskForm{
-		Id:        *task.Id,
+		Id:        task.Id,
 		Title:     task.Title,
 		Detail:    task.Detail,
 		Completed: &task.Completed,
 		Deadline:  deadline,
-		CreatedBy: *task.CreatedBy,
-		CreatedAt: *task.CreatedAt,
-		UpdatedBy: *task.UpdatedBy,
-		UpdatedAt: *task.UpdatedAt,
-		Version:   *task.Version,
+		CreatedBy: task.CreatedBy,
+		CreatedAt: task.CreatedAt,
+		UpdatedBy: task.UpdatedBy,
+		UpdatedAt: task.UpdatedAt,
+		Version:   task.Version,
 	}
 }
