@@ -19,7 +19,7 @@ type TaskCompletedData struct {
 
 func NewTaskCompleted(task *entity.Task) *TaskCompleted {
 	return &TaskCompleted{
-		TaskEventCommon: *newTaskEventCommon(task.Id),
+		TaskEventCommon: *newTaskEventCommon(task.Id()),
 		data: TaskCompletedData{
 			UpdatedBy: task.UpdatedBy,
 			UpdatedAt: task.UpdatedAt,

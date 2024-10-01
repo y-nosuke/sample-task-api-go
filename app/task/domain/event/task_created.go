@@ -23,12 +23,12 @@ type TaskCreatedData struct {
 
 func NewTaskCreated(task *entity.Task) *TaskCreated {
 	return &TaskCreated{
-		TaskEventCommon: *newTaskEventCommon(task.Id),
+		TaskEventCommon: *newTaskEventCommon(task.Id()),
 		data: TaskCreatedData{
-			Title:     task.Title,
-			Detail:    task.Detail,
-			Completed: task.Completed,
-			Deadline:  task.Deadline,
+			Title:     task.Title(),
+			Detail:    task.Detail(),
+			Completed: task.Completed(),
+			Deadline:  task.Deadline(),
 			CreatedBy: task.CreatedBy,
 			CreatedAt: task.CreatedAt,
 		},

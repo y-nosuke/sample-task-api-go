@@ -6,12 +6,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type TaskSlice []*Task
+
 type Task struct {
-	Id        uuid.UUID
-	Title     string
-	Detail    *string
-	Completed bool
-	Deadline  *time.Time
+	id        uuid.UUID
+	title     string
+	detail    *string
+	completed bool
+	deadline  *time.Time
 	CreatedBy uuid.UUID
 	CreatedAt time.Time
 	UpdatedBy uuid.UUID
@@ -19,26 +21,26 @@ type Task struct {
 	Version   uuid.UUID
 }
 
-type TaskSlice []*Task
-
-func NewTask(title string, detail *string, deadline *time.Time) *Task {
-	id := uuid.New()
-	return &Task{Id: id, Title: title, Detail: detail, Completed: false, Deadline: deadline}
+func (t *Task) Id() uuid.UUID {
+	return t.id
 }
 
-func (t *Task) Update(title string, detail *string, deadline *time.Time, version uuid.UUID) {
-	t.Title = title
-	t.Detail = detail
-	t.Deadline = deadline
-	t.Version = version
+func (t *Task) Title() string {
+	return t.title
 }
 
-func (t *Task) Complete(version uuid.UUID) {
-	t.Completed = true
-	t.Version = version
+func (t *Task) Detail() *string {
+	return t.detail
 }
 
-func (t *Task) UnComplete(version uuid.UUID) {
-	t.Completed = false
-	t.Version = version
+func (t *Task) Completed() bool {
+	return t.completed
+}
+
+func (t *Task) Deadline() *time.Time {
+	return t.deadline
+}
+
+func NewTask(id uuid.UUID, title string, detail *string, completed bool, deadline *time.Time, createdBy uuid.UUID, createdAt time.Time, updatedBy uuid.UUID, updatedAt time.Time, version uuid.UUID) *Task {
+	return &Task{id: id, title: title, detail: detail, completed: completed, deadline: deadline, CreatedBy: createdBy, CreatedAt: createdAt, UpdatedBy: updatedBy, UpdatedAt: updatedAt, Version: version}
 }

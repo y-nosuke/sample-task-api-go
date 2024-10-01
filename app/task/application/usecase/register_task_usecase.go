@@ -6,8 +6,8 @@ import (
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
-	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
+	"github.com/y-nosuke/sample-task-api-go/app/task/domain/factory"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"golang.org/x/xerrors"
 	"time"
@@ -33,7 +33,7 @@ func NewRegisterTaskUseCase(taskRepository repository.TaskRepository, taskEventR
 func (u *RegisterTaskUseCase) Invoke(cctx fcontext.Context, args *RegisterTaskUseCaseArgs) error {
 	fmt.Println("タスク登録処理を開始します。")
 
-	task := entity.NewTask(args.Title, args.Detail, args.Deadline)
+	task := factory.CreateTask(args.Title, args.Detail, args.Deadline)
 	if err := u.taskRepository.Register(cctx, task); err != nil {
 		return xerrors.Errorf("taskRepository.Register(): %w", err)
 	}

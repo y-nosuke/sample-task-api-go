@@ -20,7 +20,7 @@ type TaskDeletedData struct {
 func NewTaskDeleted(task *entity.Task, deletedBy uuid.UUID) *TaskDeleted {
 	now := time.Now()
 	return &TaskDeleted{
-		TaskEventCommon: *newTaskEventCommon(task.Id),
+		TaskEventCommon: *newTaskEventCommon(task.Id()),
 		data: TaskDeletedData{
 			DeletedBy: deletedBy,
 			DeletedAt: now,

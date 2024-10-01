@@ -11,9 +11,9 @@ import (
 )
 
 func RTask(task *entity.Task, userId uuid.UUID, version uuid.UUID) (*dao.RTask, error) {
-	id, err := task.Id.MarshalBinary()
+	id, err := task.Id().MarshalBinary()
 	if err != nil {
-		return nil, xerrors.Errorf("task.Id.MarshalBinary(): %w", err)
+		return nil, xerrors.Errorf("task.id.MarshalBinary(): %w", err)
 	}
 
 	byteVersion, err := version.MarshalBinary()
@@ -28,10 +28,10 @@ func RTask(task *entity.Task, userId uuid.UUID, version uuid.UUID) (*dao.RTask, 
 
 	return &dao.RTask{
 		ID:        id,
-		Title:     task.Title,
-		Detail:    null.StringFromPtr(task.Detail),
-		Completed: task.Completed,
-		Deadline:  null.TimeFromPtr(task.Deadline),
+		Title:     task.Title(),
+		Detail:    null.StringFromPtr(task.Detail()),
+		Completed: task.Completed(),
+		Deadline:  null.TimeFromPtr(task.Deadline()),
 		CreatedBy: byteUserId,
 		UpdatedBy: byteUserId,
 		Version:   byteVersion,
@@ -83,16 +83,5 @@ func Task(rTask *dao.RTask) (*entity.Task, error) {
 		return nil, xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
 
-	return &entity.Task{
-		Id:        id,
-		Title:     rTask.Title,
-		Detail:    detail,
-		Completed: rTask.Completed,
-		Deadline:  deadline,
-		CreatedBy: createdBy,
-		CreatedAt: rTask.CreatedAt,
-		UpdatedBy: updatedBy,
-		UpdatedAt: rTask.UpdatedAt,
-		Version:   version,
-	}, nil
+	return entity.NewTask(id, rTask.Title, detail, rTask.Completed, deadline, createdBy, rTask.CreatedAt, updatedBy, rTask.UpdatedAt, version), nil
 }

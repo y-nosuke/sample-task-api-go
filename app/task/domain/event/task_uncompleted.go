@@ -19,7 +19,7 @@ type TaskUnCompletedData struct {
 
 func NewTaskUnCompleted(task *entity.Task) *TaskUnCompleted {
 	return &TaskUnCompleted{
-		TaskEventCommon: *newTaskEventCommon(task.Id),
+		TaskEventCommon: *newTaskEventCommon(task.Id()),
 		data: TaskUnCompletedData{
 			UpdatedBy: task.CreatedBy,
 			UpdatedAt: task.CreatedAt,

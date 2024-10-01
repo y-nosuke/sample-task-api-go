@@ -28,15 +28,15 @@ func taskForms(taskSlice entity.TaskSlice) []openapi.TaskForm {
 
 func taskForm(task *entity.Task) *openapi.TaskForm {
 	var deadline *openapi.NullableDeadline
-	if task.Deadline != nil {
-		deadline = &openapi.NullableDeadline{Time: *task.Deadline}
+	if task.Deadline() != nil {
+		deadline = &openapi.NullableDeadline{Time: *task.Deadline()}
 	}
 
 	return &openapi.TaskForm{
-		Id:        task.Id,
-		Title:     task.Title,
-		Detail:    task.Detail,
-		Completed: &task.Completed,
+		Id:        task.Id(),
+		Title:     task.Title(),
+		Detail:    task.Detail(),
+		Completed: task.Completed(),
 		Deadline:  deadline,
 		CreatedBy: task.CreatedBy,
 		CreatedAt: task.CreatedAt,
