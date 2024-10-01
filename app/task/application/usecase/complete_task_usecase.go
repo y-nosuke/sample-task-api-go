@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
@@ -28,6 +29,8 @@ func NewCompleteTaskUseCase(taskRepository repository.TaskRepository, taskEventR
 }
 
 func (u *CompleteTaskUseCase) Invoke(cctx fcontext.Context, args *CompleteTaskUseCaseArgs) error {
+	fmt.Println("タスク完了処理を開始します。")
+
 	task, err := u.taskRepository.GetById(cctx, args.Id)
 	if err != nil {
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
@@ -52,10 +55,14 @@ func (u *CompleteTaskUseCase) Invoke(cctx fcontext.Context, args *CompleteTaskUs
 		return nil
 	}
 
+	fmt.Printf("データベースのタスクが更新されました。 task: %+v\n", task)
+
 	taskCompleted := event.NewTaskCompleted(task)
 	if err = u.taskEventRepository.Register(cctx, taskCompleted); err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
+
+	fmt.Printf("データベースにタスクイベントが登録されました。 taskCompleted: %+v\n", taskCompleted)
 
 	u.publisher.Publish(taskCompleted)
 

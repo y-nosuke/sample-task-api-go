@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"fmt"
-
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
@@ -46,7 +44,6 @@ func NewTaskHandler(registerTaskUseCase *usecase.RegisterTaskUseCase,
 }
 
 func (h *TaskHandler) RegisterTask(ectx echo.Context) error {
-	fmt.Println("タスク登録処理を開始します。")
 	ctx := context.CastContext(ectx)
 
 	a := auth.GetAuth(ctx)
@@ -72,7 +69,6 @@ func (h *TaskHandler) RegisterTask(ectx echo.Context) error {
 }
 
 func (h *TaskHandler) GetAllTasks(ectx echo.Context) error {
-	fmt.Println("タスク一覧取得処理を開始します。")
 	ctx := context.CastContext(ectx)
 
 	a := auth.GetAuth(ctx)
@@ -89,7 +85,6 @@ func (h *TaskHandler) GetAllTasks(ectx echo.Context) error {
 }
 
 func (h *TaskHandler) GetTask(ectx echo.Context, id uuid.UUID) error {
-	fmt.Println("タスク取得処理を開始します。")
 	ctx := context.CastContext(ectx)
 
 	a := auth.GetAuth(ctx)
@@ -106,7 +101,6 @@ func (h *TaskHandler) GetTask(ectx echo.Context, id uuid.UUID) error {
 }
 
 func (h *TaskHandler) UpdateTask(ectx echo.Context, id uuid.UUID) error {
-	fmt.Println("タスク更新処理を開始します。")
 	ctx := context.CastContext(ectx)
 
 	a := auth.GetAuth(ctx)
@@ -132,7 +126,6 @@ func (h *TaskHandler) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 }
 
 func (h *TaskHandler) CompleteTask(ectx echo.Context, id uuid.UUID) error {
-	fmt.Println("タスク完了処理を開始します。")
 	ctx := context.CastContext(ectx)
 
 	a := auth.GetAuth(ctx)
@@ -154,7 +147,6 @@ func (h *TaskHandler) CompleteTask(ectx echo.Context, id uuid.UUID) error {
 }
 
 func (h *TaskHandler) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
-	fmt.Println("タスク未完了処理を開始します。")
 	ctx := context.CastContext(ectx)
 
 	a := auth.GetAuth(ctx)
@@ -176,7 +168,6 @@ func (h *TaskHandler) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
 }
 
 func (h *TaskHandler) DeleteTask(ectx echo.Context, id uuid.UUID) error {
-	fmt.Println("タスク削除処理を開始します。")
 	ctx := context.CastContext(ectx)
 
 	a := auth.GetAuth(ctx)

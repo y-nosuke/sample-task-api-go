@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
@@ -22,6 +23,8 @@ func NewGetTaskUseCase(taskRepository repository.TaskRepository, taskPresenter p
 }
 
 func (u *GetTaskUseCase) Invoke(cctx fcontext.Context, args *GetTaskUseCaseArgs) error {
+	fmt.Println("タスク取得処理を開始します。")
+
 	task, err := u.taskRepository.GetById(cctx, args.Id)
 	if err != nil {
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
@@ -32,6 +35,8 @@ func (u *GetTaskUseCase) Invoke(cctx fcontext.Context, args *GetTaskUseCaseArgs)
 		}
 		return nil
 	}
+
+	fmt.Printf("データベースからタスクが取得されました。 task: %+v\n", task)
 
 	if err = u.taskPresenter.GetTaskResponse(cctx, task); err != nil {
 		return xerrors.Errorf("taskPresenter.GetTaskResponse(): %w", err)

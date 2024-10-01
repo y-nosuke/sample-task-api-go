@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -35,8 +34,6 @@ func (t *TaskRepositoryImpl) Register(cctx fcontext.Context, task *entity.Task) 
 		return xerrors.Errorf("rTask.Insert(): %w", err)
 	}
 
-	fmt.Printf("データベースにタスクが登録されました。 rTask: %+v\n", rTask)
-
 	createdBy, err := uuid.FromBytes(rTask.CreatedBy)
 	if err != nil {
 		return xerrors.Errorf("uuid.FromBytes(): %w", err)
@@ -68,8 +65,6 @@ func (t *TaskRepositoryImpl) GetAll(cctx fcontext.Context) ([]*entity.Task, erro
 		return nil, xerrors.Errorf("dao.RTasks(): %w", err)
 	}
 
-	fmt.Println("データベースからタスク一覧が取得されました。")
-
 	taskSlice, err := TaskSlice(rTaskSlice)
 	if err != nil {
 		return nil, xerrors.Errorf("TaskSlice(): %w", err)
@@ -94,8 +89,6 @@ func (t *TaskRepositoryImpl) GetById(cctx fcontext.Context, id uuid.UUID) (*enti
 	if rTask == nil {
 		return nil, nil
 	}
-
-	fmt.Printf("データベースからタスクが取得されました。 rTask: %+v\n", rTask)
 
 	task, err := Task(rTask)
 	if err != nil {
@@ -138,8 +131,6 @@ func (t *TaskRepositoryImpl) Update(cctx fcontext.Context, task *entity.Task, ve
 		return 0, xerrors.Errorf("dao.RTasks().UpdateAll(): %w", err)
 	}
 
-	fmt.Printf("データベースのタスクが更新されました。 rTask: %+v\n", rTask)
-
 	updatedBy, err := uuid.FromBytes(rTask.UpdatedBy)
 	if err != nil {
 		return 0, xerrors.Errorf("uuid.FromBytes(): %w", err)
@@ -165,8 +156,6 @@ func (t *TaskRepositoryImpl) Delete(cctx fcontext.Context, task *entity.Task) er
 	if _, err = rTask.Delete(ctx, tx); err != nil {
 		return xerrors.Errorf("rTask.Delete(): %w", err)
 	}
-
-	fmt.Printf("データベースのタスクが削除されました。 rTask: %+v\n", rTask)
 
 	return nil
 }

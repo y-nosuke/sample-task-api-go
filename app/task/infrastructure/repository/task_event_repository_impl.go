@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
@@ -31,8 +30,6 @@ func (t *TaskEventRepositoryImpl) Register(cctx fcontext.Context, taskEvent even
 	if err = eTaskEvent.Insert(ctx, tx, boil.Infer()); err != nil {
 		return xerrors.Errorf("eTaskEvent.Insert(): %w", err)
 	}
-
-	fmt.Printf("データベースにタスクイベントが登録されました。 eTaskEvent: %+v\n", eTaskEvent)
 
 	createdBy, err := uuid.FromBytes(eTaskEvent.CreatedBy)
 	if err != nil {

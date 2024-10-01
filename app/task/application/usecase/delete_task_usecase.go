@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
@@ -28,6 +29,8 @@ func NewDeleteTaskUseCase(taskRepository repository.TaskRepository, taskEventRep
 }
 
 func (u *DeleteTaskUseCase) Invoke(cctx fcontext.Context, args *DeleteTaskUseCaseArgs) error {
+	fmt.Println("タスク削除処理を開始します。")
+
 	task, err := u.taskRepository.GetById(cctx, args.Id)
 	if err != nil {
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
@@ -43,11 +46,15 @@ func (u *DeleteTaskUseCase) Invoke(cctx fcontext.Context, args *DeleteTaskUseCas
 		return xerrors.Errorf("taskRepository.Delete(): %w", err)
 	}
 
+	fmt.Printf("データベースのタスクが削除されました。 task: %+v\n", task)
+
 	a := auth.GetAuth(cctx)
 	taskDeleted := event.NewTaskDeleted(task, a.UserId)
 	if err = u.taskEventRepository.Register(cctx, taskDeleted); err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
+
+	fmt.Printf("データベースにタスクイベントが登録されました。 taskDeleted: %+v\n", taskDeleted)
 
 	u.publisher.Publish(taskDeleted)
 

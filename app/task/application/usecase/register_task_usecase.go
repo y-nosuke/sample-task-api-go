@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
@@ -30,16 +31,21 @@ func NewRegisterTaskUseCase(taskRepository repository.TaskRepository, taskEventR
 }
 
 func (u *RegisterTaskUseCase) Invoke(cctx fcontext.Context, args *RegisterTaskUseCaseArgs) error {
-	task := entity.NewTask(args.Title, args.Detail, args.Deadline)
+	fmt.Println("タスク登録処理を開始します。")
 
+	task := entity.NewTask(args.Title, args.Detail, args.Deadline)
 	if err := u.taskRepository.Register(cctx, task); err != nil {
 		return xerrors.Errorf("taskRepository.Register(): %w", err)
 	}
+
+	fmt.Printf("データベースにタスクが登録されました。 task: %+v\n", task)
 
 	taskCreated := event.NewTaskCreated(task)
 	if err := u.taskEventRepository.Register(cctx, taskCreated); err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
+
+	fmt.Printf("データベースにタスクイベントが登録されました。 taskCreated: %+v\n", taskCreated)
 
 	u.publisher.Publish(taskCreated)
 
