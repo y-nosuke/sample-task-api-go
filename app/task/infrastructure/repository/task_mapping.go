@@ -10,15 +10,10 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func RTask(task *entity.Task, userId uuid.UUID, version uuid.UUID) (*dao.RTask, error) {
+func RTask(task *entity.Task, userId uuid.UUID, version uuid.UUID, create bool) (*dao.RTask, error) {
 	id, err := task.Id().MarshalBinary()
 	if err != nil {
 		return nil, xerrors.Errorf("task.id.MarshalBinary(): %w", err)
-	}
-
-	byteVersion, err := version.MarshalBinary()
-	if err != nil {
-		return nil, xerrors.Errorf("version.MarshalBinary(): %w", err)
 	}
 
 	byteUserId, err := userId.MarshalBinary()
@@ -26,16 +21,26 @@ func RTask(task *entity.Task, userId uuid.UUID, version uuid.UUID) (*dao.RTask, 
 		return nil, xerrors.Errorf("userId.MarshalBinary(): %w", err)
 	}
 
-	return &dao.RTask{
+	byteVersion, err := version.MarshalBinary()
+	if err != nil {
+		return nil, xerrors.Errorf("version.MarshalBinary(): %w", err)
+	}
+
+	rTask := &dao.RTask{
 		ID:        id,
 		Title:     task.Title(),
 		Detail:    null.StringFromPtr(task.Detail()),
 		Completed: task.Completed(),
 		Deadline:  null.TimeFromPtr(task.Deadline()),
-		CreatedBy: byteUserId,
 		UpdatedBy: byteUserId,
 		Version:   byteVersion,
-	}, nil
+	}
+
+	if create {
+		rTask.CreatedBy = byteUserId
+	}
+
+	return rTask, nil
 }
 
 func TaskSlice(rTaskSlice dao.RTaskSlice) (entity.TaskSlice, error) {

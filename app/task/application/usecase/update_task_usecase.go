@@ -46,7 +46,7 @@ func (u *UpdateTaskUseCase) Invoke(cctx fcontext.Context, args *UpdateTaskUseCas
 		return nil
 	}
 
-	task.Update(args.Title, args.Detail, args.Deadline, args.Version)
+	task.Update(args.Title, args.Detail, args.Deadline)
 
 	var row int
 	if row, err = u.taskRepository.Update(cctx, task, args.Version); err != nil {

@@ -42,7 +42,7 @@ func (u *CompleteTaskUseCase) Invoke(cctx fcontext.Context, args *CompleteTaskUs
 		return nil
 	}
 
-	task.Complete(args.Version)
+	task.Complete()
 
 	// TODO 重複エラーは独自errorを返すようにする
 	var row int

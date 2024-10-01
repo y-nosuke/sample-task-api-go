@@ -1,23 +1,19 @@
 package entity
 
 import (
-	"github.com/google/uuid"
 	"time"
 )
 
-func (t *Task) Update(title string, detail *string, deadline *time.Time, version uuid.UUID) {
+func (t *Task) Update(title string, detail *string, deadline *time.Time) {
 	t.title = title
 	t.detail = detail
 	t.deadline = deadline
-	t.Version = version
 }
 
-func (t *Task) Complete(version uuid.UUID) {
+func (t *Task) Complete() {
 	t.completed = true
-	t.Version = version
 }
 
-func (t *Task) UnComplete(version uuid.UUID) {
+func (t *Task) UnComplete() {
 	t.completed = false
-	t.Version = version
 }

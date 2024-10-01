@@ -25,7 +25,7 @@ func (t *TaskRepositoryImpl) Register(cctx fcontext.Context, task *entity.Task) 
 	a := auth.GetAuth(cctx)
 
 	newVersion := uuid.New()
-	rTask, err := RTask(task, a.UserId, newVersion)
+	rTask, err := RTask(task, a.UserId, newVersion, true)
 	if err != nil {
 		return xerrors.Errorf("mapping.RTask(): %w", err)
 	}
@@ -104,7 +104,7 @@ func (t *TaskRepositoryImpl) Update(cctx fcontext.Context, task *entity.Task, ve
 	a := auth.GetAuth(cctx)
 
 	newVersion := uuid.New()
-	rTask, err := RTask(task, a.UserId, newVersion)
+	rTask, err := RTask(task, a.UserId, newVersion, false)
 	if err != nil {
 		return 0, xerrors.Errorf("mapping.RTask(): %w", err)
 	}
@@ -148,7 +148,7 @@ func (t *TaskRepositoryImpl) Delete(cctx fcontext.Context, task *entity.Task) er
 	tx := database.GetTransaction(cctx)
 
 	a := auth.GetAuth(cctx)
-	rTask, err := RTask(task, a.UserId, task.Version)
+	rTask, err := RTask(task, a.UserId, task.Version, false)
 	if err != nil {
 		return xerrors.Errorf("RTask(): %w", err)
 	}

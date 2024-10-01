@@ -42,7 +42,7 @@ func (u *UnCompleteTaskUseCase) Invoke(cctx fcontext.Context, args *UnCompleteTa
 		return nil
 	}
 
-	task.UnComplete(args.Version)
+	task.UnComplete()
 
 	var row int
 	if row, err = u.taskRepository.Update(cctx, task, args.Version); err != nil {
