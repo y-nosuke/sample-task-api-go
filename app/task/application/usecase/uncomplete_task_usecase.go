@@ -32,29 +32,35 @@ func (u *UnCompleteTaskUseCase) Invoke(cctx fcontext.Context, args *UnCompleteTa
 	if err != nil {
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
-
 	if task == nil {
-		return u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。")
+		if err = u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。"); err != nil {
+			return xerrors.Errorf("taskPresenter.NotFound(): %w", err)
+		}
+		return nil
 	}
 
 	task.UnComplete(args.Version)
 
-	if row, err := u.taskRepository.Update(cctx, task, args.Version); err != nil {
+	var row int
+	if row, err = u.taskRepository.Update(cctx, task, args.Version); err != nil {
 		return xerrors.Errorf("taskRepository.Update(): %w", err)
 	} else if row != 1 {
-		return u.taskPresenter.Conflict(cctx, "タスクは既に更新済みです。")
-	}
-
-	if err := u.taskPresenter.NilResponse(cctx); err != nil {
-		return xerrors.Errorf("taskPresenter.NilResponse(): %w", err)
+		if err = u.taskPresenter.Conflict(cctx, "タスクは既に更新済みです。"); err != nil {
+			return err
+		}
+		return nil
 	}
 
 	taskUnCompleted := event.NewTaskUnCompleted(task)
-	err = u.taskEventRepository.Register(cctx, taskUnCompleted)
-	if err != nil {
+	if err = u.taskEventRepository.Register(cctx, taskUnCompleted); err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
+
 	u.publisher.Publish(taskUnCompleted)
+
+	if err = u.taskPresenter.NilResponse(cctx); err != nil {
+		return xerrors.Errorf("taskPresenter.NilResponse(): %w", err)
+	}
 
 	return nil
 }

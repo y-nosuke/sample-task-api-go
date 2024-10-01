@@ -32,27 +32,28 @@ func (u *DeleteTaskUseCase) Invoke(cctx fcontext.Context, args *DeleteTaskUseCas
 	if err != nil {
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
-
 	if task == nil {
-		return u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。")
+		if err = u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。"); err != nil {
+			return xerrors.Errorf("taskPresenter.NotFound(): %w", err)
+		}
+		return nil
 	}
 
-	if err := u.taskRepository.Delete(cctx, task); err != nil {
+	if err = u.taskRepository.Delete(cctx, task); err != nil {
 		return xerrors.Errorf("taskRepository.Delete(): %w", err)
-	}
-
-	if err := u.taskPresenter.NoContentResponse(cctx); err != nil {
-		return xerrors.Errorf("taskPresenter.NoContentResponse(): %w", err)
 	}
 
 	a := auth.GetAuth(cctx)
 	taskDeleted := event.NewTaskDeleted(task, a.UserId)
-	err = u.taskEventRepository.Register(cctx, taskDeleted)
-	if err != nil {
+	if err = u.taskEventRepository.Register(cctx, taskDeleted); err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
 
 	u.publisher.Publish(taskDeleted)
+
+	if err = u.taskPresenter.NoContentResponse(cctx); err != nil {
+		return xerrors.Errorf("taskPresenter.NoContentResponse(): %w", err)
+	}
 
 	return nil
 }

@@ -64,7 +64,6 @@ func (h *TaskHandler) RegisterTask(ectx echo.Context) error {
 	}
 
 	args := RegisterTaskUseCaseArgs(request)
-
 	if err := h.registerTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("registerTaskUseCase.Invoke(): %w", err)
 	}
@@ -82,7 +81,6 @@ func (h *TaskHandler) GetAllTasks(ectx echo.Context) error {
 	}
 
 	args := &usecase.GetAllTaskUseCaseArgs{}
-
 	if err := h.getAllTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("getAllTaskUseCase.Invoke(): %w", err)
 	}
@@ -100,7 +98,6 @@ func (h *TaskHandler) GetTask(ectx echo.Context, id uuid.UUID) error {
 	}
 
 	args := &usecase.GetTaskUseCaseArgs{Id: id}
-
 	if err := h.getTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("getTaskUseCase.Invoke(): %w", err)
 	}
@@ -127,7 +124,6 @@ func (h *TaskHandler) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 	}
 
 	args := UpdateTaskUseCaseArgs(id, request)
-
 	if err := h.updateTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("updateTaskUseCase.Invoke(): %w", err)
 	}
@@ -150,7 +146,6 @@ func (h *TaskHandler) CompleteTask(ectx echo.Context, id uuid.UUID) error {
 	}
 
 	args := CompleteTaskUseCaseArgs(id, request)
-
 	if err := h.completeTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("completeTaskUseCase.Invoke(): %w", err)
 	}
@@ -173,7 +168,6 @@ func (h *TaskHandler) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
 	}
 
 	args := UnCompleteTaskUseCaseArgs(id, request)
-
 	if err := h.unCompleteTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("unCompleteTaskUseCase.Invoke(): %w", err)
 	}
@@ -191,7 +185,6 @@ func (h *TaskHandler) DeleteTask(ectx echo.Context, id uuid.UUID) error {
 	}
 
 	args := &usecase.DeleteTaskUseCaseArgs{Id: id}
-
 	if err := h.deleteTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("deleteTaskUseCase.Invoke(): %w", err)
 	}

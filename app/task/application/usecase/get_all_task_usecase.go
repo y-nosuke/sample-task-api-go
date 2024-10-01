@@ -25,7 +25,7 @@ func (u *GetAllTaskUseCase) Invoke(cctx fcontext.Context, _ *GetAllTaskUseCaseAr
 		return xerrors.Errorf("taskRepository.GetAll(): %w", err)
 	}
 
-	if err := u.taskPresenter.TaskAllResponse(cctx, tasks); err != nil {
+	if err = u.taskPresenter.TaskAllResponse(cctx, tasks); err != nil {
 		return xerrors.Errorf("taskPresenter.TaskAllResponse(): %w", err)
 	}
 

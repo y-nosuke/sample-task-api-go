@@ -26,12 +26,14 @@ func (u *GetTaskUseCase) Invoke(cctx fcontext.Context, args *GetTaskUseCaseArgs)
 	if err != nil {
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
-
 	if task == nil {
-		return u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。")
+		if err = u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。"); err != nil {
+			return xerrors.Errorf("taskPresenter.NotFound(): %w", err)
+		}
+		return nil
 	}
 
-	if err := u.taskPresenter.GetTaskResponse(cctx, task); err != nil {
+	if err = u.taskPresenter.GetTaskResponse(cctx, task); err != nil {
 		return xerrors.Errorf("taskPresenter.GetTaskResponse(): %w", err)
 	}
 

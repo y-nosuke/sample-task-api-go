@@ -32,30 +32,36 @@ func (u *CompleteTaskUseCase) Invoke(cctx fcontext.Context, args *CompleteTaskUs
 	if err != nil {
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
-
 	if task == nil {
-		return u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。")
+		if err = u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。"); err != nil {
+			return xerrors.Errorf("taskPresenter.NotFound(): %w", err)
+		}
+		return nil
 	}
 
 	task.Complete(args.Version)
 
 	// TODO 重複エラーは独自errorを返すようにする
-	if row, err := u.taskRepository.Update(cctx, task, args.Version); err != nil {
+	var row int
+	if row, err = u.taskRepository.Update(cctx, task, args.Version); err != nil {
 		return xerrors.Errorf("taskRepository.Update(): %w", err)
 	} else if row != 1 {
-		return u.taskPresenter.Conflict(cctx, "タスクは既に更新済みです。")
-	}
-
-	if err := u.taskPresenter.NilResponse(cctx); err != nil {
-		return xerrors.Errorf("taskPresenter.NilResponse(): %w", err)
+		if err = u.taskPresenter.Conflict(cctx, "タスクは既に更新済みです。"); err != nil {
+			return err
+		}
+		return nil
 	}
 
 	taskCompleted := event.NewTaskCompleted(task)
-	err = u.taskEventRepository.Register(cctx, taskCompleted)
-	if err != nil {
+	if err = u.taskEventRepository.Register(cctx, taskCompleted); err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
+
 	u.publisher.Publish(taskCompleted)
+
+	if err = u.taskPresenter.NilResponse(cctx); err != nil {
+		return xerrors.Errorf("taskPresenter.NilResponse(): %w", err)
+	}
 
 	return nil
 }

@@ -36,17 +36,16 @@ func (u *RegisterTaskUseCase) Invoke(cctx fcontext.Context, args *RegisterTaskUs
 		return xerrors.Errorf("taskRepository.Register(): %w", err)
 	}
 
-	if err := u.taskPresenter.RegisterTaskResponse(cctx, task); err != nil {
-		return xerrors.Errorf("taskPresenter.RegisterTaskResponse(): %w", err)
-	}
-
 	taskCreated := event.NewTaskCreated(task)
-	err := u.taskEventRepository.Register(cctx, taskCreated)
-	if err != nil {
+	if err := u.taskEventRepository.Register(cctx, taskCreated); err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
 
 	u.publisher.Publish(taskCreated)
+
+	if err := u.taskPresenter.RegisterTaskResponse(cctx, task); err != nil {
+		return xerrors.Errorf("taskPresenter.RegisterTaskResponse(): %w", err)
+	}
 
 	return nil
 }
