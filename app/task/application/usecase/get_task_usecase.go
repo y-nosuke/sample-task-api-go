@@ -2,8 +2,10 @@ package usecase
 
 import (
 	"fmt"
+	"github.com/friendsofgo/errors"
 	"github.com/google/uuid"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
+	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"golang.org/x/xerrors"
@@ -27,13 +29,13 @@ func (u *GetTaskUseCase) Invoke(cctx fcontext.Context, args *GetTaskUseCaseArgs)
 
 	task, err := u.taskRepository.GetById(cctx, args.Id)
 	if err != nil {
-		return xerrors.Errorf("taskRepository.GetById(): %w", err)
-	}
-	if task == nil {
-		if err = u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。"); err != nil {
-			return xerrors.Errorf("taskPresenter.NotFound(): %w", err)
+		if errors.Is(err, repository.ErrNotFound) {
+			if err = u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。"); err != nil {
+				return xerrors.Errorf("taskPresenter.NotFound(): %w", err)
+			}
+			return ferrors.NewBusinessErrorf(err, "指定されたタスクが見つかりませんでした。")
 		}
-		return nil
+		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
 
 	fmt.Printf("データベースからタスクが取得されました。 task: %+v\n", task)

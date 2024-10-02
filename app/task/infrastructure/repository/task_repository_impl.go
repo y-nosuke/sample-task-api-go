@@ -8,6 +8,7 @@ import (
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
+	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/database/dao"
 	"golang.org/x/xerrors"
 )
@@ -87,7 +88,7 @@ func (t *TaskRepositoryImpl) GetById(cctx fcontext.Context, id uuid.UUID) (*enti
 		return nil, xerrors.Errorf("dao.FindRTask(): %w", err)
 	}
 	if rTask == nil {
-		return nil, nil
+		return nil, repository.ErrNotFound
 	}
 
 	task, err := Task(rTask)
@@ -98,7 +99,7 @@ func (t *TaskRepositoryImpl) GetById(cctx fcontext.Context, id uuid.UUID) (*enti
 	return task, nil
 }
 
-func (t *TaskRepositoryImpl) Update(cctx fcontext.Context, task *entity.Task, version uuid.UUID) (int, error) {
+func (t *TaskRepositoryImpl) Update(cctx fcontext.Context, task *entity.Task, version uuid.UUID) error {
 	ctx := cctx.GetContext()
 	tx := database.GetTransaction(cctx)
 	a := auth.GetAuth(cctx)
@@ -106,12 +107,12 @@ func (t *TaskRepositoryImpl) Update(cctx fcontext.Context, task *entity.Task, ve
 	newVersion := uuid.New()
 	rTask, err := RTask(task, a.UserId, newVersion, false)
 	if err != nil {
-		return 0, xerrors.Errorf("mapping.RTask(): %w", err)
+		return xerrors.Errorf("mapping.RTask(): %w", err)
 	}
 
 	byteVersion, err := version.MarshalBinary()
 	if err != nil {
-		return 0, xerrors.Errorf("version.MarshalBinary(): %w", err)
+		return xerrors.Errorf("version.MarshalBinary(): %w", err)
 	}
 
 	qs := []qm.QueryMod{
@@ -126,21 +127,22 @@ func (t *TaskRepositoryImpl) Update(cctx fcontext.Context, task *entity.Task, ve
 		dao.RTaskColumns.Deadline:  rTask.Deadline,
 		dao.RTaskColumns.Version:   rTask.Version,
 	}
-	rowsAff, err := dao.RTasks(qs...).UpdateAll(ctx, tx, cols)
-	if err != nil {
-		return 0, xerrors.Errorf("dao.RTasks().UpdateAll(): %w", err)
+	if rowsAff, err := dao.RTasks(qs...).UpdateAll(ctx, tx, cols); err != nil {
+		return xerrors.Errorf("dao.RTasks().UpdateAll(): %w", err)
+	} else if rowsAff == 0 {
+		return repository.ErrNotAffected
 	}
 
 	updatedBy, err := uuid.FromBytes(rTask.UpdatedBy)
 	if err != nil {
-		return 0, xerrors.Errorf("uuid.FromBytes(): %w", err)
+		return xerrors.Errorf("uuid.FromBytes(): %w", err)
 	}
 	task.UpdatedBy = updatedBy
 	task.UpdatedAt = rTask.UpdatedAt
 
 	task.Version = newVersion
 
-	return int(rowsAff), nil
+	return nil
 }
 
 func (t *TaskRepositoryImpl) Delete(cctx fcontext.Context, task *entity.Task) error {
@@ -153,8 +155,10 @@ func (t *TaskRepositoryImpl) Delete(cctx fcontext.Context, task *entity.Task) er
 		return xerrors.Errorf("RTask(): %w", err)
 	}
 
-	if _, err = rTask.Delete(ctx, tx); err != nil {
+	if rowsAff, err := rTask.Delete(ctx, tx); err != nil {
 		return xerrors.Errorf("rTask.Delete(): %w", err)
+	} else if rowsAff == 0 {
+		return repository.ErrNotAffected
 	}
 
 	return nil
