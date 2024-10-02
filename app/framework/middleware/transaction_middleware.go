@@ -37,8 +37,8 @@ func init() {
 
 func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(ectx echo.Context) (err error) {
-		fmt.Println("トランザクションを開始します。")
 		cctx := context.CastContext(ectx)
+		fmt.Println("トランザクションを開始します。")
 
 		tx, err := boil.BeginTx(cctx.GetContext(), nil)
 		if err != nil {
@@ -46,17 +46,17 @@ func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		defer func() {
 			if p := recover(); p != nil {
-				fmt.Println("ロールバックします。")
+				fmt.Println("トランザクションをロールバックします。")
 				if rollbackErr := tx.Rollback(); rollbackErr != nil {
 					err = xerrors.Errorf("original error: %v, defer rollback error: %v", err, rollbackErr)
 				}
 			} else if err != nil {
-				fmt.Println("ロールバックします。")
+				fmt.Println("トランザクションをロールバックします。")
 				if rollbackErr := tx.Rollback(); rollbackErr != nil {
 					err = xerrors.Errorf("original error: %v, defer rollback error: %v", err, rollbackErr)
 				}
 			} else {
-				fmt.Println("コミットします。")
+				fmt.Println("トランザクションをコミットします。")
 				err = tx.Commit()
 			}
 		}()

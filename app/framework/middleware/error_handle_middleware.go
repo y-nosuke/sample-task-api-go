@@ -14,8 +14,8 @@ import (
 func ErrorHandleMiddleware(systemErrorHandlerPresenter presenter.SystemErrorPresenter) func(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ectx echo.Context) error {
-			fmt.Println("エラーハンドラーを実行します。")
 			cctx := context.CastContext(ectx)
+			fmt.Println("エラーハンドラーを実行します。")
 
 			if err := next(ectx); err != nil {
 				fmt.Println("エラーハンドラー")
