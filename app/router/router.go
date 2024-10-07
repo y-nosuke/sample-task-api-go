@@ -89,7 +89,8 @@ func Router() (e *echo.Echo, err error) {
 	businessErrorPresenterImpl := fep.NewBusinessErrorPresenterImpl()
 	g.Use(
 		fmiddleware.ContextMiddleware,
-		fmiddleware.ErrorHandleMiddleware(systemErrorHandlerPresenterImpl),
+		fmiddleware.ErrorLogHandleMiddleware,
+		fmiddleware.ErrorResponseHandleMiddleware(systemErrorHandlerPresenterImpl),
 		fmiddleware.ValidateTokenMiddleware(businessErrorPresenterImpl),
 		fmiddleware.TransactionMiddleware,
 	)

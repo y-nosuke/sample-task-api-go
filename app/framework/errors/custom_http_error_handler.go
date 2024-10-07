@@ -1,21 +1,18 @@
 package errors
 
 import (
-	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 func CustomHTTPErrorHandler(err error, ectx echo.Context) {
-	var he *echo.HTTPError
-	if errors.As(err, &he) {
-		ectx.Logger().Infof("http error!: %+v", he)
-		fmt.Printf("http error!: %+v\n", he)
-	} else if businessError, ok := AsBusinessError(err); ok {
-		ectx.Logger().Warnf("business error!: %+v, orinal error: %+v", businessError, businessError.OriginalError())
-		fmt.Printf("business error!: %+v, orinal error: %+v\n", businessError, businessError.OriginalError())
-	} else {
-		ectx.Logger().Errorf("system error!: %+v", err)
-		fmt.Printf("system error!: %+v\n", err)
+	if ectx.Response().Committed {
+		// middlewareでecho.Context.Error(err error)を呼ばれるとHTTPErrorHandlerが呼ばれる可能性があるので、この判定を行う
+		return
+	}
+
+	if resErr := ectx.NoContent(http.StatusInternalServerError); resErr != nil {
+		panic(fmt.Sprintf("error occurred. %v", resErr))
 	}
 }
