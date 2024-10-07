@@ -8,6 +8,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
+	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"golang.org/x/xerrors"
 	"os"
 	"time"
@@ -38,31 +39,58 @@ func init() {
 func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(ectx echo.Context) (err error) {
 		cctx := context.CastContext(ectx)
-		fmt.Println("トランザクションを開始します。")
+		fmt.Println("TransactionMiddleware start. トランザクションを開始します。")
 
 		tx, err := boil.BeginTx(cctx.GetContext(), nil)
 		if err != nil {
 			return xerrors.Errorf("boil.BeginTx(): %w", err)
 		}
+
+		fmt.Println("トランザクションを開始しました。")
+
 		defer func() {
 			if p := recover(); p != nil {
-				fmt.Println("トランザクションをロールバックします。")
 				if rollbackErr := tx.Rollback(); rollbackErr != nil {
-					err = xerrors.Errorf("original error: %v, defer rollback error: %v", err, rollbackErr)
+					panic(fmt.Sprintf("original panic: %v, defer rollback error: %v", p, rollbackErr))
 				}
+				fmt.Printf("トランザクションをロールバックしました。 panic: %v\n", p)
+				panic(fmt.Sprintf("panic occurred. %v", p))
 			} else if err != nil {
-				fmt.Println("トランザクションをロールバックします。")
-				if rollbackErr := tx.Rollback(); rollbackErr != nil {
-					err = xerrors.Errorf("original error: %v, defer rollback error: %v", err, rollbackErr)
+				if businessError, ok := ferrors.AsBusinessError(err); ok {
+					if businessError.DoRollBack() {
+						if rollbackErr := tx.Rollback(); rollbackErr != nil {
+							err = xerrors.Errorf("original error: %v, defer rollback error: %w", err, rollbackErr)
+							return
+						}
+						fmt.Printf("トランザクションをロールバックしました。 business error: %v\n", p)
+						err = xerrors.Errorf("next(): %w", err)
+					} else {
+						if commitErr := tx.Commit(); commitErr != nil {
+							err = xerrors.Errorf("original error: %v, defer commit error: %w", p, commitErr)
+							return
+						}
+						fmt.Println("トランザクションをコミットしました。")
+						err = xerrors.Errorf("next(): %w", err)
+					}
+				} else {
+					if rollbackErr := tx.Rollback(); rollbackErr != nil {
+						err = xerrors.Errorf("original error: %v, defer rollback error: %w", err, rollbackErr)
+						return
+					}
+					fmt.Printf("トランザクションをロールバックしました。 system error: %v\n", p)
+					err = xerrors.Errorf("next(): %w", err)
 				}
 			} else {
-				fmt.Println("トランザクションをコミットします。")
-				err = tx.Commit()
+				if commitErr := tx.Commit(); commitErr != nil {
+					err = xerrors.Errorf("original error: %+v, defer commit error: %+w", err, commitErr)
+				}
+				fmt.Println("トランザクションをコミットしました。")
 			}
 		}()
+
 		database.SetTransaction(cctx, tx)
 
-		err = next(ectx)
+		err = next(cctx)
 
 		return
 	}

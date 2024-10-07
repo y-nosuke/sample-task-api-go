@@ -2,15 +2,20 @@ package errors
 
 import (
 	"errors"
+	"fmt"
 	"github.com/labstack/echo/v4"
-	"golang.org/x/xerrors"
 )
 
 func CustomHTTPErrorHandler(err error, ectx echo.Context) {
 	var he *echo.HTTPError
 	if errors.As(err, &he) {
-		ectx.Logger().Warnf("%+v\n", xerrors.Errorf("http error!: %w", err))
+		ectx.Logger().Infof("http error!: %+v", he)
+		fmt.Printf("http error!: %+v\n", he)
+	} else if businessError, ok := AsBusinessError(err); ok {
+		ectx.Logger().Warnf("business error!: %+v, orinal error: %+v", businessError, businessError.OriginalError())
+		fmt.Printf("business error!: %+v, orinal error: %+v\n", businessError, businessError.OriginalError())
 	} else {
-		ectx.Logger().Error("%+v\n", xerrors.Errorf("system error!: %w", err))
+		ectx.Logger().Errorf("system error!: %+v", err)
+		fmt.Printf("system error!: %+v\n", err)
 	}
 }

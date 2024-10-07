@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -85,10 +87,10 @@ func (t *TaskRepositoryImpl) GetById(cctx fcontext.Context, id uuid.UUID) (*enti
 
 	rTask, err := dao.FindRTask(ctx, tx, taskId)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, repository.ErrNotFound
+		}
 		return nil, xerrors.Errorf("dao.FindRTask(): %w", err)
-	}
-	if rTask == nil {
-		return nil, repository.ErrNotFound
 	}
 
 	task, err := Task(rTask)

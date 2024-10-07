@@ -31,14 +31,14 @@ func ValidateTokenMiddleware(authHandlerPresenter presenter.BusinessErrorPresent
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ectx echo.Context) error {
 			cctx := fcontext.CastContext(ectx)
-			fmt.Println("トークンを検証します。")
+			fmt.Println("ValidateTokenMiddleware start. トークンを検証します。")
 
 			tokenString := getToken(ectx.Request())
 			if tokenString == "" {
 				return authHandlerPresenter.Unauthorized(cctx, "認証されていません。 missing Authorization Header")
 			}
 
-			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 				kid, ok := token.Header["kid"].(string)
 				if !ok {
 					return nil, xerrors.Errorf("kid not found in token header")
@@ -67,7 +67,11 @@ func ValidateTokenMiddleware(authHandlerPresenter presenter.BusinessErrorPresent
 
 			auth.SetAuth(cctx, auths)
 
-			return next(ectx)
+			if err = next(cctx); err != nil {
+				return xerrors.Errorf("next(): %w", err)
+			}
+
+			return nil
 		}
 	}
 
