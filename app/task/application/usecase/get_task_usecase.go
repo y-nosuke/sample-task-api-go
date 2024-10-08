@@ -30,8 +30,8 @@ func (u *GetTaskUseCase) Invoke(cctx fcontext.Context, args *GetTaskUseCaseArgs)
 	task, err := u.taskRepository.GetById(cctx, args.Id)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			if err = u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。"); err != nil {
-				return xerrors.Errorf("taskPresenter.NotFound(): %w", err)
+			if resErr := u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。"); resErr != nil {
+				return xerrors.Errorf("original error: %v, taskPresenter.NotFound(): %w", err, resErr)
 			}
 			return ferrors.NewBusinessErrorf(err, "指定されたタスクが見つかりませんでした。")
 		}

@@ -62,11 +62,11 @@ func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 							err = xerrors.Errorf("original error: %v, defer rollback error: %w", err, rollbackErr)
 							return
 						}
-						fmt.Printf("トランザクションをロールバックしました。 business error: %v\n", p)
+						fmt.Printf("トランザクションをロールバックしました。 business error: %v\n", err)
 						err = xerrors.Errorf("next(): %w", err)
 					} else {
 						if commitErr := tx.Commit(); commitErr != nil {
-							err = xerrors.Errorf("original error: %v, defer commit error: %w", p, commitErr)
+							err = xerrors.Errorf("original error: %v, defer commit error: %w", err, commitErr)
 							return
 						}
 						fmt.Println("トランザクションをコミットしました。")
