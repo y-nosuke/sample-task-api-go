@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
@@ -10,7 +12,6 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/factory"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"golang.org/x/xerrors"
-	"time"
 )
 
 type CreateTaskUseCaseArgs struct {

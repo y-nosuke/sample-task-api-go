@@ -3,6 +3,9 @@ package middleware
 import (
 	"database/sql"
 	"fmt"
+	"os"
+	"time"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -10,8 +13,6 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/framework/database"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"golang.org/x/xerrors"
-	"os"
-	"time"
 )
 
 func init() {

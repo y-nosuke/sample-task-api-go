@@ -1,9 +1,10 @@
 package event
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
-	"time"
 )
 
 type TaskEvent struct {

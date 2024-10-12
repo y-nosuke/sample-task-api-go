@@ -3,6 +3,11 @@ package router
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -13,6 +18,7 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/notification/infrastructure/observer"
 	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
 	"go.opentelemetry.io/otel"
+
 	//nolint:staticcheck
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
@@ -20,10 +26,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdkTrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 )
 
 // golangci-lintでエラーになるので一時的にコメントアウト

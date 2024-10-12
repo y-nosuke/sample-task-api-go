@@ -1,9 +1,10 @@
 package errors
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/xerrors"
-	"testing"
 )
 
 func TestNewBusinessError(t *testing.T) {

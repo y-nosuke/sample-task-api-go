@@ -4,6 +4,7 @@ install:
 	go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@latest
 	go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 	go install github.com/air-verse/air@latest
+	go install golang.org/x/tools/cmd/goimports@latest
 	go mod tidy
 
 docker_up:
@@ -32,7 +33,7 @@ build: generate
 	go build -v ./...
 
 fmt:
-	goreturns -w .
+	goimports -w .
 
 lint: generate
 	golangci-lint run ./...

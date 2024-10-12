@@ -2,8 +2,9 @@ package errors
 
 import (
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 func CustomHTTPErrorHandler(err error, ectx echo.Context) {
