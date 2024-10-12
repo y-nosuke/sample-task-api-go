@@ -6,5 +6,9 @@ import (
 )
 
 type TaskEventRepository interface {
-	Register(fcontext.Context, event.TaskEvent) error
+	RegisterTaskCreated(fcontext.Context, *event.TaskCreated) error
+	RegisterTaskUpdated(fcontext.Context, *event.TaskEdited) error
+	RegisterTaskCompleted(fcontext.Context, *event.TaskCompleted) error
+	RegisterTaskUnCompleted(fcontext.Context, *event.TaskUnCompleted) error
+	RegisterTaskDeleted(fcontext.Context, *event.TaskDeleted) error
 }

@@ -4,29 +4,14 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
 )
 
 type TaskUnCompleted struct {
-	TaskEventCommon
-	data TaskUnCompletedData
+	TaskEvent
 }
 
-type TaskUnCompletedData struct {
-	UpdatedBy uuid.UUID `json:"updated_by"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-func NewTaskUnCompleted(task *entity.Task) *TaskUnCompleted {
+func NewTaskUnCompleted(taskID uuid.UUID, editedBy uuid.UUID, editedAt time.Time) *TaskUnCompleted {
 	return &TaskUnCompleted{
-		TaskEventCommon: *newTaskEventCommon(task.Id()),
-		data: TaskUnCompletedData{
-			UpdatedBy: task.CreatedBy,
-			UpdatedAt: task.CreatedAt,
-		},
+		TaskEvent: *newTaskEvent(taskID, editedBy, editedAt),
 	}
-}
-
-func (t TaskUnCompleted) Data() any {
-	return t.data
 }

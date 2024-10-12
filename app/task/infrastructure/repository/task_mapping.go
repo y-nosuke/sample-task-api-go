@@ -16,6 +16,16 @@ func RTask(task *entity.Task, userId uuid.UUID, version uuid.UUID, create bool) 
 		return nil, xerrors.Errorf("task.id.MarshalBinary(): %w", err)
 	}
 
+	byteCreatedBy, err := task.CreatedBy().MarshalBinary()
+	if err != nil {
+		return nil, xerrors.Errorf("userId.MarshalBinary(): %w", err)
+	}
+
+	byteEditedBy, err := task.EditedBy().MarshalBinary()
+	if err != nil {
+		return nil, xerrors.Errorf("userId.MarshalBinary(): %w", err)
+	}
+
 	byteUserId, err := userId.MarshalBinary()
 	if err != nil {
 		return nil, xerrors.Errorf("userId.MarshalBinary(): %w", err)
@@ -32,12 +42,16 @@ func RTask(task *entity.Task, userId uuid.UUID, version uuid.UUID, create bool) 
 		Detail:    null.StringFromPtr(task.Detail()),
 		Completed: task.Completed(),
 		Deadline:  null.TimeFromPtr(task.Deadline()),
+		CreatedBy: byteCreatedBy,
+		CreatedAt: task.CreatedAt(),
+		EditedBy:  byteEditedBy,
+		EditedAt:  task.EditedAt(),
 		UpdatedBy: byteUserId,
 		Version:   byteVersion,
 	}
 
 	if create {
-		rTask.CreatedBy = byteUserId
+		rTask.RegisterBy = byteUserId
 	}
 
 	return rTask, nil

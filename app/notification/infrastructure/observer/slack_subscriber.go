@@ -22,15 +22,15 @@ func NewSlackSubscriberImpl(token string, channelID string) *SlackSubscriberImpl
 func (s SlackSubscriberImpl) Subscribe(event event.DomainEvent) {
 	var message string
 	if e, ok := event.(*tevent.TaskCreated); ok {
-		message = "task created! taskID: " + e.TaskID().String()
-	} else if e, ok := event.(*tevent.TaskUpdated); ok {
-		message = "task updated! taskID: " + e.TaskID().String()
+		message = "task created! taskID: " + e.TaskID.String()
+	} else if e, ok := event.(*tevent.TaskEdited); ok {
+		message = "task updated! taskID: " + e.TaskID.String()
 	} else if e, ok := event.(*tevent.TaskCompleted); ok {
-		message = "task completed! taskID: " + e.TaskID().String()
+		message = "task completed! taskID: " + e.TaskID.String()
 	} else if e, ok := event.(*tevent.TaskUnCompleted); ok {
-		message = "task uncompleted! taskID: " + e.TaskID().String()
+		message = "task uncompleted! taskID: " + e.TaskID.String()
 	} else if e, ok := event.(*tevent.TaskDeleted); ok {
-		message = "task deleted! taskID: " + e.TaskID().String()
+		message = "task deleted! taskID: " + e.TaskID.String()
 	} else {
 		fmt.Printf("unknown event. eventID: %s\n", event.ID())
 		return

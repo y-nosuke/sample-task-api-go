@@ -4,12 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	nevent "github.com/y-nosuke/sample-task-api-go/app/notification/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/domain/observer"
 	"github.com/y-nosuke/sample-task-api-go/app/task/application/presenter"
-	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/repository"
 	"golang.org/x/xerrors"
 )
@@ -44,7 +44,7 @@ func (u *UnCompleteTaskUseCase) Invoke(cctx fcontext.Context, args *UnCompleteTa
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
 
-	task.UnComplete()
+	taskUnCompleted := task.UnComplete(auth.GetUserId(cctx))
 
 	if err = u.taskRepository.Update(cctx, task, args.Version); err != nil {
 		if errors.Is(err, repository.ErrNotAffected) {
@@ -58,8 +58,7 @@ func (u *UnCompleteTaskUseCase) Invoke(cctx fcontext.Context, args *UnCompleteTa
 
 	fmt.Printf("データベースのタスクが更新されました。 task: %+v\n", task)
 
-	taskUnCompleted := event.NewTaskUnCompleted(task)
-	if err = u.taskEventRepository.Register(cctx, taskUnCompleted); err != nil {
+	if err = u.taskEventRepository.RegisterTaskUnCompleted(cctx, taskUnCompleted); err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
 

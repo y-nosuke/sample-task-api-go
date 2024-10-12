@@ -56,9 +56,8 @@ func (u *DeleteTaskUseCase) Invoke(cctx fcontext.Context, args *DeleteTaskUseCas
 
 	fmt.Printf("データベースのタスクが削除されました。 task: %+v\n", task)
 
-	a := auth.GetAuth(cctx)
-	taskDeleted := event.NewTaskDeleted(task, a.UserId)
-	if err = u.taskEventRepository.Register(cctx, taskDeleted); err != nil {
+	taskDeleted := event.NewTaskDeleted(task.Id(), auth.GetUserId(cctx))
+	if err = u.taskEventRepository.RegisterTaskDeleted(cctx, taskDeleted); err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
 

@@ -23,6 +23,10 @@ func GetAuth(cctx fcontext.Context) *Authentication {
 	return cctx.Get(Auth).(*Authentication)
 }
 
+func GetUserId(cctx fcontext.Context) uuid.UUID {
+	return cctx.Get(Auth).(*Authentication).UserId
+}
+
 type Authentication struct {
 	UserId      uuid.UUID
 	GivenName   string

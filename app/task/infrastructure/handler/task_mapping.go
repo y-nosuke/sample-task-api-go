@@ -8,25 +8,29 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/generated/infrastructure/openapi"
 )
 
-func RegisterTaskUseCaseArgs(request *openapi.RegisterTaskRequest) *usecase.RegisterTaskUseCaseArgs {
+func RegisterTaskUseCaseArgs(request *openapi.CreateTaskRequest) *usecase.CreateTaskUseCaseArgs {
 	var deadline *time.Time
 	if request.Deadline != nil {
 		deadline = &request.Deadline.Time
 	}
 
-	return &usecase.RegisterTaskUseCaseArgs{
+	return &usecase.CreateTaskUseCaseArgs{
 		Title:    request.Title,
 		Detail:   request.Detail,
 		Deadline: deadline,
 	}
 }
 
-func UpdateTaskUseCaseArgs(id uuid.UUID, request *openapi.UpdateTaskRequest) *usecase.UpdateTaskUseCaseArgs {
-	return &usecase.UpdateTaskUseCaseArgs{
+func UpdateTaskUseCaseArgs(id uuid.UUID, request *openapi.EditTaskRequest) *usecase.EditTaskUseCaseArgs {
+	var deadline *time.Time
+	if request.Deadline != nil {
+		deadline = &request.Deadline.Time
+	}
+	return &usecase.EditTaskUseCaseArgs{
 		Id:       id,
 		Title:    request.Title,
 		Detail:   request.Detail,
-		Deadline: &request.Deadline.Time,
+		Deadline: deadline,
 		Version:  request.Version,
 	}
 }

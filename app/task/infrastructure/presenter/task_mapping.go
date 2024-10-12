@@ -38,10 +38,10 @@ func taskForm(task *entity.Task) *openapi.TaskForm {
 		Detail:    task.Detail(),
 		Completed: task.Completed(),
 		Deadline:  deadline,
-		CreatedBy: task.CreatedBy,
-		CreatedAt: task.CreatedAt,
-		UpdatedBy: task.UpdatedBy,
-		UpdatedAt: task.UpdatedAt,
+		CreatedBy: task.CreatedBy(),
+		CreatedAt: task.CreatedAt(),
+		EditedBy:  task.EditedBy(),
+		EditedAt:  task.EditedAt(),
 		Version:   task.Version,
 	}
 }

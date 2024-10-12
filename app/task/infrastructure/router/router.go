@@ -16,18 +16,18 @@ func TaskRouter(g *echo.Group, businessErrorPresenter fpresenter.BusinessErrorPr
 	taskRepositoryImpl := repository.NewTaskRepositoryImpl()
 	taskEventRepositoryImpl := repository.NewTaskEventRepositoryImpl()
 	taskPresenterImpl := presenter.NewTaskPresenterImpl(businessErrorPresenter)
-	registerTaskUseCase := usecase.NewRegisterTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
+	createTaskUseCase := usecase.NewCreateTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
 	getAllTaskUseCase := usecase.NewGetAllTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
 	getTaskUseCase := usecase.NewGetTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
-	updateTaskUseCase := usecase.NewUpdateTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
+	editTaskUseCase := usecase.NewEditTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
 	completeTaskUseCase := usecase.NewCompleteTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
 	unCompleteTaskUseCase := usecase.NewUnCompleteTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
 	deleteTaskUseCase := usecase.NewDeleteTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
 	taskHandler := handler.NewTaskHandler(
-		registerTaskUseCase,
+		createTaskUseCase,
 		getAllTaskUseCase,
 		getTaskUseCase,
-		updateTaskUseCase,
+		editTaskUseCase,
 		completeTaskUseCase,
 		unCompleteTaskUseCase,
 		deleteTaskUseCase,

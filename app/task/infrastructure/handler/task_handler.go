@@ -13,20 +13,20 @@ import (
 )
 
 type TaskHandler struct {
-	registerTaskUseCase   *usecase.RegisterTaskUseCase
+	registerTaskUseCase   *usecase.CreateTaskUseCase
 	getAllTaskUseCase     *usecase.GetAllTaskUseCase
 	getTaskUseCase        *usecase.GetTaskUseCase
-	updateTaskUseCase     *usecase.UpdateTaskUseCase
+	updateTaskUseCase     *usecase.EditTaskUseCase
 	completeTaskUseCase   *usecase.CompleteTaskUseCase
 	unCompleteTaskUseCase *usecase.UnCompleteTaskUseCase
 	deleteTaskUseCase     *usecase.DeleteTaskUseCase
 	taskPresenter         presenter.TaskPresenter
 }
 
-func NewTaskHandler(registerTaskUseCase *usecase.RegisterTaskUseCase,
+func NewTaskHandler(registerTaskUseCase *usecase.CreateTaskUseCase,
 	getAllTaskUseCase *usecase.GetAllTaskUseCase,
 	getTaskUseCase *usecase.GetTaskUseCase,
-	updateTaskUseCase *usecase.UpdateTaskUseCase,
+	updateTaskUseCase *usecase.EditTaskUseCase,
 	completeTaskUseCase *usecase.CompleteTaskUseCase,
 	unCompleteTaskUseCase *usecase.UnCompleteTaskUseCase,
 	deleteTaskUseCase *usecase.DeleteTaskUseCase,
@@ -44,7 +44,7 @@ func NewTaskHandler(registerTaskUseCase *usecase.RegisterTaskUseCase,
 	}
 }
 
-func (h *TaskHandler) RegisterTask(ectx echo.Context) error {
+func (h *TaskHandler) CreateTask(ectx echo.Context) error {
 	ctx := context.CastContext(ectx)
 
 	a := auth.GetAuth(ctx)
@@ -55,7 +55,7 @@ func (h *TaskHandler) RegisterTask(ectx echo.Context) error {
 		return ferrors.NewBusinessError("指定された操作は許可されていません。 missing create:task")
 	}
 
-	request := new(openapi.RegisterTaskRequest)
+	request := new(openapi.CreateTaskRequest)
 	if err := ectx.Bind(request); err != nil {
 		return xerrors.Errorf("ectx.Bind(): %w", err)
 	}
@@ -113,7 +113,7 @@ func (h *TaskHandler) GetTask(ectx echo.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (h *TaskHandler) UpdateTask(ectx echo.Context, id uuid.UUID) error {
+func (h *TaskHandler) EditTask(ectx echo.Context, id uuid.UUID) error {
 	ctx := context.CastContext(ectx)
 
 	a := auth.GetAuth(ctx)
@@ -124,7 +124,7 @@ func (h *TaskHandler) UpdateTask(ectx echo.Context, id uuid.UUID) error {
 		return ferrors.NewBusinessError("指定された操作は許可されていません。 missing update:task")
 	}
 
-	request := new(openapi.UpdateTaskRequest)
+	request := new(openapi.EditTaskRequest)
 	if err := ectx.Bind(request); err != nil {
 		return xerrors.Errorf("ectx.Bind(): %w", err)
 	}

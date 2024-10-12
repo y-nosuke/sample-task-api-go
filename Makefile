@@ -15,6 +15,7 @@ docker_down:
 	docker compose down
 
 migrate_up: docker_up
+	while ! docker exec mysql mysql -u${DB_USER} -p${DB_PASSWORD}; do sleep 1s; done
 	migrate -path sample-task-golang-migrate/migrations -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(localhost:3306)/${DB_DATABASE_NAME}?multiStatements=true" up
 
 migrate: migrate_up
