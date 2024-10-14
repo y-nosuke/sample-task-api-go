@@ -1,6 +1,7 @@
 package event
 
 import (
+	"golang.org/x/xerrors"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,11 +15,15 @@ type TaskEvent struct {
 	OccurredAt time.Time
 }
 
-func newTaskEvent(taskID uuid.UUID, occurredBy uuid.UUID, occurredAt time.Time) *TaskEvent {
+func newTaskEvent(taskID uuid.UUID, occurredBy uuid.UUID, occurredAt time.Time) (*TaskEvent, error) {
+	domainEvent, err := event.NewDomainEvent()
+	if err != nil {
+		return nil, xerrors.Errorf("uuid.NewV7(): %w", err)
+	}
 	return &TaskEvent{
-		DomainEvent: event.NewDomainEvent(),
+		DomainEvent: domainEvent,
 		TaskID:      taskID,
 		OccurredBy:  occurredBy,
 		OccurredAt:  occurredAt,
-	}
+	}, nil
 }

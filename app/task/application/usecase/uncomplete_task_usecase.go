@@ -45,7 +45,10 @@ func (u *UnCompleteTaskUseCase) Invoke(cctx fcontext.Context, args *UnCompleteTa
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
 
-	taskUnCompleted := task.UnComplete(auth.GetUserId(cctx))
+	taskUnCompleted, err := task.UnComplete(auth.GetUserId(cctx))
+	if err != nil {
+		return xerrors.Errorf("task.UnComplete(): %w", err)
+	}
 
 	if err = u.taskRepository.Update(cctx, task, args.Version); err != nil {
 		if errors.Is(err, repository.ErrNotAffected) {

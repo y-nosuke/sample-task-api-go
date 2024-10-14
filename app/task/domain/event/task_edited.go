@@ -1,6 +1,7 @@
 package event
 
 import (
+	"golang.org/x/xerrors"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,12 +15,16 @@ type TaskEdited struct {
 	Deadline  *time.Time
 }
 
-func NewTaskUpdated(taskID uuid.UUID, title string, detail *string, completed bool, deadline *time.Time, editedBy uuid.UUID, editedAt time.Time) *TaskEdited {
+func NewTaskUpdated(taskID uuid.UUID, title string, detail *string, completed bool, deadline *time.Time, editedBy uuid.UUID, editedAt time.Time) (*TaskEdited, error) {
+	taskEvent, err := newTaskEvent(taskID, editedBy, editedAt)
+	if err != nil {
+		return nil, xerrors.Errorf("newTaskEvent(): %w", err)
+	}
 	return &TaskEdited{
-		TaskEvent: *newTaskEvent(taskID, editedBy, editedAt),
+		TaskEvent: *taskEvent,
 		Title:     title,
 		Detail:    detail,
 		Completed: completed,
 		Deadline:  deadline,
-	}
+	}, nil
 }

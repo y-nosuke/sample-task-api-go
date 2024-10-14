@@ -45,7 +45,10 @@ func (u *CompleteTaskUseCase) Invoke(cctx fcontext.Context, args *CompleteTaskUs
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
 
-	taskCompleted := task.Complete(auth.GetUserId(cctx))
+	taskCompleted, err := task.Complete(auth.GetUserId(cctx))
+	if err != nil {
+		return xerrors.Errorf("task.Complete(): %w", err)
+	}
 
 	if err = u.taskRepository.Update(cctx, task, args.Version); err != nil {
 		if errors.Is(err, repository.ErrNotAffected) {

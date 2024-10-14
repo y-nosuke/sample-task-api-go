@@ -34,15 +34,18 @@ func NewCreateTaskUseCase(taskRepository repository.TaskRepository, taskEventRep
 func (u *CreateTaskUseCase) Invoke(cctx fcontext.Context, args *CreateTaskUseCaseArgs) error {
 	fmt.Println("タスク登録処理を開始します。")
 
-	task, taskCreated := factory.CreateTask(args.Title, args.Detail, args.Deadline, auth.GetUserId(cctx))
+	task, taskCreated, err := factory.CreateTask(args.Title, args.Detail, args.Deadline, auth.GetUserId(cctx))
+	if err != nil {
+		return xerrors.Errorf("factory.CreateTask(): %w", err)
+	}
 
-	if err := u.taskRepository.Register(cctx, task); err != nil {
+	if err = u.taskRepository.Register(cctx, task); err != nil {
 		return xerrors.Errorf("taskRepository.Register(): %w", err)
 	}
 
 	fmt.Printf("データベースにタスクが登録されました。 task: %+v\n", task)
 
-	if err := u.taskEventRepository.RegisterTaskCreated(cctx, taskCreated); err != nil {
+	if err = u.taskEventRepository.RegisterTaskCreated(cctx, taskCreated); err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
 
@@ -50,7 +53,7 @@ func (u *CreateTaskUseCase) Invoke(cctx fcontext.Context, args *CreateTaskUseCas
 
 	u.publisher.Publish(taskCreated)
 
-	if err := u.taskPresenter.RegisterTaskResponse(cctx, task); err != nil {
+	if err = u.taskPresenter.RegisterTaskResponse(cctx, task); err != nil {
 		return xerrors.Errorf("taskPresenter.RegisterTaskResponse(): %w", err)
 	}
 

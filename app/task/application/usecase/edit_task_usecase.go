@@ -49,7 +49,10 @@ func (u *EditTaskUseCase) Invoke(cctx fcontext.Context, args *EditTaskUseCaseArg
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
 
-	taskUpdated := task.Update(args.Title, args.Detail, args.Deadline, auth.GetUserId(cctx))
+	taskUpdated, err := task.Update(args.Title, args.Detail, args.Deadline, auth.GetUserId(cctx))
+	if err != nil {
+		return xerrors.Errorf("task.Update(): %w", err)
+	}
 
 	if err = u.taskRepository.Update(cctx, task, args.Version); err != nil {
 		if errors.Is(err, repository.ErrNotAffected) {
