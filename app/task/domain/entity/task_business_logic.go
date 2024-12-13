@@ -1,8 +1,9 @@
 package entity
 
 import (
-	"golang.org/x/xerrors"
 	"time"
+
+	"golang.org/x/xerrors"
 
 	"github.com/google/uuid"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"

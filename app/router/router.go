@@ -17,10 +17,8 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/framework/validation"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/infrastructure/observer"
 	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
-	"go.opentelemetry.io/otel"
-
-	//nolint:staticcheck
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"

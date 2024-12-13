@@ -1,8 +1,9 @@
 package event
 
 import (
-	"golang.org/x/xerrors"
 	"time"
+
+	"golang.org/x/xerrors"
 
 	"github.com/google/uuid"
 )
