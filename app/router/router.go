@@ -60,7 +60,7 @@ func Router() (e *echo.Echo, err error) {
 	}
 
 	e.Use(
-		middleware.Logger(),
+		middleware.LoggerWithConfig(middleware.LoggerConfig{Skipper: urlSkipper}),
 		middleware.Recover(),
 		otelecho.Middleware("sample-task-api-go",
 			otelecho.WithSkipper(urlSkipper),
