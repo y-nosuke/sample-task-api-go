@@ -18,13 +18,13 @@ exporters:
       insecure: true
   prometheus:
     endpoint: "0.0.0.0:8889"
-  logging:
+  debug:
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [logging, otlp/jaeger]
+      exporters: [debug, otlp/jaeger]
     metrics:
       receivers: [prometheus]
-      exporters: [logging, prometheus]
+      exporters: [debug, prometheus]

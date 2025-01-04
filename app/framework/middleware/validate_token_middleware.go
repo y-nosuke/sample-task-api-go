@@ -12,7 +12,7 @@ import (
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
-	"github.com/y-nosuke/sample-task-api-go/app/framework/io/application/presenter"
+	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"golang.org/x/xerrors"
 )
 
@@ -28,7 +28,7 @@ func init() {
 	}
 }
 
-func ValidateTokenMiddleware(authHandlerPresenter presenter.BusinessErrorPresenter) func(next echo.HandlerFunc) echo.HandlerFunc {
+func ValidateTokenMiddleware() func(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ectx echo.Context) error {
 			cctx := fcontext.CastContext(ectx)
@@ -36,7 +36,7 @@ func ValidateTokenMiddleware(authHandlerPresenter presenter.BusinessErrorPresent
 
 			tokenString := getToken(ectx.Request())
 			if tokenString == "" {
-				return authHandlerPresenter.Unauthorized(cctx, "認証されていません。 missing Authorization Header")
+				return ferrors.NewUnauthorizedError("認証されていません。 missing Authorization Header")
 			}
 
 			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
@@ -57,13 +57,13 @@ func ValidateTokenMiddleware(authHandlerPresenter presenter.BusinessErrorPresent
 			})
 			if err != nil {
 				fmt.Println(err.Error())
-				return authHandlerPresenter.Unauthorized(cctx, "認証されていません。 invalid token")
+				return ferrors.NewUnauthorizedError("認証されていません。 invalid token")
 			}
 
 			auths, err := auth.NewAuth(token)
 			if err != nil {
 				fmt.Println(err.Error())
-				return authHandlerPresenter.Unauthorized(cctx, "認証されていません。")
+				return ferrors.NewUnauthorizedError("認証されていません。")
 			}
 
 			auth.SetAuth(cctx, auths)

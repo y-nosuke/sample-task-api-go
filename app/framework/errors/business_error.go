@@ -1,14 +1,29 @@
 package errors
 
 import (
-	"errors"
 	"fmt"
 )
 
+type ErrorCode int
+
+const (
+	BadRequest ErrorCode = iota
+	Unauthorized
+	Forbidden
+	NotFound
+	Conflict
+)
+
 type BusinessError struct {
+	errorCode ErrorCode
+	// message code
 	doRollBack    bool
 	originalError error
 	message       string
+}
+
+func (e *BusinessError) ErrorCode() ErrorCode {
+	return e.errorCode
 }
 
 func (e *BusinessError) DoRollBack() bool {
@@ -27,34 +42,58 @@ func (e *BusinessError) Error() string {
 	return e.Message()
 }
 
-func NewBusinessError(format string, a ...interface{}) *BusinessError {
-	return &BusinessError{true, nil, fmt.Sprintf(format, a...)}
+func newBusinessError(errorCode ErrorCode, format string, a ...interface{}) *BusinessError {
+	return &BusinessError{errorCode, true, nil, fmt.Sprintf(format, a...)}
 }
 
-func NewBusinessErrorf(originalError error, format string, a ...interface{}) *BusinessError {
-	return &BusinessError{true, originalError, fmt.Sprintf(format, a...)}
+func newBusinessErrorf(errorCode ErrorCode, originalError error, format string, a ...interface{}) *BusinessError {
+	return &BusinessError{errorCode, true, originalError, fmt.Sprintf(format, a...)}
 }
 
-func NewNoRollBackBusinessError(format string, a ...interface{}) *BusinessError {
-	return &BusinessError{false, nil, fmt.Sprintf(format, a...)}
+func newNoRollBackBusinessError(errorCode ErrorCode, format string, a ...interface{}) *BusinessError {
+	return &BusinessError{errorCode, false, nil, fmt.Sprintf(format, a...)}
 }
 
-func NewNoRollBackBusinessErrorf(originalError error, format string, a ...interface{}) *BusinessError {
-	return &BusinessError{false, originalError, fmt.Sprintf(format, a...)}
+func newNoRollBackBusinessErrorf(errorCode ErrorCode, originalError error, format string, a ...interface{}) *BusinessError {
+	return &BusinessError{errorCode, false, originalError, fmt.Sprintf(format, a...)}
 }
 
-func IsBusinessError(err error) bool {
-	_, ok := AsBusinessError(err)
-	return ok
+func NewBadRequestError(format string, a ...interface{}) *BusinessError {
+	return newBusinessError(BadRequest, format, a...)
 }
 
-func IsSystemError(err error) bool {
-	_, ok := AsBusinessError(err)
-	return err != nil && !ok
+func NewBadRequestErrorf(originalError error, format string, a ...interface{}) *BusinessError {
+	return newBusinessErrorf(BadRequest, originalError, format, a...)
 }
 
-func AsBusinessError(err error) (*BusinessError, bool) {
-	var businessError *BusinessError
-	ok := errors.As(err, &businessError)
-	return businessError, ok
+func NewUnauthorizedError(format string, a ...interface{}) *BusinessError {
+	return newBusinessError(Unauthorized, format, a...)
+}
+
+func NewUnauthorizedErrorf(originalError error, format string, a ...interface{}) *BusinessError {
+	return newBusinessErrorf(Unauthorized, originalError, format, a...)
+}
+
+func NewForbiddenError(format string, a ...interface{}) *BusinessError {
+	return newBusinessError(Forbidden, format, a...)
+}
+
+func NewForbiddenErrorf(originalError error, format string, a ...interface{}) *BusinessError {
+	return newBusinessErrorf(Forbidden, originalError, format, a...)
+}
+
+func NewNotFoundError(format string, a ...interface{}) *BusinessError {
+	return newBusinessError(NotFound, format, a...)
+}
+
+func NewNotFoundErrorf(originalError error, format string, a ...interface{}) *BusinessError {
+	return newBusinessErrorf(NotFound, originalError, format, a...)
+}
+
+func NewConflictError(format string, a ...interface{}) *BusinessError {
+	return newBusinessError(NotFound, format, a...)
+}
+
+func NewConflictErrorf(originalError error, format string, a ...interface{}) *BusinessError {
+	return newBusinessErrorf(NotFound, originalError, format, a...)
 }

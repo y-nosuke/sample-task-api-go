@@ -41,10 +41,7 @@ func (u *EditTaskUseCase) Invoke(cctx fcontext.Context, args *EditTaskUseCaseArg
 	task, err := u.taskRepository.GetById(cctx, args.Id)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			if resErr := u.taskPresenter.NotFound(cctx, "指定されたタスクが見つかりませんでした。"); resErr != nil {
-				return xerrors.Errorf("original error: %v, taskPresenter.NotFound(): %w", err, resErr)
-			}
-			return ferrors.NewBusinessErrorf(err, "指定されたタスクが見つかりませんでした。")
+			return ferrors.NewNotFoundErrorf(err, "指定されたタスクが見つかりませんでした。")
 		}
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
@@ -56,10 +53,7 @@ func (u *EditTaskUseCase) Invoke(cctx fcontext.Context, args *EditTaskUseCaseArg
 
 	if err = u.taskRepository.Update(cctx, task, args.Version); err != nil {
 		if errors.Is(err, repository.ErrNotAffected) {
-			if resErr := u.taskPresenter.Conflict(cctx, "タスクは既に更新済みです。"); resErr != nil {
-				return xerrors.Errorf("original error: %v, taskPresenter.Conflict(): %w", err, resErr)
-			}
-			return ferrors.NewBusinessErrorf(err, "タスクは既に更新済みです。")
+			return ferrors.NewConflictErrorf(err, "タスクは既に更新済みです。")
 		}
 		return xerrors.Errorf("taskRepository.Update(): %w", err)
 	}

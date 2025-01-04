@@ -10,10 +10,6 @@ import (
 type BusinessErrorPresenterImpl struct {
 }
 
-func NewBusinessErrorPresenterImpl() *BusinessErrorPresenterImpl {
-	return &BusinessErrorPresenterImpl{}
-}
-
 func (p BusinessErrorPresenterImpl) BadRequest(ctx fcontext.Context, message string, err error) error {
 	ectx := fcontext.GetEchoContext(ctx)
 	return ectx.JSON(http.StatusBadRequest, &openapi.ErrorResponse{Message: BadRequestMessage(message, err)})

@@ -27,7 +27,7 @@ import (
 )
 
 // golangci-lintでエラーになるので一時的にコメントアウト
-//var tracer trace.Tracer
+// var tracer trace.Tracer
 
 func Router() (e *echo.Echo, err error) {
 	e = echo.New()
@@ -35,7 +35,7 @@ func Router() (e *echo.Echo, err error) {
 	e.HTTPErrorHandler = ferrors.CustomHTTPErrorHandler
 	e.Validator = validation.NewValidator()
 
-	//tracer = otel.Tracer("github.com/y-nosuke/sample-task-api-go")
+	// tracer = otel.Tracer("github.com/y-nosuke/sample-task-api-go")
 	otel.Tracer("github.com/y-nosuke/sample-task-api-go")
 
 	ctx := context.Background()
@@ -85,13 +85,12 @@ func Router() (e *echo.Echo, err error) {
 
 	g := e.Group("/api/v1")
 
-	systemErrorHandlerPresenterImpl := fep.NewSystemErrorHandlerPresenterImpl()
-	businessErrorPresenterImpl := fep.NewBusinessErrorPresenterImpl()
+	errorPresenterImpl := fep.NewErrorPresenterImpl()
 	g.Use(
 		fmiddleware.ContextMiddleware,
 		fmiddleware.ErrorLogHandleMiddleware,
-		fmiddleware.ErrorResponseHandleMiddleware(systemErrorHandlerPresenterImpl),
-		fmiddleware.ValidateTokenMiddleware(businessErrorPresenterImpl),
+		fmiddleware.ErrorResponseHandleMiddleware(errorPresenterImpl),
+		fmiddleware.ValidateTokenMiddleware(),
 		fmiddleware.TransactionMiddleware,
 	)
 
@@ -104,7 +103,7 @@ func Router() (e *echo.Echo, err error) {
 	mailSubscriberImpl := observer.NewMailSubscriberImpl(os.Getenv("MAIL_HOST"), port, os.Getenv("MAIL_FROM"), os.Getenv("MAIL_TO"))
 	domainEventPublisherImpl.Register(slackSubscriberImpl, mailSubscriberImpl)
 
-	tr.TaskRouter(g, businessErrorPresenterImpl, domainEventPublisherImpl)
+	tr.TaskRouter(g, domainEventPublisherImpl)
 
 	// ここで処理しないとjaegerのtracingが取れなくなる
 	e.Logger.Fatal(e.Start(":1323"))

@@ -10,10 +10,6 @@ import (
 type SystemErrorHandlerPresenterImpl struct {
 }
 
-func NewSystemErrorHandlerPresenterImpl() *SystemErrorHandlerPresenterImpl {
-	return &SystemErrorHandlerPresenterImpl{}
-}
-
 func (p SystemErrorHandlerPresenterImpl) InternalServerError(ctx fcontext.Context) error {
 	ectx := fcontext.GetEchoContext(ctx)
 	return ectx.JSON(http.StatusInternalServerError, &openapi.ErrorResponse{Message: "システムエラーが発生しました。"})

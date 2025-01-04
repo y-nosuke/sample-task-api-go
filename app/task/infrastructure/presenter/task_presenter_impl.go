@@ -4,16 +4,13 @@ import (
 	"net/http"
 
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
-	fpresenter "github.com/y-nosuke/sample-task-api-go/app/framework/io/application/presenter"
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/entity"
 )
 
-type TaskPresenterImpl struct {
-	fpresenter.BusinessErrorPresenter
-}
+type TaskPresenterImpl struct{}
 
-func NewTaskPresenterImpl(businessErrorPresenter fpresenter.BusinessErrorPresenter) *TaskPresenterImpl {
-	return &TaskPresenterImpl{businessErrorPresenter}
+func NewTaskPresenterImpl() *TaskPresenterImpl {
+	return &TaskPresenterImpl{}
 }
 
 func (p *TaskPresenterImpl) RegisterTaskResponse(cctx fcontext.Context, task *entity.Task) error {

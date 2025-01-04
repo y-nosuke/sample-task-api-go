@@ -49,10 +49,7 @@ func (h *TaskHandler) CreateTask(ectx echo.Context) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("create:task") {
-		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing create:task"); err != nil {
-			return xerrors.Errorf("taskPresenter.Forbidden(): %w", err)
-		}
-		return ferrors.NewBusinessError("指定された操作は許可されていません。 missing create:task")
+		return ferrors.NewForbiddenError("指定された操作は許可されていません。 missing create:task")
 	}
 
 	request := new(openapi.CreateTaskRequest)
@@ -61,10 +58,7 @@ func (h *TaskHandler) CreateTask(ectx echo.Context) error {
 	}
 
 	if err := ectx.Validate(request); err != nil {
-		if resErr := h.taskPresenter.BadRequest(ctx, "バリデーションエラーです。", err); resErr != nil {
-			return xerrors.Errorf("original err: %+v, taskPresenter.BadRequest(): %w", err, resErr)
-		}
-		return ferrors.NewBusinessError("バリデーションエラーです。")
+		return ferrors.NewBadRequestErrorf(err, "バリデーションエラーです。")
 	}
 
 	args := RegisterTaskUseCaseArgs(request)
@@ -80,10 +74,7 @@ func (h *TaskHandler) GetAllTasks(ectx echo.Context) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("read:task") {
-		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing read:task"); err != nil {
-			return xerrors.Errorf("taskPresenter.Forbidden(): %w", err)
-		}
-		return ferrors.NewBusinessError("指定された操作は許可されていません。 missing read:task")
+		return ferrors.NewForbiddenError("指定された操作は許可されていません。 missing read:task")
 	}
 
 	args := &usecase.GetAllTaskUseCaseArgs{}
@@ -99,10 +90,7 @@ func (h *TaskHandler) GetTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("read:task") {
-		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing read:task"); err != nil {
-			return xerrors.Errorf("taskPresenter.Forbidden(): %w", err)
-		}
-		return ferrors.NewBusinessError("指定された操作は許可されていません。 missing read:task")
+		return ferrors.NewForbiddenError("指定された操作は許可されていません。 missing read:task")
 	}
 
 	args := &usecase.GetTaskUseCaseArgs{Id: id}
@@ -118,10 +106,7 @@ func (h *TaskHandler) EditTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("update:task") {
-		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing update:task"); err != nil {
-			return xerrors.Errorf("taskPresenter.Forbidden(): %w", err)
-		}
-		return ferrors.NewBusinessError("指定された操作は許可されていません。 missing update:task")
+		return ferrors.NewForbiddenError("指定された操作は許可されていません。 missing update:task")
 	}
 
 	request := new(openapi.EditTaskRequest)
@@ -130,10 +115,7 @@ func (h *TaskHandler) EditTask(ectx echo.Context, id uuid.UUID) error {
 	}
 
 	if err := ectx.Validate(request); err != nil {
-		if resErr := h.taskPresenter.BadRequest(ctx, "バリデーションエラーです。", err); resErr != nil {
-			return xerrors.Errorf("original err: %+v, taskPresenter.BadRequest(): %w", err, resErr)
-		}
-		return ferrors.NewBusinessError("バリデーションエラーです。")
+		return ferrors.NewBadRequestErrorf(err, "バリデーションエラーです。")
 	}
 
 	args := UpdateTaskUseCaseArgs(id, request)
@@ -149,10 +131,7 @@ func (h *TaskHandler) CompleteTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("update:task") {
-		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing update:task"); err != nil {
-			return xerrors.Errorf("taskPresenter.Forbidden(): %w", err)
-		}
-		return ferrors.NewBusinessError("指定された操作は許可されていません。 missing update:task")
+		return ferrors.NewForbiddenError("指定された操作は許可されていません。 missing update:task")
 	}
 
 	request := new(openapi.CompleteTaskRequest)
@@ -173,10 +152,7 @@ func (h *TaskHandler) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("update:task") {
-		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing update:task"); err != nil {
-			return xerrors.Errorf("taskPresenter.Forbidden(): %w", err)
-		}
-		return ferrors.NewBusinessError("指定された操作は許可されていません。 missing update:task")
+		return ferrors.NewForbiddenError("指定された操作は許可されていません。 missing update:task")
 	}
 
 	request := new(openapi.UnCompleteTaskRequest)
@@ -197,10 +173,7 @@ func (h *TaskHandler) DeleteTask(ectx echo.Context, id uuid.UUID) error {
 
 	a := auth.GetAuth(ctx)
 	if !a.HasAuthority("delete:task") {
-		if err := h.taskPresenter.Forbidden(ctx, "指定された操作は許可されていません。 missing delete:task"); err != nil {
-			return xerrors.Errorf("taskPresenter.Forbidden(): %w", err)
-		}
-		return ferrors.NewBusinessError("指定された操作は許可されていません。 missing delete:task")
+		return ferrors.NewForbiddenError("指定された操作は許可されていません。 missing delete:task")
 	}
 
 	args := &usecase.DeleteTaskUseCaseArgs{Id: id}
