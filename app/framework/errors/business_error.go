@@ -50,13 +50,13 @@ func newBusinessErrorf(errorCode ErrorCode, originalError error, format string, 
 	return &BusinessError{errorCode, true, originalError, fmt.Sprintf(format, a...)}
 }
 
-func newNoRollBackBusinessError(errorCode ErrorCode, format string, a ...interface{}) *BusinessError {
-	return &BusinessError{errorCode, false, nil, fmt.Sprintf(format, a...)}
-}
-
-func newNoRollBackBusinessErrorf(errorCode ErrorCode, originalError error, format string, a ...interface{}) *BusinessError {
-	return &BusinessError{errorCode, false, originalError, fmt.Sprintf(format, a...)}
-}
+// func newNoRollBackBusinessError(errorCode ErrorCode, format string, a ...interface{}) *BusinessError {
+// 	return &BusinessError{errorCode, false, nil, fmt.Sprintf(format, a...)}
+// }
+//
+// func newNoRollBackBusinessErrorf(errorCode ErrorCode, originalError error, format string, a ...interface{}) *BusinessError {
+// 	return &BusinessError{errorCode, false, originalError, fmt.Sprintf(format, a...)}
+// }
 
 func NewBadRequestError(format string, a ...interface{}) *BusinessError {
 	return newBusinessError(BadRequest, format, a...)
