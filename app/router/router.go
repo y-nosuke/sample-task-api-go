@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	ar "github.com/y-nosuke/sample-task-api-go/app/admin/infrastructure/router"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	fep "github.com/y-nosuke/sample-task-api-go/app/framework/io/infrastructure/presenter"
 	fmiddleware "github.com/y-nosuke/sample-task-api-go/app/framework/middleware"
@@ -104,6 +105,10 @@ func Router() (e *echo.Echo, err error) {
 	domainEventPublisherImpl.Register(slackSubscriberImpl, mailSubscriberImpl)
 
 	tr.TaskRouter(g, domainEventPublisherImpl)
+
+	admin := e.Group("/admin")
+
+	ar.AdminRouter(admin)
 
 	// ここで処理しないとjaegerのtracingが取れなくなる
 	e.Logger.Fatal(e.Start(":1323"))
