@@ -21,30 +21,22 @@ func RegisterTaskUseCaseArgs(request *openapi.CreateTaskRequest) *usecase.Create
 	}
 }
 
-func UpdateTaskUseCaseArgs(id uuid.UUID, request *openapi.EditTaskRequest) *usecase.EditTaskUseCaseArgs {
+func EditTaskUseCaseArgs(id uuid.UUID, request *openapi.EditTaskRequest) *usecase.EditTaskUseCaseArgs {
 	var deadline *time.Time
 	if request.Deadline != nil {
 		deadline = &request.Deadline.Time
 	}
+	var completed bool
+	if request.Completed != nil {
+		completed = *request.Completed
+	}
+
 	return &usecase.EditTaskUseCaseArgs{
-		Id:       id,
-		Title:    request.Title,
-		Detail:   request.Detail,
-		Deadline: deadline,
-		Version:  request.Version,
-	}
-}
-
-func CompleteTaskUseCaseArgs(id uuid.UUID, request *openapi.CompleteTaskRequest) *usecase.CompleteTaskUseCaseArgs {
-	return &usecase.CompleteTaskUseCaseArgs{
-		Id:      id,
-		Version: request.Version,
-	}
-}
-
-func UnCompleteTaskUseCaseArgs(id uuid.UUID, request *openapi.UnCompleteTaskRequest) *usecase.UnCompleteTaskUseCaseArgs {
-	return &usecase.UnCompleteTaskUseCaseArgs{
-		Id:      id,
-		Version: request.Version,
+		Id:        id,
+		Title:     request.Title,
+		Detail:    request.Detail,
+		Completed: completed,
+		Deadline:  deadline,
+		Version:   request.Version,
 	}
 }

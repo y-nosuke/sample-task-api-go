@@ -19,16 +19,12 @@ func TaskRouter(g *echo.Group, publisher observer.Publisher[event.DomainEvent]) 
 	getAllTaskUseCase := usecase.NewGetAllTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
 	getTaskUseCase := usecase.NewGetTaskUseCase(taskRepositoryImpl, taskPresenterImpl)
 	editTaskUseCase := usecase.NewEditTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
-	completeTaskUseCase := usecase.NewCompleteTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
-	unCompleteTaskUseCase := usecase.NewUnCompleteTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
 	deleteTaskUseCase := usecase.NewDeleteTaskUseCase(taskRepositoryImpl, taskEventRepositoryImpl, taskPresenterImpl, publisher)
 	taskHandler := handler.NewTaskHandler(
 		createTaskUseCase,
 		getAllTaskUseCase,
 		getTaskUseCase,
 		editTaskUseCase,
-		completeTaskUseCase,
-		unCompleteTaskUseCase,
 		deleteTaskUseCase,
 		taskPresenterImpl,
 	)

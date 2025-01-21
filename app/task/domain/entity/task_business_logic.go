@@ -9,16 +9,19 @@ import (
 	"github.com/y-nosuke/sample-task-api-go/app/task/domain/event"
 )
 
-func (t *Task) Update(title string, detail *string, deadline *time.Time, userID uuid.UUID) (*event.TaskEdited, error) {
+// TODO タスク完了イベント・タスク未完了イベントの発行・登録
+
+func (t *Task) Edit(title string, detail *string, completed bool, deadline *time.Time, userID uuid.UUID) (*event.TaskEdited, error) {
 	t.title = title
 	t.detail = detail
+	t.completed = completed
 	t.deadline = deadline
 	t.editedBy = userID
 	t.editedAt = time.Now()
 
-	updated, err := taskUpdated(t)
+	updated, err := taskEdited(t)
 	if err != nil {
-		return nil, xerrors.Errorf("taskUpdated(): %w", err)
+		return nil, xerrors.Errorf("taskEdited(): %w", err)
 	}
 
 	return updated, nil
@@ -52,10 +55,10 @@ func (t *Task) UnComplete(userID uuid.UUID) (*event.TaskUnCompleted, error) {
 
 // CreateEvent
 
-func taskUpdated(task *Task) (*event.TaskEdited, error) {
-	updated, err := event.NewTaskUpdated(task.id, task.title, task.detail, task.completed, task.deadline, task.editedBy, task.editedAt)
+func taskEdited(task *Task) (*event.TaskEdited, error) {
+	updated, err := event.NewTaskEdited(task.id, task.title, task.detail, task.completed, task.deadline, task.editedBy, task.editedAt)
 	if err != nil {
-		return nil, xerrors.Errorf("event.NewTaskUpdated(): %w", err)
+		return nil, xerrors.Errorf("event.NewTaskEdited(): %w", err)
 	}
 	return updated, nil
 }

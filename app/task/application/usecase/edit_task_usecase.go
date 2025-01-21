@@ -17,11 +17,12 @@ import (
 )
 
 type EditTaskUseCaseArgs struct {
-	Id       uuid.UUID
-	Title    string
-	Detail   *string
-	Deadline *time.Time
-	Version  uuid.UUID
+	Id        uuid.UUID
+	Title     string
+	Detail    *string
+	Completed bool
+	Deadline  *time.Time
+	Version   uuid.UUID
 }
 
 type EditTaskUseCase struct {
@@ -46,27 +47,27 @@ func (u *EditTaskUseCase) Invoke(cctx fcontext.Context, args *EditTaskUseCaseArg
 		return xerrors.Errorf("taskRepository.GetById(): %w", err)
 	}
 
-	taskUpdated, err := task.Update(args.Title, args.Detail, args.Deadline, auth.GetUserId(cctx))
+	taskEdited, err := task.Edit(args.Title, args.Detail, args.Completed, args.Deadline, auth.GetUserId(cctx))
 	if err != nil {
-		return xerrors.Errorf("task.Update(): %w", err)
+		return xerrors.Errorf("task.Edit(): %w", err)
 	}
 
 	if err = u.taskRepository.Update(cctx, task, args.Version); err != nil {
 		if errors.Is(err, repository.ErrNotAffected) {
 			return ferrors.NewConflictErrorf(err, "タスクは既に更新済みです。")
 		}
-		return xerrors.Errorf("taskRepository.Update(): %w", err)
+		return xerrors.Errorf("taskRepository.Edit(): %w", err)
 	}
 
 	fmt.Printf("データベースのタスクが更新されました。 task: %+v\n", task)
 
-	if err = u.taskEventRepository.RegisterTaskUpdated(cctx, taskUpdated); err != nil {
+	if err = u.taskEventRepository.RegisterTaskEdited(cctx, taskEdited); err != nil {
 		return xerrors.Errorf("taskEventRepository.Register(): %w", err)
 	}
 
-	fmt.Printf("データベースにタスクイベントが登録されました。 taskUpdated: %+v\n", taskUpdated)
+	fmt.Printf("データベースにタスクイベントが登録されました。 taskEdited: %+v\n", taskEdited)
 
-	u.publisher.Publish(taskUpdated)
+	u.publisher.Publish(taskEdited)
 
 	if err = u.taskPresenter.UpdateTaskResponse(cctx, task); err != nil {
 		return xerrors.Errorf("taskPresenter.UpdateTaskResponse(): %w", err)

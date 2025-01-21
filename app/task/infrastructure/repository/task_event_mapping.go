@@ -85,8 +85,8 @@ func ETaskCreated(taskCreated *event.TaskCreated, userId uuid.UUID) (*dao.ETaskE
 	return eTaskEvent, eTaskCreated, nil
 }
 
-func ETaskUpdated(taskUpdated *event.TaskEdited, userId uuid.UUID) (*dao.ETaskEvent, *dao.ETaskEdited, error) {
-	eTaskEvent, err := ETaskEvent(&taskUpdated.TaskEvent, TaskEdited, userId)
+func ETaskEdited(taskEdited *event.TaskEdited, userId uuid.UUID) (*dao.ETaskEvent, *dao.ETaskEdited, error) {
+	eTaskEvent, err := ETaskEvent(&taskEdited.TaskEvent, TaskEdited, userId)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -98,10 +98,10 @@ func ETaskUpdated(taskUpdated *event.TaskEdited, userId uuid.UUID) (*dao.ETaskEv
 
 	eTaskCreated := &dao.ETaskEdited{
 		EventID:    eTaskEvent.ID,
-		Title:      taskUpdated.Title,
-		Detail:     null.StringFromPtr(taskUpdated.Detail),
-		Completed:  taskUpdated.Completed,
-		Deadline:   null.TimeFromPtr(taskUpdated.Deadline),
+		Title:      taskEdited.Title,
+		Detail:     null.StringFromPtr(taskEdited.Detail),
+		Completed:  taskEdited.Completed,
+		Deadline:   null.TimeFromPtr(taskEdited.Deadline),
 		RegisterBy: byteUserId,
 	}
 

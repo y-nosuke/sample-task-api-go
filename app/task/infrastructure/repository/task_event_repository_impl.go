@@ -36,12 +36,12 @@ func (t *TaskEventRepositoryImpl) RegisterTaskCreated(cctx fcontext.Context, tas
 	return nil
 }
 
-func (t *TaskEventRepositoryImpl) RegisterTaskUpdated(cctx fcontext.Context, taskUpdated *event.TaskEdited) error {
+func (t *TaskEventRepositoryImpl) RegisterTaskEdited(cctx fcontext.Context, taskEdited *event.TaskEdited) error {
 	ctx := cctx.GetContext()
 	tx := database.GetTransaction(cctx)
 	userId := auth.GetUserId(cctx)
 
-	eTaskEvent, eTaskCreated, err := ETaskUpdated(taskUpdated, userId)
+	eTaskEvent, eTaskCreated, err := ETaskEdited(taskEdited, userId)
 	if err != nil {
 		return xerrors.Errorf("ETaskCreated(): %w", err)
 	}

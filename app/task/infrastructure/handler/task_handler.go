@@ -13,22 +13,18 @@ import (
 )
 
 type TaskHandler struct {
-	registerTaskUseCase   *usecase.CreateTaskUseCase
-	getAllTaskUseCase     *usecase.GetAllTaskUseCase
-	getTaskUseCase        *usecase.GetTaskUseCase
-	updateTaskUseCase     *usecase.EditTaskUseCase
-	completeTaskUseCase   *usecase.CompleteTaskUseCase
-	unCompleteTaskUseCase *usecase.UnCompleteTaskUseCase
-	deleteTaskUseCase     *usecase.DeleteTaskUseCase
-	taskPresenter         presenter.TaskPresenter
+	registerTaskUseCase *usecase.CreateTaskUseCase
+	getAllTaskUseCase   *usecase.GetAllTaskUseCase
+	getTaskUseCase      *usecase.GetTaskUseCase
+	updateTaskUseCase   *usecase.EditTaskUseCase
+	deleteTaskUseCase   *usecase.DeleteTaskUseCase
+	taskPresenter       presenter.TaskPresenter
 }
 
 func NewTaskHandler(registerTaskUseCase *usecase.CreateTaskUseCase,
 	getAllTaskUseCase *usecase.GetAllTaskUseCase,
 	getTaskUseCase *usecase.GetTaskUseCase,
 	updateTaskUseCase *usecase.EditTaskUseCase,
-	completeTaskUseCase *usecase.CompleteTaskUseCase,
-	unCompleteTaskUseCase *usecase.UnCompleteTaskUseCase,
 	deleteTaskUseCase *usecase.DeleteTaskUseCase,
 	taskPresenter presenter.TaskPresenter,
 ) *TaskHandler {
@@ -37,8 +33,6 @@ func NewTaskHandler(registerTaskUseCase *usecase.CreateTaskUseCase,
 		getAllTaskUseCase,
 		getTaskUseCase,
 		updateTaskUseCase,
-		completeTaskUseCase,
-		unCompleteTaskUseCase,
 		deleteTaskUseCase,
 		taskPresenter,
 	}
@@ -118,51 +112,9 @@ func (h *TaskHandler) EditTask(ectx echo.Context, id uuid.UUID) error {
 		return ferrors.NewBadRequestErrorf(err, "バリデーションエラーです。")
 	}
 
-	args := UpdateTaskUseCaseArgs(id, request)
+	args := EditTaskUseCaseArgs(id, request)
 	if err := h.updateTaskUseCase.Invoke(ctx, args); err != nil {
 		return xerrors.Errorf("updateTaskUseCase.Invoke(): %w", err)
-	}
-
-	return nil
-}
-
-func (h *TaskHandler) CompleteTask(ectx echo.Context, id uuid.UUID) error {
-	ctx := context.CastContext(ectx)
-
-	a := auth.GetAuth(ctx)
-	if !a.HasAuthority("update:task") {
-		return ferrors.NewForbiddenError("指定された操作は許可されていません。 missing update:task")
-	}
-
-	request := new(openapi.CompleteTaskRequest)
-	if err := ectx.Bind(request); err != nil {
-		return xerrors.Errorf("ectx.Bind(): %w", err)
-	}
-
-	args := CompleteTaskUseCaseArgs(id, request)
-	if err := h.completeTaskUseCase.Invoke(ctx, args); err != nil {
-		return xerrors.Errorf("completeTaskUseCase.Invoke(): %w", err)
-	}
-
-	return nil
-}
-
-func (h *TaskHandler) UnCompleteTask(ectx echo.Context, id uuid.UUID) error {
-	ctx := context.CastContext(ectx)
-
-	a := auth.GetAuth(ctx)
-	if !a.HasAuthority("update:task") {
-		return ferrors.NewForbiddenError("指定された操作は許可されていません。 missing update:task")
-	}
-
-	request := new(openapi.UnCompleteTaskRequest)
-	if err := ectx.Bind(request); err != nil {
-		return xerrors.Errorf("ectx.Bind(): %w", err)
-	}
-
-	args := UnCompleteTaskUseCaseArgs(id, request)
-	if err := h.unCompleteTaskUseCase.Invoke(ctx, args); err != nil {
-		return xerrors.Errorf("unCompleteTaskUseCase.Invoke(): %w", err)
 	}
 
 	return nil
