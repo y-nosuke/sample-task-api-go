@@ -6,26 +6,9 @@ import (
 	"github.com/friendsofgo/errors"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	"golang.org/x/exp/slices"
 	"golang.org/x/xerrors"
 )
-
-const (
-	Auth = "auth.Auth"
-)
-
-func SetAuth(cctx fcontext.Context, auth *Authentication) {
-	cctx.Set(Auth, auth)
-}
-
-func GetAuth(cctx fcontext.Context) *Authentication {
-	return cctx.Get(Auth).(*Authentication)
-}
-
-func GetUserId(cctx fcontext.Context) uuid.UUID {
-	return cctx.Get(Auth).(*Authentication).UserId
-}
 
 type Authentication struct {
 	UserId      uuid.UUID
