@@ -3,6 +3,7 @@ package middleware
 import (
 	"errors"
 	"fmt"
+	"io"
 
 	"github.com/labstack/echo/v4"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/context"
@@ -21,16 +22,24 @@ func ErrorLogHandleMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 				fmt.Printf("panic occurred!: %+v\n", p)
 				panic(fmt.Sprintf("panic occurred. %v", p))
 			} else if err != nil {
-				var he *echo.HTTPError
-				if errors.As(err, &he) {
-					ectx.Logger().Infof("http error!: %+v", he)
-					fmt.Printf("http error!: %+v\n", he)
-				} else if businessError, ok := ferrors.AsBusinessError(err); ok {
+				if businessError, ok := ferrors.AsBusinessError(err); ok {
 					ectx.Logger().Warnf("business error!: %+v, orinal error: %+v", businessError, businessError.OriginalError())
 					fmt.Printf("business error!: %+v, orinal error: %+v\n", businessError, businessError.OriginalError())
 				} else {
-					ectx.Logger().Errorf("system error!: %+v", err)
-					fmt.Printf("system error!: %+v\n", err)
+					var he *echo.HTTPError
+					if errors.As(err, &he) {
+						ectx.Logger().Infof("http error!: %+v", he)
+						fmt.Printf("http error!: %+v\n", he)
+					} else if errors.Is(err, io.ErrUnexpectedEOF) {
+						ectx.Logger().Infof("unexpected EOF error!: %+v", he)
+						fmt.Printf("unexpected EOF error!: %+v\n", he)
+					} else if errors.Is(err, io.EOF) {
+						ectx.Logger().Infof("EOF error!: %+v", he)
+						fmt.Printf("EOF error!: %+v\n", he)
+					} else {
+						ectx.Logger().Errorf("system error!: %+v", err)
+						fmt.Printf("system error!: %+v\n", err)
+					}
 				}
 				err = xerrors.Errorf("next(): %w", err)
 			}
