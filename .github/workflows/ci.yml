@@ -99,6 +99,8 @@ jobs:
 
   notify-result:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_ACTIONS_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     if: always()
     needs: build
     steps:
@@ -109,12 +111,12 @@ jobs:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: webhook-trigger
           payload: |
-            text: ":github: GitHub Action build result: :white_check_mark: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+            text: ":github: GitHub Action build result: :white_check_mark: ${{ job.status }}\n${{ env.GITHUB_ACTIONS_URL }}\n\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
             blocks:
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: ":github: GitHub Action build result: :white_check_mark: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  text: ":github: GitHub Action build result: :white_check_mark: ${{ job.status }}\n${{ env.GITHUB_ACTIONS_URL }}\n\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
       - name: slack-send-failure
         if: ${{ needs.build.result == 'failure' }}
         uses: slackapi/slack-github-action@v2.0.0
@@ -122,9 +124,9 @@ jobs:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: webhook-trigger
           payload: |
-            text: ":github: GitHub Action build result: :x: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+            text: ":github: GitHub Action build result: :x: ${{ job.status }}\n${{ env.GITHUB_ACTIONS_URL }}\n\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
             blocks:
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: ":github: GitHub Action build result: :x: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  text: ":github: GitHub Action build result: :x: ${{ job.status }}\n${{ env.GITHUB_ACTIONS_URL }}\n\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
