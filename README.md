@@ -195,7 +195,7 @@ curl -i -H "Accept: application/json" -H "Content-type: application/json" -X POS
   - [Docker Login](https://github.com/marketplace/actions/docker-login)
   - [Docker Metadata action](https://github.com/marketplace/actions/docker-metadata-action)
   - [Build and push Docker images](https://github.com/marketplace/actions/build-and-push-docker-images)
-  - [slack-send](https://github.com/marketplace/actions/slack-send)
+  - [slack-send](https://github.com/marketplace/actions/slack-send-to-slack)
 
 ## keycloak
 
