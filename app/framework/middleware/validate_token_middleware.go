@@ -1,12 +1,14 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
@@ -26,18 +28,19 @@ func ValidateTokenMiddleware() func(next echo.HandlerFunc) echo.HandlerFunc {
 
 			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 				kid, ok := token.Header["kid"].(string)
-				if !ok {
-					return nil, xerrors.Errorf("kid not found in token header")
+				if !ok || kid == "" {
+					return nil, xerrors.Errorf("invalid or missing 'kid' in token header")
 				}
 
-				publicKey, err := getPublicKey(kid)
+				publicKey, err := getPublicKey(ectx.Request().Context(), kid)
 				if err != nil {
 					return nil, xerrors.Errorf("unable to get the public key. Error: %w", err)
 				}
 
-				if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+				if token.Method != jwt.SigningMethodRS256 {
 					return nil, xerrors.Errorf("unexpected signing method: %v", token.Header["alg"])
 				}
+
 				return publicKey, nil
 			})
 			if err != nil {
@@ -68,11 +71,16 @@ func getToken(r *http.Request) string {
 		return ""
 	}
 
-	return strings.Replace(authHeader, "Bearer ", "", 1)
+	return strings.TrimPrefix(authHeader, "Bearer ")
 }
 
-func getPublicKey(kid string) (publicKey any, err error) {
-	key, ok := auth.KeySet.LookupKeyID(kid)
+func getPublicKey(ctx context.Context, kid string) (publicKey any, err error) {
+	var keySet jwk.Set
+	if keySet, err = auth.GetKeySet(ctx); err != nil {
+		return nil, xerrors.Errorf("unable to get key set. Error: %w", err)
+	}
+
+	key, ok := keySet.LookupKeyID(kid)
 	if !ok {
 		return nil, xerrors.Errorf("key not found in key set")
 	}
