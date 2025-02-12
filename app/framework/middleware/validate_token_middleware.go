@@ -1,32 +1,17 @@
 package middleware
 
 import (
-	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
-	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/auth"
 	fcontext "github.com/y-nosuke/sample-task-api-go/app/framework/context"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"golang.org/x/xerrors"
 )
-
-var keySet jwk.Set
-
-func init() {
-	fmt.Println("init auth.")
-
-	jwksUrl := os.Getenv("AUTH_JWKS_URL")
-	var err error
-	if keySet, err = jwk.Fetch(context.Background(), jwksUrl); err != nil {
-		panic(err)
-	}
-}
 
 func ValidateTokenMiddleware() func(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -47,7 +32,7 @@ func ValidateTokenMiddleware() func(next echo.HandlerFunc) echo.HandlerFunc {
 
 				publicKey, err := getPublicKey(kid)
 				if err != nil {
-					return nil, xerrors.Errorf("unable to get the public key. Error: %s", err.Error())
+					return nil, xerrors.Errorf("unable to get the public key. Error: %w", err)
 				}
 
 				if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
@@ -75,7 +60,6 @@ func ValidateTokenMiddleware() func(next echo.HandlerFunc) echo.HandlerFunc {
 			return nil
 		}
 	}
-
 }
 
 func getToken(r *http.Request) string {
@@ -84,23 +68,17 @@ func getToken(r *http.Request) string {
 		return ""
 	}
 
-	tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
-	if tokenString == "" {
-		return ""
-	}
-
-	return tokenString
+	return strings.Replace(authHeader, "Bearer ", "", 1)
 }
 
-func getPublicKey(kid string) (interface{}, error) {
-	key, ok := keySet.LookupKeyID(kid)
+func getPublicKey(kid string) (publicKey any, err error) {
+	key, ok := auth.KeySet.LookupKeyID(kid)
 	if !ok {
-		return nil, fmt.Errorf("key not found in key set")
+		return nil, xerrors.Errorf("key not found in key set")
 	}
 
-	var publicKey interface{}
-	if err := key.Raw(&publicKey); err != nil {
-		return nil, err
+	if err = key.Raw(&publicKey); err != nil {
+		return nil, xerrors.Errorf("unable to get public key. Error: %w", err)
 	}
 
 	return publicKey, nil

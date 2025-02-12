@@ -1,10 +1,7 @@
 package middleware
 
 import (
-	"database/sql"
 	"fmt"
-	"os"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
@@ -14,28 +11,6 @@ import (
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	"golang.org/x/xerrors"
 )
-
-func init() {
-	fmt.Println("init repository.")
-
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	databaseName := os.Getenv("DB_DATABASE_NAME")
-
-	dsn := user + ":" + password + "@tcp(" + host + ":" + port + ")/" + databaseName + "?charset=utf8mb4&parseTime=True&loc=Local"
-	con, err := sql.Open("mysql", dsn)
-	if err != nil {
-		panic(err)
-	}
-	con.SetMaxIdleConns(10)
-	con.SetMaxOpenConns(10)
-	con.SetConnMaxLifetime(300 * time.Second)
-
-	boil.SetDB(con)
-	boil.DebugMode = true
-}
 
 func TransactionMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(ectx echo.Context) (err error) {

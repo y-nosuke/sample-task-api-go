@@ -5,6 +5,7 @@ go 1.23
 toolchain go1.23.4
 
 require (
+	github.com/caarlos0/env/v11 v11.3.1
 	github.com/friendsofgo/errors v0.9.2
 	github.com/getkin/kin-openapi v0.129.0
 	github.com/go-playground/validator/v10 v10.24.0

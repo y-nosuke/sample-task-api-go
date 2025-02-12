@@ -3,8 +3,6 @@ package router
 import (
 	"context"
 	"fmt"
-	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -14,7 +12,10 @@ import (
 	ar "github.com/y-nosuke/sample-task-api-go/app/admin/infrastructure/router"
 	ferrors "github.com/y-nosuke/sample-task-api-go/app/framework/errors"
 	fep "github.com/y-nosuke/sample-task-api-go/app/framework/io/infrastructure/presenter"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/mail"
 	fmiddleware "github.com/y-nosuke/sample-task-api-go/app/framework/middleware"
+	fotel "github.com/y-nosuke/sample-task-api-go/app/framework/otel"
+	"github.com/y-nosuke/sample-task-api-go/app/framework/slack"
 	"github.com/y-nosuke/sample-task-api-go/app/framework/validation"
 	"github.com/y-nosuke/sample-task-api-go/app/notification/infrastructure/observer"
 	tr "github.com/y-nosuke/sample-task-api-go/app/task/infrastructure/router"
@@ -40,8 +41,7 @@ func Router() (e *echo.Echo, err error) {
 	otel.Tracer("github.com/y-nosuke/sample-task-api-go")
 
 	ctx := context.Background()
-	endpoint := os.Getenv("EXPORTER_ENDPOINT")
-	exporter, err := otlptracehttp.New(ctx, otlptracehttp.WithEndpoint(endpoint), otlptracehttp.WithInsecure())
+	exporter, err := otlptracehttp.New(ctx, otlptracehttp.WithEndpoint(fotel.Cfg.ExporterEndpoint), otlptracehttp.WithInsecure())
 	if err != nil {
 		return nil, fmt.Errorf("otlptracehttp.New(): %v", err)
 	}
@@ -96,12 +96,8 @@ func Router() (e *echo.Echo, err error) {
 	)
 
 	domainEventPublisherImpl := observer.NewDomainEventPublisherImpl()
-	slackSubscriberImpl := observer.NewSlackSubscriberImpl(os.Getenv("SLACK_TOKEN"), os.Getenv("CHANNEL_ID"))
-	port, err := strconv.Atoi(os.Getenv("MAIL_PORT"))
-	if err != nil {
-		return nil, fmt.Errorf("strconv.Atoi(): %v", err)
-	}
-	mailSubscriberImpl := observer.NewMailSubscriberImpl(os.Getenv("MAIL_HOST"), port, os.Getenv("MAIL_FROM"), os.Getenv("MAIL_TO"))
+	slackSubscriberImpl := observer.NewSlackSubscriberImpl(slack.Cfg.SlackToken, slack.Cfg.ChannelID)
+	mailSubscriberImpl := observer.NewMailSubscriberImpl(mail.Cfg.Host, mail.Cfg.Port, mail.Cfg.From, mail.Cfg.To)
 	domainEventPublisherImpl.Register(slackSubscriberImpl, mailSubscriberImpl)
 
 	tr.TaskRouter(g, domainEventPublisherImpl)
