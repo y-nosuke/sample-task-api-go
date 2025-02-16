@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/caarlos0/env/v11"
@@ -15,7 +16,11 @@ import (
 
 var Cfg Config
 
-var keySet jwk.Set
+var (
+	keySetCache jwk.Set
+	cacheMutex  sync.Mutex
+	cacheExpiry time.Time
+)
 
 func init() {
 	if err := env.Parse(&Cfg); err != nil {
@@ -32,11 +37,14 @@ func init() {
 }
 
 func GetKeySet(ctx context.Context) (jwk.Set, error) {
-	if keySet != nil {
-		return keySet, nil
+	if time.Now().Before(cacheExpiry) && keySetCache != nil {
+		return keySetCache, nil
 	}
 
 	fmt.Println("keySet is nil. fetching jwk set...")
+
+	cacheMutex.Lock()
+	defer cacheMutex.Unlock()
 
 	jwksURI := Cfg.JwksUrl
 	var err error
@@ -52,36 +60,39 @@ func GetKeySet(ctx context.Context) (jwk.Set, error) {
 		}
 	}
 
-	if keySet, err = jwk.Fetch(ctx, jwksURI); err != nil {
+	if keySetCache, err = jwk.Fetch(ctx, jwksURI); err != nil {
 		return nil, xerrors.Errorf("jwk fetch error: %w", err)
 	}
 
-	return keySet, nil
+	cacheExpiry = time.Now().Add(Cfg.CacheExpiry * time.Minute)
+
+	return keySetCache, nil
 }
 
 type OIDCConfig struct {
 	JwksURI string `json:"jwks_uri"`
 }
 
-func fetchJWKSURI(discoveryURL string) (string, error) {
+func fetchJWKSURI(discoveryURL string) (jwksURI string, err error) {
 	client := &http.Client{Timeout: 5 * time.Second}
 	req, err := http.NewRequest(http.MethodGet, discoveryURL, nil)
 	if err != nil {
 		return "", err
 	}
 
-	resp, err := client.Do(req)
+	res, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer func(Body io.ReadCloser) {
-		if err := Body.Close(); err != nil {
-
+		if closeErr := Body.Close(); closeErr != nil {
+			err = xerrors.Errorf("original error: %v, defer close error: %w", err, closeErr)
+			return
 		}
-	}(resp.Body)
+	}(res.Body)
 
 	var config OIDCConfig
-	if err := json.NewDecoder(resp.Body).Decode(&config); err != nil {
+	if err = json.NewDecoder(res.Body).Decode(&config); err != nil {
 		return "", err
 	}
 
