@@ -27,6 +27,8 @@ export DB_PASSWORD=password
 export DB_DATABASE_NAME=task
 export DB_DEBUG=true
 
+# DiscoveryエンドポイントとJWKSエンドポイントを指定した場合、JWKSエンドポイントを優先する
+# export AUTH_DISCOVERY_URL=http://keycloak.localhost/realms/sample/.well-known/openid-configuration
 export AUTH_JWKS_URL=http://keycloak.localhost/realms/sample/protocol/openid-connect/certs
 export KEYCLOAK_ADMIN=admin
 export KEYCLOAK_ADMIN_PASSWORD=admin

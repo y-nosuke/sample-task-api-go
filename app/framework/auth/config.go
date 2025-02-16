@@ -1,5 +1,6 @@
 package auth
 
 type Config struct {
-	JwksUrl string `env:"AUTH_JWKS_URL"`
+	DiscoveryUrl string `env:"AUTH_DISCOVERY_URL"`
+	JwksUrl      string `env:"AUTH_JWKS_URL"`
 }
